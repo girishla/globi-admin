@@ -31,7 +31,7 @@ public class GCRMTableController {
 		repository = repo;
 	}
 
-	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/datasources/gcrm/tables")
+	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/datasources/cgl/tables")
 	public @ResponseBody ResponseEntity<?> getTables() {
 
 		List<DataSourceTable> tables = repository.getAllTables();

@@ -31,7 +31,7 @@ public class LNICRMTableController {
 		repository = repo;
 	}
 
-	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/datasources/lnicrm/tables")
+	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/datasources/cuk/tables")
 	public @ResponseBody ResponseEntity<?> getTables() {
 
 		List<DataSourceTable> tables = repository.getAllTables();
