@@ -1,10 +1,8 @@
-package com.globi.infa.generator.factory;
+package com.globi.infa.generator.builder;
 
 import static com.globi.infa.generator.InfagenDefaults.DEFAULT_DESCRIPTION;
 import static com.globi.infa.generator.InfagenDefaults.DEFAULT_FOLDER_PERMISSION;
 import static com.globi.infa.generator.InfagenDefaults.DEFAULT_VERSION;
-
-import java.util.UUID;
 
 import com.globi.infa.sourcedefinition.InfaSourceDefinition;
 

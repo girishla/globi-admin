@@ -1,4 +1,4 @@
-package com.globi.infa.generator.factory;
+package com.globi.infa.generator.builder;
 
 import static com.globi.infa.generator.InfagenDefaults.DEFAULT_DESCRIPTION;
 import static com.globi.infa.generator.InfagenDefaults.DEFAULT_VERSION;
@@ -14,7 +14,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
-import com.globi.infa.DataTypeMapper;
 import com.globi.infa.sourcedefinition.InfaSourceColumnDefinition;
 import com.globi.infa.sourcedefinition.InfaSourceDefinition;
 

@@ -1,10 +1,10 @@
 package com.globi.infa.generator;
 
-import static com.globi.infa.generator.factory.RawStaticFactory.getEtlProcWidMappingVariable;
-import static com.globi.infa.generator.factory.RawStaticFactory.getFolderFor;
-import static com.globi.infa.generator.factory.RawStaticFactory.getInitialExtractDateMappingVariable;
-import static com.globi.infa.generator.factory.RawStaticFactory.getMappingFrom;
-import static com.globi.infa.generator.factory.RawStaticFactory.getRepository;
+import static com.globi.infa.generator.builder.RawStaticFactory.getEtlProcWidMappingVariable;
+import static com.globi.infa.generator.builder.RawStaticFactory.getFolderFor;
+import static com.globi.infa.generator.builder.RawStaticFactory.getInitialExtractDateMappingVariable;
+import static com.globi.infa.generator.builder.RawStaticFactory.getMappingFrom;
+import static com.globi.infa.generator.builder.RawStaticFactory.getRepository;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -32,14 +32,14 @@ import com.globi.AbstractIntegrationTest;
 import com.globi.infa.datasource.core.OracleToInfaDataTypeMapper;
 import com.globi.infa.datasource.gen.GENTableColumnRepository;
 import com.globi.infa.datasource.lnicrm.LNICRMTableColumnRepository;
-import com.globi.infa.generator.factory.ExpressionXformBuilder;
-import com.globi.infa.generator.factory.FilterXformBuilder;
-import com.globi.infa.generator.factory.LookupXformBuilder;
-import com.globi.infa.generator.factory.SequenceXformBuilder;
-import com.globi.infa.generator.factory.SourceDefinitionBuilder;
-import com.globi.infa.generator.factory.SourceQualifierBuilder;
-import com.globi.infa.generator.factory.TargetDefinitionBuilder;
-import com.globi.infa.generator.factory.WorkflowDefinitionBuilder;
+import com.globi.infa.generator.builder.ExpressionXformBuilder;
+import com.globi.infa.generator.builder.FilterXformBuilder;
+import com.globi.infa.generator.builder.LookupXformBuilder;
+import com.globi.infa.generator.builder.SequenceXformBuilder;
+import com.globi.infa.generator.builder.SourceDefinitionBuilder;
+import com.globi.infa.generator.builder.SourceQualifierBuilder;
+import com.globi.infa.generator.builder.TargetDefinitionBuilder;
+import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
 import com.globi.infa.sourcedefinition.InfaSourceDefinition;
 
 import xjc.POWERMART;

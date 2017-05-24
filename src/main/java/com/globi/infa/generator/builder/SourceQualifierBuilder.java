@@ -1,4 +1,4 @@
-package com.globi.infa.generator.factory;
+package com.globi.infa.generator.builder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -19,8 +19,6 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.FileCopyUtils;
 
 import com.globi.infa.DataTypeMapper;
-import com.globi.infa.generator.factory.WorkflowDefinitionBuilder.LoadFromSeedStep;
-import com.globi.infa.generator.factory.WorkflowDefinitionBuilder.SetInterpolationValue;
 import com.globi.infa.sourcedefinition.InfaSourceColumnDefinition;
 
 import xjc.TRANSFORMATION;

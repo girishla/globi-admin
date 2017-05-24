@@ -1,4 +1,4 @@
-package com.globi.infa.generator.factory;
+package com.globi.infa.generator.builder;
 
 
 import java.io.ByteArrayOutputStream;
