@@ -1,7 +1,5 @@
 package com.globi.infa.workflow;
 
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -25,21 +23,19 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "M_INFA_WF")
 @AllArgsConstructor
 @Builder
-public class InfaWorkflow extends AbstractEntity{
+@Table(name = "COLS")
+public class PTPWorkflowSourceColumn extends AbstractEntity{
 		
 	@NonNull
-	@NotBlank(message = "Workflow name cannot be empty!")
-	private String workflowName;
-	
-	private String workflowScmUri;
-	
-	@NonNull
-	@NotBlank(message = "Workflow type cannot be empty!")
-	@Column(name="TYPE")
-	private String workflowType;
+	@NotBlank(message = "PTP Table source column name cannot be empty!")
+	private String sourceColumnName;
+	@Builder.Default
+	private boolean integrationIdColumn=false;
+	@Builder.Default
+	private boolean changeCaptureColumn=false;
+
 	
 	
 }

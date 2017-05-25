@@ -15,7 +15,7 @@ import com.globi.infa.DataSourceTable;
  * @author Girish lakshmanan
  */
 @RepositoryRestResource
-public interface InfaWorkflowRepository extends CrudRepository<InfaWorkflow, Long>, InfaWorkflowCreator<DataSourceTable> {
+public interface PTPWorkflowRepository extends CrudRepository<PTPWorkflow, Long>, InfaWorkflowCreator<PTPWorkflow> {
 	
 	/**
 	 * Returns all {@link InfaWorkflow}s with the given {@link workflowName}.
@@ -23,7 +23,7 @@ public interface InfaWorkflowRepository extends CrudRepository<InfaWorkflow, Lon
 	 * @param workflowName must not be {@literal null}.
 	 * @return
 	 */
-	Optional<InfaWorkflow> findByWorkflowName(@Param("workflowName") String workflowName);
+//	Optional<PTPWorkflow> findByWorkflowName(@Param("workflowName") String workflowName);
 
 	
 

@@ -1,5 +1,7 @@
 package com.globi;
 
+import java.util.Properties;
+
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.FactoryBean;
@@ -34,16 +36,27 @@ public class JPAConfig {
 	LocalContainerEntityManagerFactoryBean coreEntityManagerFactory() {
 
 		HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-		jpaVendorAdapter.setGenerateDdl(false);
+		
 		jpaVendorAdapter.setShowSql(true);
 
+		
 		LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 
 		factoryBean.setDataSource(dsMDT);
 		factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
 		factoryBean.setPackagesToScan(JPAConfig.class.getPackage().getName());
-
+		factoryBean.setJpaProperties(additionalProperties());
+		
+		
 		return factoryBean;
 	}
+	
+	
+	   Properties additionalProperties() {
+		      Properties properties = new Properties();
+		      properties.setProperty("hibernate.hbm2ddl.auto", "create");
+		      properties.setProperty("hibernate.dialect", "org.hibernate.dialect.Oracle12cDialect");
+		      return properties;
+		   }
 
 }

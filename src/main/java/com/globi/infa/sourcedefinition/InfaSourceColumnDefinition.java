@@ -21,7 +21,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "M_INFA_SOURCE_DEFN_COLS")
+@Table(name = "COLS")
 @AllArgsConstructor
 @Builder
 public class InfaSourceColumnDefinition extends AbstractEntity {

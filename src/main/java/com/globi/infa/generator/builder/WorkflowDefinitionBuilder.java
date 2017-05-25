@@ -25,6 +25,7 @@ public class WorkflowDefinitionBuilder {
 		return new WorkflowDefinitionSteps();
 	}
 	
+	
 	public interface SetMarshallerStep {
 		SetInterpolationValue marshaller(Jaxb2Marshaller marshaller);
 	}
@@ -40,7 +41,6 @@ public class WorkflowDefinitionBuilder {
 	public interface LoadFromSeedStep {
 		NameStep loadWorkflowFromSeed(String seedName) throws FileNotFoundException, IOException;
 	}
-
 
 
 	

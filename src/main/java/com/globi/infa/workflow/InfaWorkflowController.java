@@ -18,14 +18,14 @@ import com.globi.infa.DataSourceTable;
 public class InfaWorkflowController {
 
 	@Autowired
-	private InfaWorkflowRepository repository;
+	private PTPWorkflowRepository repository;
 
-	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows")
-	public @ResponseBody ResponseEntity<?> createWorkflow(@RequestBody DataSourceTable dataSourceTable) {
+	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/ptp")
+	public @ResponseBody ResponseEntity<?> createWorkflow(@RequestBody PTPWorkflow ptpWorkflow) {
 
-		InfaWorkflow createdWorkflow = repository.createWorkflow(dataSourceTable);
+		PTPWorkflow createdWorkflow = repository.createWorkflow(ptpWorkflow);
 
-		return  new ResponseEntity<InfaWorkflow>(createdWorkflow, HttpStatus.CREATED);
+		return  new ResponseEntity<PTPWorkflow>(createdWorkflow, HttpStatus.CREATED);
 	}
 	
 	
