@@ -31,7 +31,7 @@ import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
 import com.globi.infa.sourcedefinition.InfaSourceDefinition;
 import com.globi.infa.workflow.InfaGenerationStrategy;
-import com.globi.infa.workflow.Workflow;
+import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.metadata.sourcesystem.SourceSystem;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;
 
@@ -53,7 +53,7 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 	protected SourceSystemRepository sourceSystemRepo;
 
 	@Setter
-	private Workflow wfDefinition;
+	private PTPWorkflow wfDefinition;
 
 	PTPInfaGenerationStrategy(Jaxb2Marshaller marshaller) {
 		this.marshaller = marshaller;
@@ -69,18 +69,20 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 
 		final String sourceQualifierFilterClauseColumn = "LAST_UPD";
 
-		Optional<SourceSystem> source = sourceSystemRepo.findByName("CUK");
+		Optional<SourceSystem> source = sourceSystemRepo.findByName(wfDefinition.getSourceName());
 
 		if (!source.isPresent())
 			throw new IllegalArgumentException("Source System not recognised");
 
-		sourceTableDef = InfaSourceDefinition.builder().sourceTableName("S_ORG_EXT")//
+		sourceTableDef = InfaSourceDefinition.builder()//
+				.sourceTableName(wfDefinition.getSourceTableName())//
 				.ownerName(source.get().getOwnerName())//
 				.databaseName(source.get().getDbName())//
 				.databaseType(source.get().getDbType())//
 				.build();
 
-		sourceTableDef.getColumns().addAll(lnicrmColumnRepository.getAllColumnsFor("S_ORG_EXT"));
+		// TODO Filter this list by the user selected list of columns
+		sourceTableDef.getColumns().addAll(lnicrmColumnRepository.getAllColumnsFor(wfDefinition.getSourceTableName()));
 		sourceTableDef.getColumns().forEach(column -> {
 			if (column.getColumnName().equals("ROW_ID")) {
 				column.setIntegrationIdFlag(true);
