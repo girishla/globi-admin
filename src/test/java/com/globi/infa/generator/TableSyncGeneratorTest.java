@@ -41,6 +41,8 @@ import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
 import com.globi.infa.sourcedefinition.InfaSourceDefinition;
+import com.globi.infa.workflow.InfaWorkflow;
+import com.globi.infa.workflow.PTPWorkflow;
 
 import xjc.POWERMART;
 
@@ -137,12 +139,29 @@ public class TableSyncGeneratorTest extends AbstractIntegrationTest {
 	@Test
 	public void generatesWF() throws JAXBException, FileNotFoundException, IOException, SAXException{
 		
+		
+		final String sourceTable = "S_ORG_EXT";
+		final String source = "CUK";
+
+		PTPWorkflow ptpWorkflow = PTPWorkflow.builder()//
+				.sourceName(source)//
+				.sourceTableName(sourceTable)
+				.workflow(InfaWorkflow.builder()//
+						.workflowScmUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
+						.workflowName("PTP_" + sourceTable + "_Extract")//
+						.workflowType("PTP")//
+						.build())
+				.build();
+				
+		generator.setWfDefinition(ptpWorkflow);
 		InfaPowermartObject pmObj=generator.generate();
 
 		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
 		POWERMART controlObj = loadControlFileAsObject("CONTROL_PTP_CUK_S_ORG_EXT_Extract");
 		String controlXML = asString(marshaller.getJaxbContext(), controlObj);
 
+		
+		
 		this.saveXML(pmObj.pmObject);
 		
 		assertXMLEqual(controlXML, testXML);
