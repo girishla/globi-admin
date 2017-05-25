@@ -39,7 +39,7 @@ import lombok.ToString;
 @Table(name = "M_INFA_PTP_WF")
 @AllArgsConstructor
 @Builder
-public class PTPWorkflow extends AbstractEntity{
+public class PTPWorkflow extends AbstractEntity implements Workflow{
 	
 	@NonNull
 	@NotBlank(message = "PTP Workflow source name cannot be empty!")
@@ -60,5 +60,7 @@ public class PTPWorkflow extends AbstractEntity{
     @WhereJoinTable(clause = "TYPE = 'PTP'")
 	private InfaWorkflow workflow;
  
+	
+	
 	
 }

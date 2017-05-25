@@ -46,7 +46,15 @@ import xjc.POWERMART;
 
 public class TableSyncGeneratorTest extends AbstractIntegrationTest {
 
+	
 	@Autowired
+	private Jaxb2Marshaller marshaller;
+	
+	@Autowired
+	private PTPInfaGenerationStrategy generator;
+	private static final String FILE_NAME = "c:\\temp\\output_file.xml";
+	
+/*	@Autowired
 	LNICRMTableColumnRepository lnicrmColumnRepository;
 
 	@Autowired
@@ -57,17 +65,15 @@ public class TableSyncGeneratorTest extends AbstractIntegrationTest {
 	@Autowired
 	OracleToInfaDataTypeMapper oraDataTypemapper;
 
-	@Autowired
-	private Jaxb2Marshaller marshaller;
-
+	
 	Map<String, String> emptyValuesMap = new HashMap<>();
 	Map<String, String> lookupXformValuesMap = new HashMap<>();
 
 	final String sourceQualifierFilterClauseColumn = "LAST_UPD";
 
-	private static final String FILE_NAME = "c:\\temp\\output_file.xml";
 
-	@Before
+*/
+/*	@Before
 	public void setup() {
 
 		sourceTableDef = InfaSourceDefinition.builder().sourceTableName("S_ORG_EXT")//
@@ -87,7 +93,7 @@ public class TableSyncGeneratorTest extends AbstractIntegrationTest {
 		lookupXformValuesMap.put("targetTableName",
 				sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName());
 
-	}
+	}*/
 
 	private void saveXML(Object jaxbObject) throws IOException {
 		FileOutputStream os = null;
@@ -127,107 +133,22 @@ public class TableSyncGeneratorTest extends AbstractIntegrationTest {
 		}
 
 	}
-
+	
 	@Test
-	public void generatePTPWorkflowFromSourcetable() throws IOException, SAXException, JAXBException {
-
-		InfaPowermartObject pmObj = InfaRepoObjectBuilder//
-				.newBuilder()//
-				.powermartObject().repository(getRepository())//
-				.marshaller(marshaller)//
-				.folder(getFolderFor("LAW_PTP_" + sourceTableDef.getDatabaseName(), "Pull to puddle folder"))//
-				.simpleTableSyncClass("simpleTableSyncClass")//
-				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
-						.sourceDefnFromPrototype("SourceFromPrototype")//
-						.sourceDefn(sourceTableDef)//
-						.addFields(sourceTableDef.getColumns())//
-						.name(sourceTableDef.getSourceTableName())//
-						.build())
-				.noMoreSources()//
-				.targetDefn(TargetDefinitionBuilder.newBuilder()//
-						.marshaller(marshaller)//
-						.loadTargetFromSeed("Seed_PTPTargetTableSystemCols")//
-						.addFields(sourceTableDef.getColumns())//
-						.name(sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName())//
-						.build())//
-				.noMoreTargets()//
-				.mappingDefn(getMappingFrom(sourceTableDef))//
-				.transformation(SourceQualifierBuilder.newBuilder()//
-						.marshaller(marshaller)//
-						.setValue("sourceFilter",
-								sourceTableDef.getSourceTableName() + "." + sourceQualifierFilterClauseColumn
-										+ " >= TO_DATE('$$INITIAL_EXTRACT_DATE','dd/MM/yyyy HH24:mi:ss')")
-						.noMoreValues().loadSourceQualifierFromSeed("Seed_SourceQualifier")//
-						.addFields(oraDataTypemapper, sourceTableDef.getColumns())//
-						.name("SQ_ExtractData")//
-						.build())//
-				.transformation(ExpressionXformBuilder.newBuilder()//
-						.expressionFromPrototype("ExpFromPrototype")//
-						.expression("EXP_Resolve")//
-						.addEffectiveFromDateField()//
-						.addEtlProcWidField()//
-						.addIntegrationIdField(sourceTableDef.getColumns())//
-						.addMD5HashField(sourceTableDef.getColumns())//
-						.addRowWidField()//
-						.noMoreFields()//
-						.nameAlreadySet()//
-						.build())//
-				.transformationCopyConnectAllFields("SQ_ExtractData", "EXP_Resolve")//
-				.transformation(SequenceXformBuilder.newBuilder()//
-						.marshaller(marshaller)//
-						.setInterpolationValues(emptyValuesMap)//
-						.loadExpressionXformFromSeed("Seed_WidSequence")//
-						.nameAlreadySet()//
-						.build())
-				.transformation(LookupXformBuilder.newBuilder()//
-						.marshaller(marshaller)//
-						.setInterpolationValues(lookupXformValuesMap)//
-						.loadExpressionXformFromSeed("Seed_LKPRecordInstanceViaHash")//
-						.nameAlreadySet()//
-						.build())
-				.transformation(FilterXformBuilder.newBuilder()//
-						.filterFromPrototype("FilterFromPrototype")//
-						.filter("FIL_ChangesOnly")//
-						.noMoreFields()//
-						.addCondition("ISNULL(HASH_RECORD)")//
-						.noMoreConditions()//
-						.nameAlreadySet()//
-						.build())
-				.transformationCopyConnectAllFields("EXP_Resolve", "FIL_ChangesOnly")//
-				.noMoreTransformations()//
-				.autoConnectByName(sourceTableDef.getSourceTableName(), "SQ_ExtractData")//
-				.autoConnectByName("FIL_ChangesOnly",
-						sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName())//
-				.connector("SEQ_WID", "NEXTVAL", "EXP_Resolve", "ROW_WID")
-				.connector("EXP_Resolve", "HASH_RECORD", "LKP_RecordInstance", "HASH_RECORD_IN")
-				.connector("LKP_RecordInstance", "HASH_RECORD", "FIL_ChangesOnly", "HASH_RECORD")//
-				.noMoreConnectors()//
-				.noMoreTargetLoadOrders()//
-				.mappingvariable(getEtlProcWidMappingVariable())//
-				.mappingvariable(getInitialExtractDateMappingVariable()).noMoreMappingVariables()//
-				.setdefaultConfigFromSeed("Seed_DefaultSessionConfig")//
-				.workflow(WorkflowDefinitionBuilder.newBuilder()//
-						.marshaller(marshaller)//
-						.setValue("phasePrefix", "PTP")//
-						.setValue("primaryName", sourceTableDef.getSourceTableName())//
-						.setValue("sourceShortCode", sourceTableDef.getDatabaseName())//
-						.setValue("TargetShortCode", "LAW")//
-						.noMoreValues()//
-						.loadWorkflowFromSeed("Seed_SimpleWorkflow")//
-						.nameAlreadySet()//
-						.build())//
-				.build();
-
-		saveXML(pmObj.pmObject);
+	public void generatesWF() throws JAXBException, FileNotFoundException, IOException, SAXException{
 		
-		
+		InfaPowermartObject pmObj=generator.generate();
+
 		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
 		POWERMART controlObj = loadControlFileAsObject("CONTROL_PTP_CUK_S_ORG_EXT_Extract");
 		String controlXML = asString(marshaller.getJaxbContext(), controlObj);
 
+		this.saveXML(pmObj.pmObject);
+		
 		assertXMLEqual(controlXML, testXML);
-
-
+		
+		
+		
 	}
 
 }
