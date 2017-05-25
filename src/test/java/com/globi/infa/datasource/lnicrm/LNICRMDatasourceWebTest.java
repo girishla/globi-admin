@@ -15,7 +15,7 @@ public class LNICRMDatasourceWebTest extends AbstractWebIntegrationTest {
 	@Test
 	public void exposesLNICRMTableResource() throws Exception {
 
-		mvc.perform(get("/infagen/datasources/lnicrm/tables"))//
+		mvc.perform(get("/infagen/datasources/cuk/tables"))//
 				.andDo(MockMvcResultHandlers.print()).andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith("application/json"))
 				.andExpect(jsonPath("$[0].tableOwner", notNullValue()))
