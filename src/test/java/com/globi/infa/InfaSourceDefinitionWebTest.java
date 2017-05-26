@@ -15,7 +15,7 @@ import com.globi.AbstractWebIntegrationTest;
 
 public class InfaSourceDefinitionWebTest extends AbstractWebIntegrationTest {
 
-	@Test
+//	@Test disabled
 	public void createsPIPSourceDefinitionFromSourceTableName() throws Exception {
 
 
