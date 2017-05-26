@@ -5,9 +5,9 @@ import java.util.List;
 import com.globi.infa.DataSourceTableDTO;
 import com.globi.infa.sourcedefinition.InfaSourceColumnDefinition;
 
-public interface TableRepository {
+public interface TableColumnRepository {
 
 	
-	public List<DataSourceTableDTO> accept(TableMetadataVisitor qV);
+	public List<InfaSourceColumnDefinition> accept(TableColumnMetadataVisitor qV,String tableName);
 	
 }

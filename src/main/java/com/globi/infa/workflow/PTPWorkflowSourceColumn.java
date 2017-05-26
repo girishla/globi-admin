@@ -5,7 +5,7 @@ import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotBlank;
 
-import com.globi.infa.datasource.core.AbstractEntity;
+import com.globi.infa.AbstractEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

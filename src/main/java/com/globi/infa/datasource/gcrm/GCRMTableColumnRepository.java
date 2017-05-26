@@ -8,18 +8,24 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.globi.infa.datasource.core.OracleTableColumnRepository;
+import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
+import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.infa.sourcedefinition.InfaSourceColumnDefinition;
 
 @Repository
-public class GCRMTableColumnRepository extends OracleTableColumnRepository {
+public class GCRMTableColumnRepository implements TableColumnRepository {
 
 	@Autowired
 	@Qualifier("jdbcOracleGCRM")
 	protected JdbcTemplate jdbcOracleGCRM;
 
-	public List<InfaSourceColumnDefinition> getAllColumnsFor(String tableName) {
-		return getAllColumnsFor(jdbcOracleGCRM, tableName);
-
+	@Override
+	public List<InfaSourceColumnDefinition> accept(TableColumnMetadataVisitor qV,String tableName) {
+		return qV.getAllColumnsFor(jdbcOracleGCRM, tableName);
 	}
+	
+	
+	
+
 
 }

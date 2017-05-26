@@ -1,18 +1,10 @@
 package com.globi.infa.generator;
 
-import static com.globi.infa.generator.builder.RawStaticFactory.getEtlProcWidMappingVariable;
-import static com.globi.infa.generator.builder.RawStaticFactory.getFolderFor;
-import static com.globi.infa.generator.builder.RawStaticFactory.getInitialExtractDateMappingVariable;
-import static com.globi.infa.generator.builder.RawStaticFactory.getMappingFrom;
-import static com.globi.infa.generator.builder.RawStaticFactory.getRepository;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -29,19 +21,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.xml.sax.SAXException;
 
 import com.globi.AbstractIntegrationTest;
-import com.globi.infa.datasource.core.OracleToInfaDataTypeMapper;
-import com.globi.infa.datasource.gen.GENTableColumnRepository;
-import com.globi.infa.datasource.lnicrm.LNICRMTableColumnRepository;
-import com.globi.infa.generator.builder.ExpressionXformBuilder;
-import com.globi.infa.generator.builder.FilterXformBuilder;
-import com.globi.infa.generator.builder.LookupXformBuilder;
-import com.globi.infa.generator.builder.SequenceXformBuilder;
-import com.globi.infa.generator.builder.SourceDefinitionBuilder;
-import com.globi.infa.generator.builder.SourceQualifierBuilder;
-import com.globi.infa.generator.builder.TargetDefinitionBuilder;
-import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
 import com.globi.infa.generator.ptp.PTPInfaGenerationStrategy;
-import com.globi.infa.sourcedefinition.InfaSourceDefinition;
 import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
@@ -62,7 +42,7 @@ public class PTPWorkflowGeneratorTest extends AbstractIntegrationTest {
 	PTPWorkflowRepository wfRepository;
 	PTPWorkflow ptpWorkflow;
 	static final String sourceTable = "S_ORG_EXT";
-	static final String source = "SBL";
+	static final String source = "CUK";
 	
 	
 	@Before
@@ -122,12 +102,9 @@ public class PTPWorkflowGeneratorTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	public void generatesWF() throws JAXBException, FileNotFoundException, IOException, SAXException{
+	public void generatesPTPWorkflowForOrgExtTable() throws JAXBException, FileNotFoundException, IOException, SAXException{
 		
 		
-		final String sourceTable = "S_ORG_EXT";
-		final String source = "CUK";
-
 		PTPWorkflow ptpWorkflow = PTPWorkflow.builder()//
 				.sourceName(source)//
 				.sourceTableName(sourceTable)

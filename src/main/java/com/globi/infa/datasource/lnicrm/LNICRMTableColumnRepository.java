@@ -7,19 +7,24 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.globi.infa.datasource.core.OracleTableColumnRepository;
+import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
+import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.infa.sourcedefinition.InfaSourceColumnDefinition;
 
 @Repository
-public class LNICRMTableColumnRepository extends OracleTableColumnRepository {
+public class LNICRMTableColumnRepository implements TableColumnRepository {
 
 	@Autowired
 	@Qualifier("jdbcOracleLNICRM")
 	protected JdbcTemplate jdbcOracleLNICRM;
 
-	public List<InfaSourceColumnDefinition> getAllColumnsFor(String tableName) {
-		return getAllColumnsFor(jdbcOracleLNICRM, tableName);
-
+	@Override
+	public List<InfaSourceColumnDefinition> accept(TableColumnMetadataVisitor qV,String tableName) {
+		return qV.getAllColumnsFor(jdbcOracleLNICRM, tableName);
 	}
+	
+	
+	
+
 
 }

@@ -4,7 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import com.globi.infa.datasource.core.AbstractEntity;
+import com.globi.infa.AbstractEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -24,7 +24,7 @@ public class GENTableIntegrationTest extends AbstractIntegrationTest {
 	private OracleTableMetadataVisitor tblQueryVisitor;
 	
 	@Test
-	public void canQueryAllTables(){
+	public void canQueryAllTablesOnGenesis(){
 		log.info("Starting to test all tables.");
 		 List<DataSourceTableDTO> results;
 		 log.info("Result of all tables query.{}", genRepository.accept(tblQueryVisitor).toString());

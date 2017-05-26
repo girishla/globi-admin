@@ -18,6 +18,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
+import com.globi.infa.datasource.core.OracleTableColumnMetadataVisitor;
 import com.globi.infa.datasource.core.OracleToInfaDataTypeMapper;
 import com.globi.infa.datasource.gen.GENTableColumnRepository;
 import com.globi.infa.datasource.lnicrm.LNICRMTableColumnRepository;
@@ -56,6 +57,9 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 
 	@Setter
 	private PTPWorkflow wfDefinition;
+	
+	@Autowired
+	private OracleTableColumnMetadataVisitor columnQueryVisitor;
 
 	PTPInfaGenerationStrategy(Jaxb2Marshaller marshaller) {
 		this.marshaller = marshaller;
@@ -84,7 +88,7 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 				.build();
 
 		// TODO Filter this list by the user selected list of columns
-		sourceTableDef.getColumns().addAll(lnicrmColumnRepository.getAllColumnsFor(wfDefinition.getSourceTableName()));
+		sourceTableDef.getColumns().addAll(lnicrmColumnRepository.accept(columnQueryVisitor,wfDefinition.getSourceTableName()));
 		sourceTableDef.getColumns().forEach(column -> {
 			if (column.getColumnName().equals("ROW_ID")) {
 				column.setIntegrationIdFlag(true);

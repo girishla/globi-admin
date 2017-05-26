@@ -12,7 +12,7 @@ import com.globi.infa.DataSourceTableDTO;
 
 
 @Component
-public class OracleViewMetadataVisitor implements DBMetadataVisitor {
+public class OracleViewMetadataVisitor implements TableMetadataVisitor {
 
 	protected String columnSQL="SELECT OWNER,VIEW_NAME FROM ALL_VIEWS WHERE OWNER=?";
 	

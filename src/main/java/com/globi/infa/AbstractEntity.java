@@ -1,4 +1,4 @@
-package com.globi.infa.datasource.core;
+package com.globi.infa;
 
 
 import java.util.Date;

@@ -6,7 +6,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.globi.infa.DataSourceTableDTO;
 
-public interface DBMetadataVisitor {
+public interface TableMetadataVisitor {
+	
 	
 	public List<DataSourceTableDTO> getAllTables(JdbcTemplate jdbcT,String ownerName);
 
