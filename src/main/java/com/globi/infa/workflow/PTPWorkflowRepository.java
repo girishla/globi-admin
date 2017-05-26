@@ -15,7 +15,7 @@ import com.globi.infa.DataSourceTableDTO;
  * @author Girish lakshmanan
  */
 @RepositoryRestResource
-public interface PTPWorkflowRepository extends CrudRepository<PTPWorkflow, Long>, InfaWorkflowCreator<PTPWorkflow> {
+public interface PTPWorkflowRepository extends CrudRepository<PTPWorkflow, Long> {
 	
 	/**
 	 * Returns all {@link InfaWorkflow}s with the given {@link workflowName}.

@@ -18,10 +18,9 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
-import com.globi.infa.datasource.core.OracleTableColumnMetadataVisitor;
-import com.globi.infa.datasource.core.OracleToInfaDataTypeMapper;
-import com.globi.infa.datasource.gen.GENTableColumnRepository;
-import com.globi.infa.datasource.lnicrm.LNICRMTableColumnRepository;
+import com.globi.infa.DataTypeMapper;
+import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
+import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.infa.generator.InfaPowermartObject;
 import com.globi.infa.generator.InfaRepoObjectBuilder;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
@@ -43,23 +42,23 @@ import lombok.Setter;
 @Component
 public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 
+	@Autowired
 	Jaxb2Marshaller marshaller;
 
 	@Autowired
-	LNICRMTableColumnRepository lnicrmColumnRepository;
-	@Autowired
-	GENTableColumnRepository genColumnRepository;
-	@Autowired
-	OracleToInfaDataTypeMapper oraDataTypemapper;
-
-	@Autowired
 	protected SourceSystemRepository sourceSystemRepo;
+	
 
 	@Setter
 	private PTPWorkflow wfDefinition;
+	@Setter
+	DataTypeMapper dataTypeMapper;
+	@Setter
+	private TableColumnRepository colRepository;
+	@Setter
+	private TableColumnMetadataVisitor columnQueryVisitor;
 	
-	@Autowired
-	private OracleTableColumnMetadataVisitor columnQueryVisitor;
+	
 
 	PTPInfaGenerationStrategy(Jaxb2Marshaller marshaller) {
 		this.marshaller = marshaller;
@@ -88,7 +87,7 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 				.build();
 
 		// TODO Filter this list by the user selected list of columns
-		sourceTableDef.getColumns().addAll(lnicrmColumnRepository.accept(columnQueryVisitor,wfDefinition.getSourceTableName()));
+		sourceTableDef.getColumns().addAll(colRepository.accept(columnQueryVisitor,wfDefinition.getSourceTableName()));
 		sourceTableDef.getColumns().forEach(column -> {
 			if (column.getColumnName().equals("ROW_ID")) {
 				column.setIntegrationIdFlag(true);
@@ -125,7 +124,7 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 								sourceTableDef.getSourceTableName() + "." + sourceQualifierFilterClauseColumn
 										+ " >= TO_DATE('$$INITIAL_EXTRACT_DATE','dd/MM/yyyy HH24:mi:ss')")
 						.noMoreValues().loadSourceQualifierFromSeed("Seed_SourceQualifier")//
-						.addFields(oraDataTypemapper, sourceTableDef.getColumns())//
+						.addFields(dataTypeMapper, sourceTableDef.getColumns())//
 						.name("SQ_ExtractData")//
 						.build())//
 				.transformation(ExpressionXformBuilder.newBuilder()//

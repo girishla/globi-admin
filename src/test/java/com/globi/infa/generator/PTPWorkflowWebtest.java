@@ -22,7 +22,7 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 	PTPWorkflowRepository wfRepository;
 	PTPWorkflow ptpWorkflow;
 	static final String sourceTable = "S_ORG_EXT";
-	static final String source = "SBL";
+	static final String source = "CUK";
 
 	@Before
 	public void setup(){
