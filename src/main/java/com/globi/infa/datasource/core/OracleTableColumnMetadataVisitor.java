@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
-import com.globi.infa.sourcedefinition.InfaSourceColumnDefinition;
+import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;
 
 @Component

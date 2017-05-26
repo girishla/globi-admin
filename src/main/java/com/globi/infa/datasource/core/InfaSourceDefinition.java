@@ -1,4 +1,4 @@
-package com.globi.infa.sourcedefinition;
+package com.globi.infa.datasource.core;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +24,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Entity
+//@Entity
 @ToString(callSuper = true)
 @RequiredArgsConstructor
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "M_INFA_SOURCE_DEFN")
+//@Table(name = "M_INFA_SOURCE_DEFN")
 @AllArgsConstructor
 @Builder
 public class InfaSourceDefinition extends AbstractEntity {

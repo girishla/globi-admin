@@ -1,35 +1,39 @@
 package com.globi.infa.generator;
 
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 import com.globi.AbstractWebIntegrationTest;
 import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
 public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 
 	@Autowired
 	PTPWorkflowRepository wfRepository;
 	PTPWorkflow ptpWorkflow;
-	static final String sourceTable = "S_ORG_EXT";
-	static final String source = "CUK";
+	static final String sourceTable = "R_INVOICE_MASTER";
+	static final String source = "GEN";
 
 	@Before
 	public void setup(){
 
 		ptpWorkflow = PTPWorkflow.builder()//
 				.sourceName(source)//
-				.sourceTableName(sourceTable)
+				.column(new PTPWorkflowSourceColumn("INVOICE_NUMBER",true,false))
+				.column(new PTPWorkflowSourceColumn("INPUT_DATE",false,true))
+				.sourceTableName(sourceTable)//
 				.workflow(InfaWorkflow.builder()//
 						.workflowScmUri("/GeneratedWorkflows/ptp/" + "PTP_" + sourceTable + ".xml")//
 						.workflowName("PTP_" + sourceTable + "_Extract")//
@@ -39,9 +43,8 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 		
 	}
 	
-	
 	@Test
-	public void createsWorkflowResourceWithoutGeneration() throws Exception {
+	public void createsWorkflowResourceWithFromWorkflowDefinition() throws Exception {
 
 		mvc.perform(post("/infagen/workflows/ptp")//
 				.content(asJsonString(ptpWorkflow))//

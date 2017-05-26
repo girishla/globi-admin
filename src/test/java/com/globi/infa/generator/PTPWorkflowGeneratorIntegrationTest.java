@@ -21,51 +21,34 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.xml.sax.SAXException;
 
 import com.globi.AbstractIntegrationTest;
-import com.globi.infa.generator.ptp.PTPInfaGenerationStrategy;
 import com.globi.infa.workflow.InfaWorkflow;
+import com.globi.infa.workflow.PTPInfaGenerationStrategy;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
 
 import xjc.POWERMART;
 
-public class PTPWorkflowGeneratorTest extends AbstractIntegrationTest {
+public class PTPWorkflowGeneratorIntegrationTest extends AbstractIntegrationTest {
 
-	
 	@Autowired
 	private Jaxb2Marshaller marshaller;
-	
+
 	@Autowired
 	private PTPInfaGenerationStrategy generator;
-	private static final String FILE_NAME = "c:\\temp\\output_file.xml";
-	
+
 	@Autowired
 	PTPWorkflowRepository wfRepository;
 	PTPWorkflow ptpWorkflow;
-	static final String sourceTable = "S_ORG_EXT";
-	static final String source = "CUK";
-	
-	
-	@Before
-	public void setup(){
 
-		ptpWorkflow = PTPWorkflow.builder()//
-				.sourceName(source)//
-				.sourceTableName(sourceTable)
-				.workflow(InfaWorkflow.builder()//
-						.workflowScmUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
-						.workflowName("PTP_" + sourceTable + "_Extract")//
-						.workflowType("PTP")//
-						.build())
-				.build();
-				
-		
-		
+	@Before
+	public void setup() {
+
 	}
 
-	private void saveXML(Object jaxbObject) throws IOException {
+	private void saveXML(Object jaxbObject,String fileName) throws IOException {
 		FileOutputStream os = null;
 		try {
-			os = new FileOutputStream(FILE_NAME);
+			os = new FileOutputStream(fileName);
 			this.marshaller.marshal(jaxbObject, new StreamResult(os));
 		} finally {
 			if (os != null) {
@@ -100,11 +83,24 @@ public class PTPWorkflowGeneratorTest extends AbstractIntegrationTest {
 		}
 
 	}
-	
+
 	@Test
-	public void generatesPTPWorkflowForOrgExtTable() throws JAXBException, FileNotFoundException, IOException, SAXException{
-		
-		
+	public void generatesPTPWorkflowForOrgExtTable()
+			throws JAXBException, FileNotFoundException, IOException, SAXException {
+
+		String sourceTable = "S_ORG_EXT";
+		String source = "CUK";
+
+		ptpWorkflow = PTPWorkflow.builder()//
+				.sourceName(source)//
+				.sourceTableName(sourceTable)
+				.workflow(InfaWorkflow.builder()//
+						.workflowScmUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
+						.workflowName("PTP_" + sourceTable + "_Extract")//
+						.workflowType("PTP")//
+						.build())
+				.build();
+
 		PTPWorkflow ptpWorkflow = PTPWorkflow.builder()//
 				.sourceName(source)//
 				.sourceTableName(sourceTable)
@@ -114,19 +110,49 @@ public class PTPWorkflowGeneratorTest extends AbstractIntegrationTest {
 						.workflowType("PTP")//
 						.build())
 				.build();
-				
+
 		generator.setWfDefinition(ptpWorkflow);
-		InfaPowermartObject pmObj=generator.generate();
+		InfaPowermartObject pmObj = generator.generate();
 
 		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
 		POWERMART controlObj = loadControlFileAsObject("CONTROL_PTP_CUK_S_ORG_EXT_Extract");
 		String controlXML = asString(marshaller.getJaxbContext(), controlObj);
-		
-		this.saveXML(pmObj.pmObject);
-		
+
+		this.saveXML(pmObj.pmObject,"PTP_" + sourceTable + "_Extract.xml");
+
 		assertXMLEqual(controlXML, testXML);
-		
-		
+
+	}
+
+	@Test
+	public void generatesPTPWorkflowForGenesisInvoiceMaster()
+			throws JAXBException, FileNotFoundException, IOException, SAXException {
+
+		String sourceTable = "R_INVOICE_MASTER";
+		String source = "GEN";
+
+		ptpWorkflow = PTPWorkflow.builder()//
+				.sourceName(source)//
+				.sourceTableName(sourceTable)
+				.workflow(InfaWorkflow.builder()//
+						.workflowScmUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
+						.workflowName("PTP_" + sourceTable + "_Extract")//
+						.workflowType("PTP")//
+						.build())
+				.build();
+
+
+		generator.setWfDefinition(ptpWorkflow);
+		InfaPowermartObject pmObj = generator.generate();
+
+		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
+		POWERMART controlObj = loadControlFileAsObject("CONTROL_PTP_GEN_R_INVOICE_MASTER_Extract");
+		String controlXML = asString(marshaller.getJaxbContext(), controlObj);
+
+		this.saveXML(pmObj.pmObject,"PTP_" + sourceTable + "_Extract.xml");
+
+		assertXMLEqual(controlXML, testXML);
+
 	}
 
 }

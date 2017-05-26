@@ -18,8 +18,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.FileCopyUtils;
 
-import com.globi.infa.DataTypeMapper;
-import com.globi.infa.sourcedefinition.InfaSourceColumnDefinition;
+import com.globi.infa.datasource.core.DataTypeMapper;
+import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
 
 import xjc.TRANSFORMATION;
 import xjc.TRANSFORMFIELD;

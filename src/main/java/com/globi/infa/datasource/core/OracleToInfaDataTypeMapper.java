@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.globi.infa.DataTypeMapper;
-
 @Component
 public class OracleToInfaDataTypeMapper implements DataTypeMapper {
 
@@ -14,7 +12,7 @@ public class OracleToInfaDataTypeMapper implements DataTypeMapper {
 	private Map<String,String>  typeMap= new HashMap<>();
 	
 	
-	OracleToInfaDataTypeMapper(){
+	public OracleToInfaDataTypeMapper(){
 	
 		typeMap.put("number(p,s)","decimal");
 		typeMap.put("char","string");

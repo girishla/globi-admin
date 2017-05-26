@@ -1,4 +1,4 @@
-package com.globi.infa.sourcedefinition;
+package com.globi.infa.datasource.core;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -15,13 +15,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Entity
+//@Entity
 @ToString(callSuper = true)
 @RequiredArgsConstructor
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "COLS")
+//@Table(name = "COLS")
 @AllArgsConstructor
 @Builder
 public class InfaSourceColumnDefinition extends AbstractEntity {

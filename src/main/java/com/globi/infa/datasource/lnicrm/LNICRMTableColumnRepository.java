@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.datasource.core.TableColumnRepository;
-import com.globi.infa.sourcedefinition.InfaSourceColumnDefinition;
+import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
 
 @Repository
 public class LNICRMTableColumnRepository implements TableColumnRepository {

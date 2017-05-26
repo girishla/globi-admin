@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.globi.infa.DataTypeMapper;
-
 @Component
 public class OracleSourceDataTypeMapper implements DataTypeMapper {
 

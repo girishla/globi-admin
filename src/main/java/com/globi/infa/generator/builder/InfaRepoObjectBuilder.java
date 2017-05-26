@@ -1,4 +1,4 @@
-package com.globi.infa.generator;
+package com.globi.infa.generator.builder;
 
 import static com.globi.infa.generator.builder.RawStaticFactory.getInstanceFor;
 
@@ -19,6 +19,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
+import com.globi.infa.generator.InfaPowermartObject;
 import com.rits.cloning.Cloner;
 
 import lombok.extern.slf4j.Slf4j;

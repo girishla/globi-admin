@@ -1,4 +1,4 @@
-package com.globi.infa;
+package com.globi.infa.datasource.core;
 
 public interface DataTypeMapper {
 

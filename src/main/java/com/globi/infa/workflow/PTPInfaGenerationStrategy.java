@@ -1,4 +1,4 @@
-package com.globi.infa.generator.ptp;
+package com.globi.infa.workflow;
 
 import static com.globi.infa.generator.builder.RawStaticFactory.getEtlProcWidMappingVariable;
 import static com.globi.infa.generator.builder.RawStaticFactory.getFolderFor;
@@ -8,8 +8,10 @@ import static com.globi.infa.generator.builder.RawStaticFactory.getRepository;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
@@ -18,22 +20,23 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
-import com.globi.infa.DataTypeMapper;
+import com.globi.infa.datasource.core.DataTypeMapper;
+import com.globi.infa.datasource.core.SourceMetadataFactory;
+import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
 import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.infa.generator.InfaPowermartObject;
-import com.globi.infa.generator.InfaRepoObjectBuilder;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
 import com.globi.infa.generator.builder.FilterXformBuilder;
+import com.globi.infa.generator.builder.InfaRepoObjectBuilder;
 import com.globi.infa.generator.builder.LookupXformBuilder;
 import com.globi.infa.generator.builder.SequenceXformBuilder;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
-import com.globi.infa.sourcedefinition.InfaSourceDefinition;
-import com.globi.infa.workflow.InfaGenerationStrategy;
-import com.globi.infa.workflow.PTPWorkflow;
+import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
+import com.globi.infa.datasource.core.InfaSourceDefinition;
 import com.globi.metadata.sourcesystem.SourceSystem;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;
 
@@ -47,21 +50,38 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 
 	@Autowired
 	protected SourceSystemRepository sourceSystemRepo;
-	
 
-	@Setter
+	@Autowired
+	private SourceMetadataFactoryMapper metadataFactoryMapper;
+
+	private SourceMetadataFactory sourceMetadataFactory;
+
+	public void setWfDefinition(PTPWorkflow wfDefinition) {
+		this.wfDefinition = wfDefinition;
+
+		// get the correct factory based on the Source System Name.
+		// Each Source needs a different Factory due to the inherent differences
+		// between them
+		this.sourceMetadataFactory = this.metadataFactoryMapper.getMetadataFactoryMap()
+				.get(wfDefinition.getSourceName());
+		this.dataTypeMapper = sourceMetadataFactory.createDatatypeMapper();
+		this.colRepository = sourceMetadataFactory.createTableColumnRepository();
+		this.columnQueryVisitor = sourceMetadataFactory.createTableColumnMetadataVisitor();
+
+	}
+
 	private PTPWorkflow wfDefinition;
+
 	@Setter
 	DataTypeMapper dataTypeMapper;
 	@Setter
 	private TableColumnRepository colRepository;
 	@Setter
 	private TableColumnMetadataVisitor columnQueryVisitor;
-	
-	
 
-	PTPInfaGenerationStrategy(Jaxb2Marshaller marshaller) {
+	PTPInfaGenerationStrategy(Jaxb2Marshaller marshaller, SourceMetadataFactoryMapper metadataFactoryMapper) {
 		this.marshaller = marshaller;
+		this.metadataFactoryMapper = metadataFactoryMapper;
 
 	}
 
@@ -72,12 +92,13 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 		Map<String, String> emptyValuesMap = new HashMap<>();
 		Map<String, String> lookupXformValuesMap = new HashMap<>();
 
-		final String sourceQualifierFilterClauseColumn = "LAST_UPD";
-
 		Optional<SourceSystem> source = sourceSystemRepo.findByName(wfDefinition.getSourceName());
 
 		if (!source.isPresent())
 			throw new IllegalArgumentException("Source System not recognised");
+
+		if (wfDefinition == null)
+			throw new IllegalArgumentException("Workflow Definition Must be set before invoking generate");
 
 		sourceTableDef = InfaSourceDefinition.builder()//
 				.sourceTableName(wfDefinition.getSourceTableName())//
@@ -86,13 +107,37 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 				.databaseType(source.get().getDbType())//
 				.build();
 
-		// TODO Filter this list by the user selected list of columns
-		sourceTableDef.getColumns().addAll(colRepository.accept(columnQueryVisitor,wfDefinition.getSourceTableName()));
-		sourceTableDef.getColumns().forEach(column -> {
-			if (column.getColumnName().equals("ROW_ID")) {
+		List<InfaSourceColumnDefinition> allTableColumns = colRepository.accept(columnQueryVisitor,
+				wfDefinition.getSourceTableName());
+
+		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
+
+		// Filter for selected columns for which generation must take place.
+		// Also tag the integration Id
+		List<InfaSourceColumnDefinition> matchedColumns = allTableColumns.stream().filter(column -> {
+			return inputSelectedColumns.stream()//
+					.anyMatch(selectedCol -> {//
+						return selectedCol.getSourceColumnName().equals(column.getColumnName());
+					});
+		}).map(column -> {
+
+			if (inputSelectedColumns.stream().anyMatch(selectedCol -> {
+				return selectedCol.getSourceColumnName().equals(column.getColumnName())
+						&& selectedCol.isIntegrationIdColumn();
+			})) {
 				column.setIntegrationIdFlag(true);
 			}
-		});
+
+			return column;
+
+		}).collect(Collectors.toList());
+
+		//Find and set the sourceQualifier filter column
+		Optional<PTPWorkflowSourceColumn> sourceQualifierFilterClauseColumn = inputSelectedColumns.stream()//
+				.filter(column -> column.isChangeCaptureColumn())//
+				.findAny();
+
+		sourceTableDef.getColumns().addAll(matchedColumns);
 
 		lookupXformValuesMap.put("targetTableName",
 				sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName());
@@ -121,7 +166,8 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setValue("sourceFilter",
-								sourceTableDef.getSourceTableName() + "." + sourceQualifierFilterClauseColumn
+								sourceTableDef.getSourceTableName() + "."
+										+ sourceQualifierFilterClauseColumn.get().getSourceColumnName()
 										+ " >= TO_DATE('$$INITIAL_EXTRACT_DATE','dd/MM/yyyy HH24:mi:ss')")
 						.noMoreValues().loadSourceQualifierFromSeed("Seed_SourceQualifier")//
 						.addFields(dataTypeMapper, sourceTableDef.getColumns())//

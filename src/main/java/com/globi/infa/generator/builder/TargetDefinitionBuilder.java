@@ -13,7 +13,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
-import com.globi.infa.sourcedefinition.InfaSourceColumnDefinition;
+import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
 
 
 

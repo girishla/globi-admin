@@ -4,7 +4,7 @@ import static com.globi.infa.generator.InfagenDefaults.DEFAULT_DESCRIPTION;
 import static com.globi.infa.generator.InfagenDefaults.DEFAULT_FOLDER_PERMISSION;
 import static com.globi.infa.generator.InfagenDefaults.DEFAULT_VERSION;
 
-import com.globi.infa.sourcedefinition.InfaSourceDefinition;
+import com.globi.infa.datasource.core.InfaSourceDefinition;
 
 import xjc.FOLDER;
 import xjc.INSTANCE;

@@ -27,6 +27,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.Singular;
 import lombok.ToString;
 
 
@@ -52,7 +53,8 @@ public class PTPWorkflow extends AbstractEntity implements Workflow{
 	@OrderColumn //
 	@Column(unique = true) //
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true) //
-	private final List<PTPWorkflowSourceColumn> columns = new ArrayList<>();
+	@Singular
+	private List<PTPWorkflowSourceColumn> columns = new ArrayList<>();
 	
 	@OneToOne(fetch = FetchType.EAGER,cascade = {CascadeType.ALL})
 	@MapsId 

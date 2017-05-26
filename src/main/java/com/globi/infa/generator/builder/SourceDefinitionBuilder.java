@@ -14,8 +14,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
-import com.globi.infa.sourcedefinition.InfaSourceColumnDefinition;
-import com.globi.infa.sourcedefinition.InfaSourceDefinition;
+import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
+import com.globi.infa.datasource.core.InfaSourceDefinition;
 
 import xjc.SOURCE;
 import xjc.SOURCEFIELD;

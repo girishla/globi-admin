@@ -21,7 +21,6 @@ import com.globi.infa.datasource.core.OracleToInfaDataTypeMapper;
 import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.infa.datasource.lnicrm.LNICRMTableColumnRepository;
 import com.globi.infa.generator.InfaPowermartObject;
-import com.globi.infa.generator.ptp.PTPInfaGenerationStrategy;
 
 @RestController
 public class InfaPTPWorkflowController {
@@ -29,15 +28,6 @@ public class InfaPTPWorkflowController {
 	@Autowired
 	private PTPWorkflowRepository repository;
 
-	@Autowired
-	private LNICRMTableColumnRepository colRepository;
-	
-	@Autowired
-	private OracleToInfaDataTypeMapper dataTypeMapper;
-	
-	@Autowired
-	private OracleTableColumnMetadataVisitor columnQueryVisitor;
-	
 
 	@Autowired
 	private Jaxb2Marshaller marshaller;
@@ -62,9 +52,6 @@ public class InfaPTPWorkflowController {
 	public @ResponseBody ResponseEntity<?> createWorkflow(@RequestBody PTPWorkflow ptpWorkflow) {
 
 		generator.setWfDefinition(ptpWorkflow);
-		generator.setColRepository((TableColumnRepository) colRepository);
-		generator.setDataTypeMapper(dataTypeMapper);
-		generator.setColumnQueryVisitor(columnQueryVisitor);
 		
 		InfaPowermartObject pmObj = generator.generate();
 

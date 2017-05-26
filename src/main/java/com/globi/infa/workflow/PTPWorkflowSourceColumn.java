@@ -35,7 +35,6 @@ public class PTPWorkflowSourceColumn extends AbstractEntity{
 	private boolean integrationIdColumn=false;
 	@Builder.Default
 	private boolean changeCaptureColumn=false;
-
 	
 	
 }
