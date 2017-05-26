@@ -14,7 +14,7 @@ import com.globi.infa.DataSourceTableDTO;
 @Component
 public class OracleViewMetadataVisitor implements DBMetadataVisitor {
 
-	protected String columnSQL="SELECT OWNER,VIEW_NAME FROM ALL_VIEWS WHERE OWNER==?";
+	protected String columnSQL="SELECT OWNER,VIEW_NAME FROM ALL_VIEWS WHERE OWNER=?";
 	
 	
 	protected static final RowMapper<DataSourceTableDTO> tableMapper = new RowMapper<DataSourceTableDTO>() {

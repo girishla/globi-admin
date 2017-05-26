@@ -31,13 +31,11 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 				.sourceName(source)//
 				.sourceTableName(sourceTable)
 				.workflow(InfaWorkflow.builder()//
-						.workflowScmUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
+						.workflowScmUri("/GeneratedWorkflows/ptp/" + "PTP_" + sourceTable + ".xml")//
 						.workflowName("PTP_" + sourceTable + "_Extract")//
 						.workflowType("PTP")//
 						.build())
 				.build();
-				
-		
 		
 	}
 	
