@@ -15,17 +15,22 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.globi.infa.DataSourceTable;
+import com.globi.infa.DataSourceTableDTO;
+import com.globi.infa.datasource.core.OracleTableMetadataVisitor;
 
 @RestController
 public class GCRMTableController {
 
+	@Autowired
 	private final GCRMTableRepository repository;
 
 	@Autowired
 	@Qualifier("dsGCRM")
 	private DataSource dataSource;
 
+	@Autowired
+	private OracleTableMetadataVisitor tblQueryVisitor;
+	
 	@Autowired
 	public GCRMTableController(GCRMTableRepository repo) {
 		repository = repo;
@@ -34,7 +39,7 @@ public class GCRMTableController {
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/datasources/cgl/tables")
 	public @ResponseBody ResponseEntity<?> getTables() {
 
-		List<DataSourceTable> tables = repository.getAllTables();
+		List<DataSourceTableDTO> tables = repository.accept(tblQueryVisitor);
 		return ResponseEntity.ok(tables);
 	}
 

@@ -15,12 +15,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.globi.infa.DataSourceTable;
+import com.globi.infa.DataSourceTableDTO;
+import com.globi.infa.datasource.core.OracleTableMetadataVisitor;
 
 @RestController
 public class LNICRMTableController {
 
+	@Autowired
 	private final LNICRMTableRepository repository;
+	
+	@Autowired
+	private OracleTableMetadataVisitor tblQueryVisitor;
 
 	@Autowired
 	@Qualifier("dsLNICRM")
@@ -34,7 +39,7 @@ public class LNICRMTableController {
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/datasources/cuk/tables")
 	public @ResponseBody ResponseEntity<?> getTables() {
 
-		List<DataSourceTable> tables = repository.getAllTables();
+		List<DataSourceTableDTO> tables = repository.accept(tblQueryVisitor);
 		return ResponseEntity.ok(tables);
 	}
 

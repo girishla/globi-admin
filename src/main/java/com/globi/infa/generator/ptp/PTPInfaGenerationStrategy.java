@@ -1,4 +1,4 @@
-package com.globi.infa.generator;
+package com.globi.infa.generator.ptp;
 
 import static com.globi.infa.generator.builder.RawStaticFactory.getEtlProcWidMappingVariable;
 import static com.globi.infa.generator.builder.RawStaticFactory.getFolderFor;
@@ -21,6 +21,8 @@ import org.xml.sax.SAXException;
 import com.globi.infa.datasource.core.OracleToInfaDataTypeMapper;
 import com.globi.infa.datasource.gen.GENTableColumnRepository;
 import com.globi.infa.datasource.lnicrm.LNICRMTableColumnRepository;
+import com.globi.infa.generator.InfaPowermartObject;
+import com.globi.infa.generator.InfaRepoObjectBuilder;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
 import com.globi.infa.generator.builder.FilterXformBuilder;
 import com.globi.infa.generator.builder.LookupXformBuilder;
@@ -77,7 +79,7 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 		sourceTableDef = InfaSourceDefinition.builder()//
 				.sourceTableName(wfDefinition.getSourceTableName())//
 				.ownerName(source.get().getOwnerName())//
-				.databaseName(source.get().getDbName())//
+				.databaseName(source.get().getName())//
 				.databaseType(source.get().getDbType())//
 				.build();
 

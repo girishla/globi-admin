@@ -9,16 +9,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import com.globi.AbstractWebIntegrationTest;
-import com.globi.infa.DataSourceTable;
+import com.globi.infa.DataSourceTableDTO;
 
 public class InfaWorkflowWebTest extends AbstractWebIntegrationTest {
 
 	@Test
-	public void createsReplWorkflowFromSourceTableName() throws Exception {
+	public void createsPTPWorkflowFromSourceTableName() throws Exception {
 
-		DataSourceTable dsTable=new DataSourceTable("SIEBEL","S_ORG_EXT");
+		DataSourceTableDTO dsTable=new DataSourceTableDTO("SIEBEL","S_ORG_EXT");
 		
-		mvc.perform(post("/infagen/workflows")//
+		mvc.perform(post("/infagen/workflows/ptp")//
 				.content(asJsonString(dsTable))//
 				.contentType(MediaType.APPLICATION_JSON)//
 				.accept(MediaType.APPLICATION_JSON))//

@@ -16,7 +16,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
-import com.globi.infa.DataSourceTable;
+import com.globi.infa.DataSourceTableDTO;
 import com.globi.metadata.sourcesystem.SourceSystem;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;
 import com.nurkiewicz.jdbcrepository.JdbcRepository;
@@ -31,14 +31,14 @@ public class OracleTableRepository {
 	
 	protected String columnSQL="SELECT OWNER,TABLE_NAME FROM ALL_TABLES WHERE ROWNUM<10 AND OWNER=?";
 
-	protected static final RowMapper<DataSourceTable> tableMapper = new RowMapper<DataSourceTable>() {
-		public DataSourceTable mapRow(ResultSet rs, int rowNum) throws SQLException {
-			DataSourceTable table = new DataSourceTable(rowNum, rs.getString("OWNER"), rs.getString("TABLE_NAME"));
+	protected static final RowMapper<DataSourceTableDTO> tableMapper = new RowMapper<DataSourceTableDTO>() {
+		public DataSourceTableDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+			DataSourceTableDTO table = new DataSourceTableDTO(rowNum, rs.getString("OWNER"), rs.getString("TABLE_NAME"));
 			return table;
 		}
 	};
 	
-	public List<DataSourceTable> getAllTables(JdbcTemplate jdbcT,String ownerName) {
+	public List<DataSourceTableDTO> getAllTables(JdbcTemplate jdbcT,String ownerName) {
 
 		return jdbcT.query(columnSQL, tableMapper,ownerName);
 	}

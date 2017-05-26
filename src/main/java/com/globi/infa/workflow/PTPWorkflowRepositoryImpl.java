@@ -2,7 +2,7 @@ package com.globi.infa.workflow;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.globi.infa.DataSourceTable;
+import com.globi.infa.DataSourceTableDTO;
 
 public class PTPWorkflowRepositoryImpl implements InfaWorkflowCreator<PTPWorkflow> {
 

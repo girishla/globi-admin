@@ -40,13 +40,15 @@ import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
+import com.globi.infa.generator.ptp.PTPInfaGenerationStrategy;
 import com.globi.infa.sourcedefinition.InfaSourceDefinition;
 import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
+import com.globi.infa.workflow.PTPWorkflowRepository;
 
 import xjc.POWERMART;
 
-public class TableSyncGeneratorTest extends AbstractIntegrationTest {
+public class PTPWorkflowGeneratorTest extends AbstractIntegrationTest {
 
 	
 	@Autowired
@@ -56,46 +58,29 @@ public class TableSyncGeneratorTest extends AbstractIntegrationTest {
 	private PTPInfaGenerationStrategy generator;
 	private static final String FILE_NAME = "c:\\temp\\output_file.xml";
 	
-/*	@Autowired
-	LNICRMTableColumnRepository lnicrmColumnRepository;
-
 	@Autowired
-	GENTableColumnRepository genColumnRepository;
-
-	InfaSourceDefinition sourceTableDef;
-
-	@Autowired
-	OracleToInfaDataTypeMapper oraDataTypemapper;
-
+	PTPWorkflowRepository wfRepository;
+	PTPWorkflow ptpWorkflow;
+	static final String sourceTable = "S_ORG_EXT";
+	static final String source = "SBL";
 	
-	Map<String, String> emptyValuesMap = new HashMap<>();
-	Map<String, String> lookupXformValuesMap = new HashMap<>();
+	
+	@Before
+	public void setup(){
 
-	final String sourceQualifierFilterClauseColumn = "LAST_UPD";
-
-
-*/
-/*	@Before
-	public void setup() {
-
-		sourceTableDef = InfaSourceDefinition.builder().sourceTableName("S_ORG_EXT")//
-				.ownerName("SIEBEL")//
-				.databaseName("CUK")//
-				.databaseType("Oracle")//
+		ptpWorkflow = PTPWorkflow.builder()//
+				.sourceName(source)//
+				.sourceTableName(sourceTable)
+				.workflow(InfaWorkflow.builder()//
+						.workflowScmUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
+						.workflowName("PTP_" + sourceTable + "_Extract")//
+						.workflowType("PTP")//
+						.build())
 				.build();
-
-		sourceTableDef.getColumns().addAll(lnicrmColumnRepository.getAllColumnsFor("S_ORG_EXT"));
-		sourceTableDef.getColumns().forEach(column -> {
-			if (column.getColumnName().equals("ROW_ID")) {
-				column.setIntegrationIdFlag(true);
-			}
-
-		});
-
-		lookupXformValuesMap.put("targetTableName",
-				sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName());
-
-	}*/
+				
+		
+		
+	}
 
 	private void saveXML(Object jaxbObject) throws IOException {
 		FileOutputStream os = null;
@@ -159,13 +144,10 @@ public class TableSyncGeneratorTest extends AbstractIntegrationTest {
 		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
 		POWERMART controlObj = loadControlFileAsObject("CONTROL_PTP_CUK_S_ORG_EXT_Extract");
 		String controlXML = asString(marshaller.getJaxbContext(), controlObj);
-
-		
 		
 		this.saveXML(pmObj.pmObject);
 		
 		assertXMLEqual(controlXML, testXML);
-		
 		
 		
 	}

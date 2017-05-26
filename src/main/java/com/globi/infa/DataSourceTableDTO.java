@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @Data
 @RequiredArgsConstructor
-public class DataSourceTable implements Persistable<Integer>  {
+public class DataSourceTableDTO implements Persistable<Integer>  {
 
 	@Id
 	@JsonIgnore
