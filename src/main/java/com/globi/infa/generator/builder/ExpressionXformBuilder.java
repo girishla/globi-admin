@@ -33,6 +33,7 @@ public class ExpressionXformBuilder {
 
 	public interface ClassStep {
 		ExpressionStep expressionFromPrototype(String className);
+
 		SetMarshallerStep ExpressionFromSeed(String className);
 	}
 
@@ -55,17 +56,26 @@ public class ExpressionXformBuilder {
 
 	public interface AddFieldsStep {
 		AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns);
+
 		AddFieldsStep addRowWidField();
+
 		AddFieldsStep addEtlProcWidField();
+
 		AddFieldsStep addEffectiveFromDateField();
+
 		AddFieldsStep addIntegrationIdField(List<InfaSourceColumnDefinition> columns);
+
+		AddFieldsStep addPGUIDField(String sourceName, List<InfaSourceColumnDefinition> columns);
+
 		AddFieldsStep addMD5HashField(List<InfaSourceColumnDefinition> columns);
+
 		NameStep noMoreFields();
-		
+
 	}
 
 	public interface NameStep {
 		BuildStep name(String name);
+
 		BuildStep nameAlreadySet();
 	}
 
@@ -79,8 +89,7 @@ public class ExpressionXformBuilder {
 		private Jaxb2Marshaller marshaller;
 		private TRANSFORMATION expressionXformDefn;
 		private Map<String, String> interpolationValues;
-		
-		
+
 		@SuppressWarnings("unused")
 		private String className;
 
@@ -89,8 +98,6 @@ public class ExpressionXformBuilder {
 
 			return this.expressionXformDefn;
 		}
-
-
 
 		@Override
 		public AddFieldsStep loadExpressionXformFromSeed(String seedName) throws FileNotFoundException, IOException {
@@ -155,23 +162,22 @@ public class ExpressionXformBuilder {
 
 		@Override
 		public AddFieldsStep expression(String expressionName) {
-			expressionXformDefn=new TRANSFORMATION();
-			
+			expressionXformDefn = new TRANSFORMATION();
+
 			expressionXformDefn.setNAME(expressionName);
 			expressionXformDefn.setTYPE("Expression");
 			expressionXformDefn.setREUSABLE("NO");
 			expressionXformDefn.setDESCRIPTION("");
 			expressionXformDefn.setOBJECTVERSION(DEFAULT_VERSION.getValue());
 			expressionXformDefn.setVERSIONNUMBER(DEFAULT_VERSION.getValue());
-			TABLEATTRIBUTE tracingAttribute=new TABLEATTRIBUTE();
+			TABLEATTRIBUTE tracingAttribute = new TABLEATTRIBUTE();
 			tracingAttribute.setNAME("Tracing Level");
 			tracingAttribute.setVALUE("Normal");
 			expressionXformDefn.getTABLEATTRIBUTE().add(tracingAttribute);
-			
+
 			return this;
 		}
 
-		
 		@Override
 		public ExpressionStep expressionFromPrototype(String className) {
 			this.className = className;
@@ -186,24 +192,24 @@ public class ExpressionXformBuilder {
 
 		@Override
 		public BuildStep nameAlreadySet() {
-		
+
 			return this;
 		}
 
 		@Override
 		public AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns) {
-			
+
 			this.expressionXformDefn.getTRANSFORMFIELD()
-			.addAll(columns.stream()//
-					.map(column -> expressionXformFieldFrom(column))//
-					.collect(Collectors.toList()));
-			
+					.addAll(columns.stream()//
+							.map(column -> expressionXformFieldFrom(column))//
+							.collect(Collectors.toList()));
+
 			return this;
 		}
 
 		@Override
 		public AddFieldsStep addRowWidField() {
-			
+
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("decimal");
 			xformExpressionField.setDEFAULTVALUE("");
@@ -215,16 +221,15 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setPORTTYPE("INPUT/OUTPUT");
 			xformExpressionField.setPRECISION("10");
 			xformExpressionField.setSCALE("0");
-			
+
 			this.expressionXformDefn.getTRANSFORMFIELD().add(xformExpressionField);
-			
-			
+
 			return this;
 		}
 
 		@Override
 		public AddFieldsStep addEtlProcWidField() {
-			
+
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("decimal");
 			xformExpressionField.setDEFAULTVALUE("");
@@ -236,14 +241,14 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setPORTTYPE("OUTPUT");
 			xformExpressionField.setPRECISION("10");
 			xformExpressionField.setSCALE("0");
-			
+
 			this.expressionXformDefn.getTRANSFORMFIELD().add(xformExpressionField);
 			return this;
 		}
 
 		@Override
 		public AddFieldsStep addEffectiveFromDateField() {
-			
+
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("date/time");
 			xformExpressionField.setDEFAULTVALUE("");
@@ -255,15 +260,15 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setPORTTYPE("OUTPUT");
 			xformExpressionField.setPRECISION("29");
 			xformExpressionField.setSCALE("9");
-			
+
 			this.expressionXformDefn.getTRANSFORMFIELD().add(xformExpressionField);
-			
+
 			return this;
 		}
 
 		@Override
 		public AddFieldsStep addIntegrationIdField(List<InfaSourceColumnDefinition> columns) {
-			
+
 			String concatenatedId = columns.stream()//
 					.filter(InfaSourceColumnDefinition::getIntegrationIdFlag)//
 					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
@@ -280,15 +285,40 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setPORTTYPE("OUTPUT");
 			xformExpressionField.setPRECISION("100");
 			xformExpressionField.setSCALE("0");
-			
+
 			this.expressionXformDefn.getTRANSFORMFIELD().add(xformExpressionField);
-			
+
+			return this;
+		}
+
+		@Override
+		public AddFieldsStep addPGUIDField(String sourceName, List<InfaSourceColumnDefinition> columns) {
+
+			String concatenatedId = columns.stream()//
+					.filter(InfaSourceColumnDefinition::getIntegrationIdFlag)//
+					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
+					.collect(Collectors.joining("|| ':' ||"));
+
+			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
+			xformExpressionField.setDATATYPE("string");
+			xformExpressionField.setDEFAULTVALUE("ERROR('transformation error')");
+			xformExpressionField.setDESCRIPTION("");
+			xformExpressionField.setEXPRESSION("'" + sourceName + "':" + concatenatedId);
+			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
+			xformExpressionField.setNAME("PGUID");
+			xformExpressionField.setPICTURETEXT("");
+			xformExpressionField.setPORTTYPE("OUTPUT");
+			xformExpressionField.setPRECISION("100");
+			xformExpressionField.setSCALE("0");
+
+			this.expressionXformDefn.getTRANSFORMFIELD().add(xformExpressionField);
+
 			return this;
 		}
 
 		@Override
 		public AddFieldsStep addMD5HashField(List<InfaSourceColumnDefinition> columns) {
-			
+
 			String MD5Value = columns.stream()//
 					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("||"));
@@ -304,20 +334,18 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setPORTTYPE("OUTPUT");
 			xformExpressionField.setPRECISION("32");
 			xformExpressionField.setSCALE("0");
-			
+
 			this.expressionXformDefn.getTRANSFORMFIELD().add(xformExpressionField);
-			
+
 			return this;
 		}
 
 		@Override
 		public NameStep noMoreFields() {
-			
-			
+
 			return this;
 		}
-		
-		
+
 		private static String getInfaCastToStringExpression(InfaSourceColumnDefinition coldef) {
 
 			String colExpr = "";
@@ -333,13 +361,10 @@ public class ExpressionXformBuilder {
 				colExpr = coldef.getColumnName();
 				break;
 			}
-			
-			
+
 			return colExpr;
 
 		}
-		
-		
 
 	}
 

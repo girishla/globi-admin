@@ -179,6 +179,7 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 						.addEffectiveFromDateField()//
 						.addEtlProcWidField()//
 						.addIntegrationIdField(sourceTableDef.getColumns())//
+						.addPGUIDField(sourceTableDef.getDatabaseName(), sourceTableDef.getColumns())
 						.addMD5HashField(sourceTableDef.getColumns())//
 						.addRowWidField()//
 						.noMoreFields()//

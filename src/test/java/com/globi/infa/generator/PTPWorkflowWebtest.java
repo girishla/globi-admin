@@ -44,7 +44,7 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 	}
 	
 	@Test
-	public void createsWorkflowResourceWithFromWorkflowDefinition() throws Exception {
+	public void createsWorkflowResourceFromWorkflowDefinition() throws Exception {
 
 		mvc.perform(post("/infagen/workflows/ptp")//
 				.content(asJsonString(ptpWorkflow))//
