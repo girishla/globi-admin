@@ -35,7 +35,7 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 				.column(new PTPWorkflowSourceColumn("INPUT_DATE",false,true))
 				.sourceTableName(sourceTable)//
 				.workflow(InfaWorkflow.builder()//
-						.workflowScmUri("/GeneratedWorkflows/ptp/" + "PTP_" + sourceTable + ".xml")//
+						.workflowUri("/GeneratedWorkflows/ptp/" + "PTP_" + sourceTable + ".xml")//
 						.workflowName("PTP_" + sourceTable + "_Extract")//
 						.workflowType("PTP")//
 						.build())
@@ -54,7 +54,7 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 				.andExpect(status().isCreated())//
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))//
 				.andExpect(jsonPath("$.workflow.workflowName", notNullValue()))//
-				.andExpect(jsonPath("$.workflow.workflowScmUri", notNullValue()));
+				.andExpect(jsonPath("$.workflow.workflowUri", notNullValue()));
 
 	}
 

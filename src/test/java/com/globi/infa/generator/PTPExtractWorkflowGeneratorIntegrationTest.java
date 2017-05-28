@@ -101,7 +101,7 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 				.column(new PTPWorkflowSourceColumn("LAST_UPD", false, true))
 				.column(new PTPWorkflowSourceColumn("NAME", false, false))
 				.workflow(InfaWorkflow.builder()//
-						.workflowScmUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
+						.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
 						.workflowName("PTP_" + sourceTable + "_Extract")//
 						.workflowType("PTP")//
 						.build())
@@ -134,7 +134,7 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 				.column(new PTPWorkflowSourceColumn("INPUT_DATE", false, true))
 				.column(new PTPWorkflowSourceColumn("ORDER_REFERENCE", false, false))
 				.workflow(InfaWorkflow.builder()//
-						.workflowScmUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
+						.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
 						.workflowName("PTP_" + sourceTable + "_Extract")//
 						.workflowType("PTP")//
 						.build())

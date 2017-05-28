@@ -35,7 +35,7 @@ public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
 				.column(new PTPWorkflowSourceColumn("LAST_UPD",false,true))
 				.sourceTableName(sourceTable)//
 				.workflow(InfaWorkflow.builder()//
-						.workflowScmUri("/GeneratedWorkflows/ptp/" + "PTP_" + sourceTable + ".xml")//
+						.workflowUri("/GeneratedWorkflows/ptp/" + "PTP_" + sourceTable + ".xml")//
 						.workflowName("PTP_" + sourceTable + "_Primary")//
 						.workflowType("PTP")//
 						.build())
@@ -54,7 +54,7 @@ public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
 				.andExpect(status().isCreated())//
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))//
 				.andExpect(jsonPath("$.workflow.workflowName", notNullValue()))//
-				.andExpect(jsonPath("$.workflow.workflowScmUri", notNullValue()));
+				.andExpect(jsonPath("$.workflow.workflowUri", notNullValue()));
 
 	}
 

@@ -44,15 +44,18 @@ public class PTPWorkflow extends AbstractEntity implements Workflow{
 	
 	@NonNull
 	@NotBlank(message = "PTP Workflow source name cannot be empty!")
+	@Column(name="src_name")
 	private String sourceName;
 	
 	@NonNull
 	@NotBlank(message = "PTP Workflow source table name cannot be empty!")
+	@Column(name="src_table_name")
 	private String sourceTableName;
 	
 	@OrderColumn //
 	@Column(unique = true) //
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true) //
+	@JoinColumn(name="workflow_id",referencedColumnName="id")
 	@Singular
 	private List<PTPWorkflowSourceColumn> columns = new ArrayList<>();
 	
