@@ -64,6 +64,8 @@ public class ExpressionXformBuilder {
 		AddFieldsStep addEffectiveFromDateField();
 
 		AddFieldsStep addIntegrationIdField(List<InfaSourceColumnDefinition> columns);
+		
+		AddFieldsStep addDatasourceNumIdField();
 
 		AddFieldsStep addPGUIDField(String sourceName, List<InfaSourceColumnDefinition> columns);
 
@@ -226,13 +228,38 @@ public class ExpressionXformBuilder {
 
 			return this;
 		}
+		
+		
+		@Override
+		public AddFieldsStep addDatasourceNumIdField() {
+
+			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
+			xformExpressionField.setDATATYPE("decimal");
+			xformExpressionField.setDEFAULTVALUE("ERROR('transformation error')");
+			xformExpressionField.setDESCRIPTION("");
+			xformExpressionField.setEXPRESSION("$$DATASOURCE_NUM_ID");
+			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
+			xformExpressionField.setNAME("DATASOURCE_NUM_ID");
+			xformExpressionField.setPICTURETEXT("");
+			xformExpressionField.setPORTTYPE("INPUT/OUTPUT");
+			xformExpressionField.setPRECISION("10");
+			xformExpressionField.setSCALE("0");
+
+			this.expressionXformDefn.getTRANSFORMFIELD().add(xformExpressionField);
+
+			return this;
+		}
+		
+		
+		
+		
 
 		@Override
 		public AddFieldsStep addEtlProcWidField() {
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("decimal");
-			xformExpressionField.setDEFAULTVALUE("");
+			xformExpressionField.setDEFAULTVALUE("ERROR('transformation error')");
 			xformExpressionField.setDESCRIPTION("");
 			xformExpressionField.setEXPRESSION("$$ETL_PROC_WID");
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");

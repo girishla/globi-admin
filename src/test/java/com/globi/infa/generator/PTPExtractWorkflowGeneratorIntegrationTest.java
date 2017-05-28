@@ -23,20 +23,20 @@ import org.xml.sax.SAXException;
 
 import com.globi.AbstractIntegrationTest;
 import com.globi.infa.workflow.InfaWorkflow;
-import com.globi.infa.workflow.PTPInfaGenerationStrategy;
+import com.globi.infa.workflow.PTPExtractGenerationStrategy;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
 import xjc.POWERMART;
 
-public class PTPWorkflowGeneratorIntegrationTest extends AbstractIntegrationTest {
+public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private Jaxb2Marshaller marshaller;
 
 	@Autowired
-	private PTPInfaGenerationStrategy generator;
+	private PTPExtractGenerationStrategy generator;
 
 	@Autowired
 	PTPWorkflowRepository wfRepository;

@@ -1,10 +1,10 @@
 package com.globi.infa.workflow;
 
-import static com.globi.infa.generator.builder.RawStaticFactory.getEtlProcWidMappingVariable;
-import static com.globi.infa.generator.builder.RawStaticFactory.getFolderFor;
-import static com.globi.infa.generator.builder.RawStaticFactory.getInitialExtractDateMappingVariable;
-import static com.globi.infa.generator.builder.RawStaticFactory.getMappingFrom;
-import static com.globi.infa.generator.builder.RawStaticFactory.getRepository;
+import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getEtlProcWidMappingVariable;
+import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getFolderFor;
+import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getInitialExtractDateMappingVariable;
+import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getMappingFrom;
+import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getRepository;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,7 +28,7 @@ import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.infa.generator.InfaPowermartObject;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
 import com.globi.infa.generator.builder.FilterXformBuilder;
-import com.globi.infa.generator.builder.InfaRepoObjectBuilder;
+import com.globi.infa.generator.builder.PowermartObjectBuilder;
 import com.globi.infa.generator.builder.LookupXformBuilder;
 import com.globi.infa.generator.builder.SequenceXformBuilder;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
@@ -43,7 +43,7 @@ import com.globi.metadata.sourcesystem.SourceSystemRepository;
 import lombok.Setter;
 
 @Component
-public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
+public class PTPPrimaryGenerationStrategy implements InfaGenerationStrategy {
 
 	@Autowired
 	Jaxb2Marshaller marshaller;
@@ -79,7 +79,7 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 	@Setter
 	private TableColumnMetadataVisitor columnQueryVisitor;
 
-	PTPInfaGenerationStrategy(Jaxb2Marshaller marshaller, SourceMetadataFactoryMapper metadataFactoryMapper) {
+	PTPPrimaryGenerationStrategy(Jaxb2Marshaller marshaller, SourceMetadataFactoryMapper metadataFactoryMapper) {
 		this.marshaller = marshaller;
 		this.metadataFactoryMapper = metadataFactoryMapper;
 
@@ -89,7 +89,6 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 
 		InfaSourceDefinition sourceTableDef;
 
-		Map<String, String> emptyValuesMap = new HashMap<>();
 		Map<String, String> lookupXformValuesMap = new HashMap<>();
 
 		Optional<SourceSystem> source = sourceSystemRepo.findByName(wfDefinition.getSourceName());
@@ -132,7 +131,7 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 
 		}).collect(Collectors.toList());
 
-		//Find and set the sourceQualifier filter column
+		// Find and set the sourceQualifier filter column
 		Optional<PTPWorkflowSourceColumn> sourceQualifierFilterClauseColumn = inputSelectedColumns.stream()//
 				.filter(column -> column.isChangeCaptureColumn())//
 				.findAny();
@@ -142,27 +141,33 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 		lookupXformValuesMap.put("targetTableName",
 				sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName());
 
-		InfaPowermartObject pmObj = InfaRepoObjectBuilder//
+		List <InfaSourceColumnDefinition> integrationIdCols= sourceTableDef.getColumns().stream().filter(column -> column.getIntegrationIdFlag())
+		.collect(Collectors.toList());
+		
+		String targetTableDefnName=sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName()+ "_P";
+		
+		
+		InfaPowermartObject pmObj = PowermartObjectBuilder//
 				.newBuilder()//
 				.powermartObject().repository(getRepository())//
 				.marshaller(marshaller)//
 				.folder(getFolderFor("LAW_PTP_" + sourceTableDef.getDatabaseName(), "Pull to puddle folder"))//
-				.simpleTableSyncClass("simpleTableSyncClass")//
+				.primaryExtractClass("primaryExtractClass")//
 				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
 						.sourceDefnFromPrototype("SourceFromPrototype")//
 						.sourceDefn(sourceTableDef)//
-						.addFields(sourceTableDef.getColumns())//
+						.addFields(allTableColumns)//
 						.name(sourceTableDef.getSourceTableName())//
 						.build())
 				.noMoreSources()//
 				.targetDefn(TargetDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.loadTargetFromSeed("Seed_PTPTargetTableSystemCols")//
-						.addFields(sourceTableDef.getColumns())//
-						.name(sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName())//
+						.loadTargetFromSeed("Seed_PTPPrimaryExtractTargetTable")//
+						.noMoreFields()
+						.name(targetTableDefnName)//
 						.build())//
 				.noMoreTargets()//
-				.mappingDefn(getMappingFrom(sourceTableDef))//
+				.mappingDefn(getMappingFrom("PTP_" + sourceTableDef.getSourceTableName() + "_Primary"))//
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setValue("sourceFilter",
@@ -170,50 +175,31 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 										+ sourceQualifierFilterClauseColumn.get().getSourceColumnName()
 										+ " >= TO_DATE('$$INITIAL_EXTRACT_DATE','dd/MM/yyyy HH24:mi:ss')")
 						.noMoreValues().loadSourceQualifierFromSeed("Seed_SourceQualifier")//
-						.addFields(dataTypeMapper, sourceTableDef.getColumns())//
-						.name("SQ_ExtractData")//
+						.addFields(dataTypeMapper, integrationIdCols)//
+						.name("SQ_PrimaryData")//
 						.build())//
 				.transformation(ExpressionXformBuilder.newBuilder()//
 						.expressionFromPrototype("ExpFromPrototype")//
 						.expression("EXP_Resolve")//
-						.addEffectiveFromDateField()//
-						.addEtlProcWidField()//
-						.addIntegrationIdField(sourceTableDef.getColumns())//
-						.addPGUIDField(sourceTableDef.getDatabaseName(), sourceTableDef.getColumns())
-						.addMD5HashField(sourceTableDef.getColumns())//
-						.addRowWidField()//
+						.addIntegrationIdField(integrationIdCols)//
+						.addDatasourceNumIdField()
 						.noMoreFields()//
 						.nameAlreadySet()//
 						.build())//
-				.transformationCopyConnectAllFields("SQ_ExtractData", "EXP_Resolve")//
-				.transformation(SequenceXformBuilder.newBuilder()//
-						.marshaller(marshaller)//
-						.setInterpolationValues(emptyValuesMap)//
-						.loadExpressionXformFromSeed("Seed_WidSequence")//
-						.nameAlreadySet()//
-						.build())
+				.transformationCopyConnectAllFields("SQ_PrimaryData", "EXP_Resolve")//
 				.transformation(LookupXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.setInterpolationValues(lookupXformValuesMap)//
-						.loadExpressionXformFromSeed("Seed_LKPRecordInstanceViaHash")//
+						.noInterpolationValues()//
+						.loadLookupXformFromSeed("Seed_LKPPTPPrimaryRecordKeys")//
 						.nameAlreadySet()//
 						.build())
-				.transformation(FilterXformBuilder.newBuilder()//
-						.filterFromPrototype("FilterFromPrototype")//
-						.filter("FIL_ChangesOnly")//
-						.noMoreFields()//
-						.addCondition("ISNULL(HASH_RECORD)")//
-						.noMoreConditions()//
-						.nameAlreadySet()//
-						.build())
-				.transformationCopyConnectAllFields("EXP_Resolve", "FIL_ChangesOnly")//
 				.noMoreTransformations()//
-				.autoConnectByName(sourceTableDef.getSourceTableName(), "SQ_ExtractData")//
-				.autoConnectByName("FIL_ChangesOnly",
-						sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName())//
-				.connector("SEQ_WID", "NEXTVAL", "EXP_Resolve", "ROW_WID")
-				.connector("EXP_Resolve", "HASH_RECORD", "LKP_RecordInstance", "HASH_RECORD_IN")
-				.connector("LKP_RecordInstance", "HASH_RECORD", "FIL_ChangesOnly", "HASH_RECORD")//
+				.autoConnectByName(sourceTableDef.getSourceTableName(), "SQ_PrimaryData")//
+				.autoConnectByName("LKP_RecordKeys",
+						targetTableDefnName)//
+				.autoConnectByName("EXP_Resolve",
+						targetTableDefnName)//
+				.connector("EXP_Resolve", "INTEGRATION_ID", "LKP_RecordKeys", "INTEGRATION_ID_IN")//
 				.noMoreConnectors()//
 				.noMoreTargetLoadOrders()//
 				.mappingvariable(getEtlProcWidMappingVariable())//
@@ -222,11 +208,12 @@ public class PTPInfaGenerationStrategy implements InfaGenerationStrategy {
 				.workflow(WorkflowDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setValue("phasePrefix", "PTP")//
+						.setValue("suffix", "Primary")//
 						.setValue("primaryName", sourceTableDef.getSourceTableName())//
 						.setValue("sourceShortCode", sourceTableDef.getDatabaseName())//
 						.setValue("TargetShortCode", "LAW")//
 						.noMoreValues()//
-						.loadWorkflowFromSeed("Seed_SimpleWorkflow")//
+						.loadWorkflowFromSeed("Seed_PTPPrimaryWorkflow")//
 						.nameAlreadySet()//
 						.build())//
 				.build();

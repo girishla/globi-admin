@@ -21,15 +21,15 @@ import xjc.TRANSFORMATION;
  * */
 
 
-public class RawStaticFactory {
+public class InfaObjectStaticFactory {
 
 
-	public static MAPPING getMappingFrom(InfaSourceDefinition sourceTable) {
+	public static MAPPING getMappingFrom(String mappingName) {
 
 		MAPPING mappingDefn = new MAPPING();
 
 		mappingDefn.setDESCRIPTION(DEFAULT_DESCRIPTION.getValue());
-		mappingDefn.setNAME("PTP_" + sourceTable.getSourceTableName() + "_Extract");
+		mappingDefn.setNAME(mappingName);
 		mappingDefn.setOBJECTVERSION(DEFAULT_VERSION.getValue());
 		mappingDefn.setVERSIONNUMBER(DEFAULT_VERSION.getValue());
 		mappingDefn.setISVALID("YES");

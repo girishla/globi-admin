@@ -18,25 +18,25 @@ import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
-public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
+public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
 
 	@Autowired
 	PTPWorkflowRepository wfRepository;
 	PTPWorkflow ptpWorkflow;
-	static final String sourceTable = "R_INVOICE_MASTER";
-	static final String source = "GEN";
+	static final String sourceTable = "S_ORG_EXT";
+	static final String source = "CUK";
 
 	@Before
 	public void setup(){
 
 		ptpWorkflow = PTPWorkflow.builder()//
 				.sourceName(source)//
-				.column(new PTPWorkflowSourceColumn("INVOICE_NUMBER",true,false))
-				.column(new PTPWorkflowSourceColumn("INPUT_DATE",false,true))
+				.column(new PTPWorkflowSourceColumn("ROW_ID",true,false))
+				.column(new PTPWorkflowSourceColumn("LAST_UPD",false,true))
 				.sourceTableName(sourceTable)//
 				.workflow(InfaWorkflow.builder()//
 						.workflowScmUri("/GeneratedWorkflows/ptp/" + "PTP_" + sourceTable + ".xml")//
-						.workflowName("PTP_" + sourceTable + "_Extract")//
+						.workflowName("PTP_" + sourceTable + "_Primary")//
 						.workflowType("PTP")//
 						.build())
 				.build();
@@ -46,7 +46,7 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 	@Test
 	public void createsWorkflowResourceFromWorkflowDefinition() throws Exception {
 
-		mvc.perform(post("/infagen/workflows/ptp")//
+		mvc.perform(post("/infagen/workflows/ptpPrimary")//
 				.content(asJsonString(ptpWorkflow))//
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//

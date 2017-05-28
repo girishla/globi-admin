@@ -37,7 +37,8 @@ public class TargetDefinitionBuilder {
 
 
 	public interface AddFieldsStep {
-		NameStep addFields(List<InfaSourceColumnDefinition> columns);
+		AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns);
+		NameStep noMoreFields();
 	}
 
 	
@@ -65,7 +66,7 @@ public class TargetDefinitionBuilder {
 		}
 
 		@Override
-		public NameStep addFields(List<InfaSourceColumnDefinition> columns) {
+		public AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns) {
 
 		
 			columns.forEach(column -> {
@@ -132,6 +133,11 @@ public class TargetDefinitionBuilder {
 
 			return targetField;
 
+		}
+
+		@Override
+		public NameStep noMoreFields() {
+			return this;
 		}
 		
 		

@@ -33,13 +33,14 @@ public class LookupXformBuilder {
 
 	public interface SetInterPolationValues {
 		LoadFromSeedStep setInterpolationValues(Map<String, String> values);
+		LoadFromSeedStep noInterpolationValues();
 
 	}
 	
 	
 
 	public interface LoadFromSeedStep {
-		NameStep loadExpressionXformFromSeed(String seedName) throws FileNotFoundException, IOException;
+		NameStep loadLookupXformFromSeed(String seedName) throws FileNotFoundException, IOException;
 	}
 
 
@@ -69,7 +70,7 @@ public class LookupXformBuilder {
 
 
 		@Override
-		public NameStep loadExpressionXformFromSeed(String seedName) throws FileNotFoundException, IOException {
+		public NameStep loadLookupXformFromSeed(String seedName) throws FileNotFoundException, IOException {
 
 			FileInputStream is = null;
 
@@ -113,6 +114,10 @@ public class LookupXformBuilder {
 			return this;
 		}
 
+		@Override
+		public LoadFromSeedStep noInterpolationValues() {
+			return this;
+		}
 
 		@Override
 		public BuildStep nameAlreadySet() {

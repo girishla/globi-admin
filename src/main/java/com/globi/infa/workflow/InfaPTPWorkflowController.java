@@ -33,13 +33,18 @@ public class InfaPTPWorkflowController {
 	private Jaxb2Marshaller marshaller;
 
 	@Autowired
-	private PTPInfaGenerationStrategy generator;
-	private static final String FILE_NAME = "c:\\temp\\output_file.xml";
+	private PTPExtractGenerationStrategy ptpExtractgenerator;
+	
+	
+	@Autowired
+	private PTPPrimaryGenerationStrategy ptpPrimarygenerator;
+	
+	private static final String FILE_DIR = "c:\\temp\\";
 
-	private void saveXML(Object jaxbObject) throws IOException {
+	private void saveXML(Object jaxbObject,String fileName) throws IOException {
 		FileOutputStream os = null;
 		try {
-			os = new FileOutputStream(FILE_NAME);
+			os = new FileOutputStream(FILE_DIR + fileName + ".xml");
 			this.marshaller.marshal(jaxbObject, new StreamResult(os));
 		} finally {
 			if (os != null) {
@@ -48,15 +53,15 @@ public class InfaPTPWorkflowController {
 		}
 	}
 
-	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/ptp")
-	public @ResponseBody ResponseEntity<?> createWorkflow(@RequestBody PTPWorkflow ptpWorkflow) {
+	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/ptpExtract")
+	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow(@RequestBody PTPWorkflow ptpWorkflow) {
 
-		generator.setWfDefinition(ptpWorkflow);
+		ptpExtractgenerator.setWfDefinition(ptpWorkflow);
 		
-		InfaPowermartObject pmObj = generator.generate();
+		InfaPowermartObject pmObj = ptpExtractgenerator.generate();
 
 		try {
-			this.saveXML(pmObj.pmObject);
+			this.saveXML(pmObj.pmObject,"PTP_Extract_WebTest");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -64,5 +69,25 @@ public class InfaPTPWorkflowController {
 
 		return new ResponseEntity<PTPWorkflow>(repository.save(ptpWorkflow), HttpStatus.CREATED);
 	}
+	
+	
+	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/ptpPrimary")
+
+	public @ResponseBody ResponseEntity<?> createPTPPrimaryWorkflow(@RequestBody PTPWorkflow ptpWorkflow) {
+
+		ptpPrimarygenerator.setWfDefinition(ptpWorkflow);
+		
+		InfaPowermartObject pmObj = ptpPrimarygenerator.generate();
+
+		try {
+			this.saveXML(pmObj.pmObject,"PTP_Primary_WebTest");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+
+		return new ResponseEntity<PTPWorkflow>(repository.save(ptpWorkflow), HttpStatus.CREATED);
+	}
+	
 
 }

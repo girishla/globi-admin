@@ -1,6 +1,6 @@
 package com.globi.infa.generator.builder;
 
-import static com.globi.infa.generator.builder.RawStaticFactory.getInstanceFor;
+import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getInstanceFor;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -42,7 +42,7 @@ import xjc.TRANSFORMFIELD;
 import xjc.WORKFLOW;
 
 @Slf4j
-public class InfaRepoObjectBuilder {
+public class PowermartObjectBuilder {
 
 	public static PowermartObjectStep newBuilder() {
 		return new InfaRepoSteps();
@@ -67,6 +67,8 @@ public class InfaRepoObjectBuilder {
 	public interface ClassStep {
 		SourceTableStep simpleTableSyncClass(String simpleTableSyncClass);
 
+		SourceTableStep primaryExtractClass(String primaryExtractClass);
+
 		SourceSQLStep sourceSQLSyncClass(String sourceSQLSyncClass);
 	}
 
@@ -90,19 +92,6 @@ public class InfaRepoObjectBuilder {
 		TransformationStep mappingDefn(MAPPING mapping);
 
 	}
-
-	/*
-	 * public interface SourceQualifierStep { SourceQualifierStep
-	 * sourceQualifier(String sourceQualifierName);
-	 * 
-	 * SourceQualifierStep sourceQualifierColumns(String sourceQualifierName,
-	 * InfaSourceDefinition sourceDef);
-	 * 
-	 * SourceQualifierStep sourceQualifierOld(String sourceTable,
-	 * List<InfaSourceColumnDefinition> columns);
-	 * 
-	 * TransformationStep noMoreSourceQualifiers(); }
-	 */
 
 	public interface TransformationStep {
 		TransformationStep transformation(TRANSFORMATION transformation);
@@ -169,9 +158,9 @@ public class InfaRepoObjectBuilder {
 		@SuppressWarnings("unused")
 		private String name;
 		@SuppressWarnings("unused")
-		private String simpleTableSyncClass;
+		private String className;
 		@SuppressWarnings("unused")
-		private String sourceSQLSyncClass;
+
 		private REPOSITORY repository;
 		private List<Object> folderChildren;
 		private List<CONNECTOR> connectors;
@@ -207,13 +196,19 @@ public class InfaRepoObjectBuilder {
 
 		@Override
 		public SourceTableStep simpleTableSyncClass(String simpleTableSyncClass) {
-			this.simpleTableSyncClass = simpleTableSyncClass;
+			this.className = simpleTableSyncClass;
 			return this;
 		}
 
 		@Override
 		public SourceSQLStep sourceSQLSyncClass(String sourceSQLSyncClass) {
-			this.sourceSQLSyncClass = sourceSQLSyncClass;
+			this.className = sourceSQLSyncClass;
+			return this;
+		}
+
+		@Override
+		public SourceTableStep primaryExtractClass(String primaryExtractClass) {
+			this.className = primaryExtractClass;
 			return this;
 		}
 
@@ -443,12 +438,15 @@ public class InfaRepoObjectBuilder {
 			fromInstanceFieldNames.addAll(extractFieldNamesForSources(fromInstanceName));
 			toInstanceFieldNames.addAll(extractFieldNamesForTargets(toInstanceName));
 
-			List<String> matchingFieldNames = fromInstanceFieldNames.stream().filter(toInstanceFieldNames::contains)
-					.collect(Collectors.toList());
+			List<String> matchingFieldNames = fromInstanceFieldNames.stream()//
+					.filter(toInstanceFieldNames::contains).collect(Collectors.toList());
 
 			// Add a connector for each matching field
 			matchingFieldNames.forEach(matchingField -> {
-
+				
+				this.connector(fromInstanceName, matchingField, toInstanceName,matchingField);
+			
+/*
 				CONNECTOR matchingConnector = new CONNECTOR();
 				matchingConnector.setFROMFIELD(matchingField);
 				matchingConnector.setTOFIELD(matchingField);
@@ -458,7 +456,7 @@ public class InfaRepoObjectBuilder {
 				matchingConnector.setTOINSTANCETYPE(getToInstanceType(toInstanceName));
 
 				mapping.getCONNECTOR().add(matchingConnector);
-
+*/
 			});
 
 			return this;
@@ -509,17 +507,15 @@ public class InfaRepoObjectBuilder {
 		public TransformationStep transformationCopyConnectAllFields(String fromTransformation,
 				String toTransformation) {
 
-			Cloner cloner=new Cloner();
-			
+			Cloner cloner = new Cloner();
+
 			xformMap.get(fromTransformation).getTRANSFORMFIELD().forEach(field -> {
-				TRANSFORMFIELD toField=cloner.deepClone(field);
+				TRANSFORMFIELD toField = cloner.deepClone(field);
 				toField.setPORTTYPE("INPUT/OUTPUT");
 				xformMap.get(toTransformation).getTRANSFORMFIELD().add(toField);
 				this.connector(fromTransformation, field.getNAME(), toTransformation, toField.getNAME());
 
 			});
-			
-			
 
 			// If the target is an expression transform, set the field as an
 			// expression by default
@@ -549,16 +545,14 @@ public class InfaRepoObjectBuilder {
 		@Override
 		public ConnectorStep connector(String fromInstance, String fromField, String toInstance, String toField) {
 
-			//remove connectors that have already been linked
+			// remove connectors that have already been linked
 			Iterator<CONNECTOR> iter = this.connectors.iterator();
 			while (iter.hasNext()) {
-				CONNECTOR conn=iter.next();
-				if(conn.getTOINSTANCE().equals(toInstance) && conn.getTOFIELD().equals(toField))
-				iter.remove();
+				CONNECTOR conn = iter.next();
+				if (conn.getTOINSTANCE().equals(toInstance) && conn.getTOFIELD().equals(toField))
+					iter.remove();
 			}
-			
-			
-			
+
 			CONNECTOR connector = new CONNECTOR();
 
 			connector.setFROMFIELD(fromField);
@@ -569,9 +563,6 @@ public class InfaRepoObjectBuilder {
 			connector.setTOINSTANCETYPE(getToInstanceType(toInstance));
 			mapping.getCONNECTOR().add(connector);
 
-			
-			
-			
 			return this;
 		}
 
@@ -587,20 +578,33 @@ public class InfaRepoObjectBuilder {
 			return this;
 		}
 
-		private void addSourceQualifierInstances() {
+		private List<TRANSFORMATION> getAllSourceQualifiers() {
 
-			List<TRANSFORMATION> sourceQualifiers = this.xformMap.entrySet()//
+			return this.xformMap.entrySet()//
 					.stream()//
 					.filter(instance -> instance.getValue().getTYPE().equals("Source Qualifier"))//
 					.map(Entry::getValue)//
 					.collect(Collectors.toList());
-
-			Map<String, String> sourceQualifierSourceInstances = this.connectors.stream()//
+		}
+		
+		
+		private Map<String, String> usingConnectorListFindSourceInstancesFor(List<TRANSFORMATION> sourceQualifiers){
+			
+			return this.connectors.stream()//
 					.filter(connector -> sourceQualifiers.stream()//
 							.anyMatch(sourceQualifier -> connector.getTOINSTANCE().equals(sourceQualifier.getNAME())))//
 					.collect(Collectors.toMap(connector -> connector.getFROMINSTANCE(),
 							connector -> connector.getTOINSTANCE(), (toInst, toInstDuplicate) -> toInst));//
 
+		}
+		
+		
+			private void addSourceQualifierInstances() {
+
+			List<TRANSFORMATION> sourceQualifiers = getAllSourceQualifiers();
+			Map<String, String> sourceQualifierSourceInstances = usingConnectorListFindSourceInstancesFor(sourceQualifiers);
+		
+			
 			sourceQualifiers.forEach(sQualifierXform -> {
 
 				INSTANCE instance = new INSTANCE();
@@ -612,8 +616,7 @@ public class InfaRepoObjectBuilder {
 
 				sourceQualifierSourceInstances.entrySet()//
 						.stream().filter(entry -> entry.getValue().equals(sQualifierXform.getNAME()))//
-						.map(Entry::getKey)
-						.forEach(sourceTable -> {
+						.map(Entry::getKey).forEach(sourceTable -> {
 							ASSOCIATEDSOURCEINSTANCE asi = new ASSOCIATEDSOURCEINSTANCE();
 							asi.setNAME(sourceTable);
 							instance.getASSOCIATEDSOURCEINSTANCE().add(asi);
@@ -622,6 +625,7 @@ public class InfaRepoObjectBuilder {
 				this.mapping.getINSTANCE().add(instance);
 			});
 
+			
 		}
 
 	}
