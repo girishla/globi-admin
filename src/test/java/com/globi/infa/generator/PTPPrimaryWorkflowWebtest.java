@@ -27,7 +27,7 @@ public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
 	static final String source = "CUK";
 
 	@Before
-	public void setup(){
+	public void setup(){ 
 
 		ptpWorkflow = PTPWorkflow.builder()//
 				.sourceName(source)//

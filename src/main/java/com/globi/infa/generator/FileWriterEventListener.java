@@ -13,12 +13,11 @@ import org.springframework.stereotype.Component;
 import com.globi.infa.workflow.GeneratedWorkflow;
 
 @Component
-public class FileWriterWFGenerationEventListener implements WorkflowCreatedEventListener {
+public class FileWriterEventListener implements WorkflowCreatedEventListener {
 
 	@Autowired
 	private Jaxb2Marshaller marshaller;
-	
-	
+		
 	@Value("${output.dir}")
 	private String fileDirectory;
 

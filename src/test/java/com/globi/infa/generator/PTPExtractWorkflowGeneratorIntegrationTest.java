@@ -2,14 +2,12 @@ package com.globi.infa.generator;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.junit.Before;
@@ -44,18 +42,6 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 	@Before
 	public void setup() {
 
-	}
-
-	private void saveXML(Object jaxbObject, String fileName) throws IOException {
-		FileOutputStream os = null;
-		try {
-			os = new FileOutputStream(fileName);
-			this.marshaller.marshal(jaxbObject, new StreamResult(os));
-		} finally {
-			if (os != null) {
-				os.close();
-			}
-		}
 	}
 
 	private String asString(JAXBContext pContext, Object pObject) throws JAXBException {
@@ -112,8 +98,6 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
 		POWERMART controlObj = loadControlFileAsObject("PTP_S_ORG_EXT_Extract");
 		String controlXML = asString(marshaller.getJaxbContext(), controlObj);
-
-		this.saveXML(pmObj.pmObject, "c:\\temp\\PTP_" + sourceTable + "_Extract.xml");
 		wfRepository.save(ptpWorkflow);
 		assertXMLEqual(controlXML, testXML);
 
@@ -145,8 +129,6 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
 		POWERMART controlObj = loadControlFileAsObject("PTP_R_INVOICE_MASTER_Extract");
 		String controlXML = asString(marshaller.getJaxbContext(), controlObj);
-
-		this.saveXML(pmObj.pmObject, "c:\\temp\\PTP_" + sourceTable + "_Extract.xml");
 
 		wfRepository.save(ptpWorkflow);
 		assertXMLEqual(controlXML, testXML);

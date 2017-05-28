@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.globi.infa.generator.FileWriterWFGenerationEventListener;
+import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
 import com.globi.infa.generator.PTPPrimaryGenerationStrategy;
 
@@ -21,7 +21,7 @@ public class InfaPTPWorkflowController {
 	private PTPWorkflowRepository repository;
 
 	@Autowired
-	FileWriterWFGenerationEventListener fileWriter;
+	FileWriterEventListener fileWriter;
 
 	@Autowired
 	private PTPExtractGenerationStrategy ptpExtractgenerator;
