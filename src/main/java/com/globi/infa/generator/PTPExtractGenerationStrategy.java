@@ -1,4 +1,4 @@
-package com.globi.infa.workflow;
+package com.globi.infa.generator;
 
 import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getEtlProcWidMappingVariable;
 import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getFolderFor;
@@ -15,69 +15,28 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
-import com.globi.infa.datasource.core.DataTypeMapper;
-import com.globi.infa.datasource.core.SourceMetadataFactory;
+import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
+import com.globi.infa.datasource.core.InfaSourceDefinition;
 import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
-import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
-import com.globi.infa.datasource.core.TableColumnRepository;
-import com.globi.infa.generator.InfaPowermartObject;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
 import com.globi.infa.generator.builder.FilterXformBuilder;
-import com.globi.infa.generator.builder.PowermartObjectBuilder;
 import com.globi.infa.generator.builder.LookupXformBuilder;
+import com.globi.infa.generator.builder.PowermartObjectBuilder;
 import com.globi.infa.generator.builder.SequenceXformBuilder;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
-import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
-import com.globi.infa.datasource.core.InfaSourceDefinition;
+import com.globi.infa.workflow.GeneratedWorkflow;
+import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
-import com.globi.metadata.sourcesystem.SourceSystemRepository;
-
-import lombok.Setter;
 
 @Component
-public class PTPExtractGenerationStrategy implements InfaGenerationStrategy {
-
-	@Autowired
-	Jaxb2Marshaller marshaller;
-
-	@Autowired
-	protected SourceSystemRepository sourceSystemRepo;
-
-	@Autowired
-	private SourceMetadataFactoryMapper metadataFactoryMapper;
-
-	private SourceMetadataFactory sourceMetadataFactory;
-
-	public void setWfDefinition(PTPWorkflow wfDefinition) {
-		this.wfDefinition = wfDefinition;
-
-		// get the correct factory based on the Source System Name.
-		// Each Source needs a different Factory due to the inherent differences
-		// between them
-		this.sourceMetadataFactory = this.metadataFactoryMapper.getMetadataFactoryMap()
-				.get(wfDefinition.getSourceName());
-		this.dataTypeMapper = sourceMetadataFactory.createDatatypeMapper();
-		this.colRepository = sourceMetadataFactory.createTableColumnRepository();
-		this.columnQueryVisitor = sourceMetadataFactory.createTableColumnMetadataVisitor();
-
-	}
-
-	private PTPWorkflow wfDefinition;
-
-	@Setter
-	DataTypeMapper dataTypeMapper;
-	@Setter
-	private TableColumnRepository colRepository;
-	@Setter
-	private TableColumnMetadataVisitor columnQueryVisitor;
+public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
 	PTPExtractGenerationStrategy(Jaxb2Marshaller marshaller, SourceMetadataFactoryMapper metadataFactoryMapper) {
 		this.marshaller = marshaller;
@@ -132,7 +91,7 @@ public class PTPExtractGenerationStrategy implements InfaGenerationStrategy {
 
 		}).collect(Collectors.toList());
 
-		//Find and set the sourceQualifier filter column
+		// Find and set the sourceQualifier filter column
 		Optional<PTPWorkflowSourceColumn> sourceQualifierFilterClauseColumn = inputSelectedColumns.stream()//
 				.filter(column -> column.isChangeCaptureColumn())//
 				.findAny();
@@ -179,8 +138,7 @@ public class PTPExtractGenerationStrategy implements InfaGenerationStrategy {
 						.expression("EXP_Resolve")//
 						.addEffectiveFromDateField()//
 						.addEtlProcWidField()//
-						.addDatasourceNumIdField()
-						.addIntegrationIdField(sourceTableDef.getColumns())//
+						.addDatasourceNumIdField().addIntegrationIdField(sourceTableDef.getColumns())//
 						.addPGUIDField(sourceTableDef.getDatabaseName(), sourceTableDef.getColumns())
 						.addMD5HashField(sourceTableDef.getColumns())//
 						.addRowWidField()//
@@ -245,6 +203,8 @@ public class PTPExtractGenerationStrategy implements InfaGenerationStrategy {
 			pmObj = this.generateWorkflow();
 		} catch (IOException | SAXException | JAXBException e) {
 			e.printStackTrace();
+			throw new WorkflowGenerationException((GeneratedWorkflow) this.wfDefinition, e.getMessage());
+
 		}
 
 		return pmObj;

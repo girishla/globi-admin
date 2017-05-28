@@ -1,6 +1,6 @@
 package com.globi.infa.workflow;
 
-public interface Workflow {
+public interface GeneratedWorkflow {
 
 	InfaWorkflow getWorkflow();
 	

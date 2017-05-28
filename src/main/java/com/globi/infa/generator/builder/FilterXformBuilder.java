@@ -1,6 +1,6 @@
 package com.globi.infa.generator.builder;
 
-import static com.globi.infa.generator.InfagenDefaults.DEFAULT_VERSION;
+import static com.globi.infa.generator.InfaGeneratorDefaults.DEFAULT_VERSION;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;

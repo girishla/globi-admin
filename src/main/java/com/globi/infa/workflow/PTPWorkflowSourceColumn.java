@@ -23,7 +23,6 @@ import lombok.ToString;
 
 @Entity
 @ToString(callSuper = true)
-// @RequiredArgsConstructor
 @Getter
 @Setter
 @NoArgsConstructor
@@ -44,8 +43,5 @@ public class PTPWorkflowSourceColumn extends AbstractEntity {
 	@Column(name="cc_indicator")
 	private boolean changeCaptureColumn = false;
 
-/*	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "workflow_id", nullable = false, insertable = false, updatable = false)
-	private PTPWorkflow workflow;*/
 
 }

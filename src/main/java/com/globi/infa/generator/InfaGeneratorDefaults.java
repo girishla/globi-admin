@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum InfagenDefaults {
+public enum InfaGeneratorDefaults {
 	
 	DEFAULT_FIELD_LEVEL(Constants.DEFAULT_FIELD_LEVEL),
 	DEFAULT_DESCRIPTION(Constants.DEFAULT_DESCRIPTION),

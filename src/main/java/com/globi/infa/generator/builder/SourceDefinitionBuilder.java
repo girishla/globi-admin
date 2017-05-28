@@ -1,7 +1,7 @@
 package com.globi.infa.generator.builder;
 
-import static com.globi.infa.generator.InfagenDefaults.DEFAULT_DESCRIPTION;
-import static com.globi.infa.generator.InfagenDefaults.DEFAULT_VERSION;
+import static com.globi.infa.generator.InfaGeneratorDefaults.DEFAULT_DESCRIPTION;
+import static com.globi.infa.generator.InfaGeneratorDefaults.DEFAULT_VERSION;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

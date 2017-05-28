@@ -1,4 +1,4 @@
-package com.globi.infa.workflow;
+package com.globi.infa.generator;
 
 import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getEtlProcWidMappingVariable;
 import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getFolderFor;
@@ -7,77 +7,31 @@ import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getMappin
 import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getRepository;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
-import com.globi.infa.datasource.core.DataTypeMapper;
-import com.globi.infa.datasource.core.SourceMetadataFactory;
+import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
+import com.globi.infa.datasource.core.InfaSourceDefinition;
 import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
-import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
-import com.globi.infa.datasource.core.TableColumnRepository;
-import com.globi.infa.generator.InfaPowermartObject;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
-import com.globi.infa.generator.builder.FilterXformBuilder;
-import com.globi.infa.generator.builder.PowermartObjectBuilder;
 import com.globi.infa.generator.builder.LookupXformBuilder;
-import com.globi.infa.generator.builder.SequenceXformBuilder;
+import com.globi.infa.generator.builder.PowermartObjectBuilder;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
-import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
-import com.globi.infa.datasource.core.InfaSourceDefinition;
+import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
-import com.globi.metadata.sourcesystem.SourceSystemRepository;
-
-import lombok.Setter;
 
 @Component
-public class PTPPrimaryGenerationStrategy implements InfaGenerationStrategy {
-
-	@Autowired
-	Jaxb2Marshaller marshaller;
-
-	@Autowired
-	protected SourceSystemRepository sourceSystemRepo;
-
-	@Autowired
-	private SourceMetadataFactoryMapper metadataFactoryMapper;
-
-	private SourceMetadataFactory sourceMetadataFactory;
-
-	public void setWfDefinition(PTPWorkflow wfDefinition) {
-		this.wfDefinition = wfDefinition;
-
-		// get the correct factory based on the Source System Name.
-		// Each Source needs a different Factory due to the inherent differences
-		// between them
-		this.sourceMetadataFactory = this.metadataFactoryMapper.getMetadataFactoryMap()
-				.get(wfDefinition.getSourceName());
-		this.dataTypeMapper = sourceMetadataFactory.createDatatypeMapper();
-		this.colRepository = sourceMetadataFactory.createTableColumnRepository();
-		this.columnQueryVisitor = sourceMetadataFactory.createTableColumnMetadataVisitor();
-
-	}
-
-	private PTPWorkflow wfDefinition;
-
-	@Setter
-	DataTypeMapper dataTypeMapper;
-	@Setter
-	private TableColumnRepository colRepository;
-	@Setter
-	private TableColumnMetadataVisitor columnQueryVisitor;
+public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
 	PTPPrimaryGenerationStrategy(Jaxb2Marshaller marshaller, SourceMetadataFactoryMapper metadataFactoryMapper) {
 		this.marshaller = marshaller;
@@ -88,8 +42,6 @@ public class PTPPrimaryGenerationStrategy implements InfaGenerationStrategy {
 	private InfaPowermartObject generateWorkflow() throws IOException, SAXException, JAXBException {
 
 		InfaSourceDefinition sourceTableDef;
-
-		Map<String, String> lookupXformValuesMap = new HashMap<>();
 
 		Optional<SourceSystem> source = sourceSystemRepo.findByName(wfDefinition.getSourceName());
 
@@ -138,15 +90,14 @@ public class PTPPrimaryGenerationStrategy implements InfaGenerationStrategy {
 
 		sourceTableDef.getColumns().addAll(matchedColumns);
 
-		lookupXformValuesMap.put("targetTableName",
-				sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName());
+		List<InfaSourceColumnDefinition> integrationIdCols = sourceTableDef.getColumns()//
+				.stream()//
+				.filter(column -> column.getIntegrationIdFlag())//
+				.collect(Collectors.toList());
 
-		List <InfaSourceColumnDefinition> integrationIdCols= sourceTableDef.getColumns().stream().filter(column -> column.getIntegrationIdFlag())
-		.collect(Collectors.toList());
-		
-		String targetTableDefnName=sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName()+ "_P";
-		
-		
+		String targetTableDefnName = sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName()
+				+ "_P";
+
 		InfaPowermartObject pmObj = PowermartObjectBuilder//
 				.newBuilder()//
 				.powermartObject().repository(getRepository())//
@@ -163,8 +114,7 @@ public class PTPPrimaryGenerationStrategy implements InfaGenerationStrategy {
 				.targetDefn(TargetDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.loadTargetFromSeed("Seed_PTPPrimaryExtractTargetTable")//
-						.noMoreFields()
-						.name(targetTableDefnName)//
+						.noMoreFields().name(targetTableDefnName)//
 						.build())//
 				.noMoreTargets()//
 				.mappingDefn(getMappingFrom("PTP_" + sourceTableDef.getSourceTableName() + "_Primary"))//
@@ -182,8 +132,7 @@ public class PTPPrimaryGenerationStrategy implements InfaGenerationStrategy {
 						.expressionFromPrototype("ExpFromPrototype")//
 						.expression("EXP_Resolve")//
 						.addIntegrationIdField(integrationIdCols)//
-						.addDatasourceNumIdField()
-						.noMoreFields()//
+						.addDatasourceNumIdField().noMoreFields()//
 						.nameAlreadySet()//
 						.build())//
 				.transformationCopyConnectAllFields("SQ_PrimaryData", "EXP_Resolve")//
@@ -195,10 +144,8 @@ public class PTPPrimaryGenerationStrategy implements InfaGenerationStrategy {
 						.build())
 				.noMoreTransformations()//
 				.autoConnectByName(sourceTableDef.getSourceTableName(), "SQ_PrimaryData")//
-				.autoConnectByName("LKP_RecordKeys",
-						targetTableDefnName)//
-				.autoConnectByName("EXP_Resolve",
-						targetTableDefnName)//
+				.autoConnectByName("LKP_RecordKeys", targetTableDefnName)//
+				.autoConnectByName("EXP_Resolve", targetTableDefnName)//
 				.connector("EXP_Resolve", "INTEGRATION_ID", "LKP_RecordKeys", "INTEGRATION_ID_IN")//
 				.noMoreConnectors()//
 				.noMoreTargetLoadOrders()//
@@ -227,6 +174,7 @@ public class PTPPrimaryGenerationStrategy implements InfaGenerationStrategy {
 
 		try {
 			pmObj = this.generateWorkflow();
+			this.notifyListeners(pmObj,wfDefinition);
 		} catch (IOException | SAXException | JAXBException e) {
 			e.printStackTrace();
 		}

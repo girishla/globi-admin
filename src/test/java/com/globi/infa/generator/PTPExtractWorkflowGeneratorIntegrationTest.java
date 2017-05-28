@@ -23,7 +23,6 @@ import org.xml.sax.SAXException;
 
 import com.globi.AbstractIntegrationTest;
 import com.globi.infa.workflow.InfaWorkflow;
-import com.globi.infa.workflow.PTPExtractGenerationStrategy;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;

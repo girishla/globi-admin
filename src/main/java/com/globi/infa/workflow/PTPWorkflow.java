@@ -12,7 +12,6 @@ import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.WhereJoinTable;
@@ -25,7 +24,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.Singular;
 import lombok.ToString;
@@ -40,7 +38,7 @@ import lombok.ToString;
 @Table(name = "M_INFA_PTP_WF")
 @AllArgsConstructor
 @Builder
-public class PTPWorkflow extends AbstractEntity implements Workflow{
+public class PTPWorkflow extends AbstractEntity implements GeneratedWorkflow{
 	
 	@NonNull
 	@NotBlank(message = "PTP Workflow source name cannot be empty!")
