@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -15,7 +16,7 @@ import com.globi.AbstractWebIntegrationTest;
 
 public class InfaSourceDefinitionWebTest extends AbstractWebIntegrationTest {
 
-	@Test
+	@Test @Ignore("not ready yet")
 	public void createsPIPSourceDefinitionFromSourceTableName() throws Exception {
 
 

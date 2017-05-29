@@ -38,6 +38,12 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 	@Autowired
 	PTPWorkflowRepository wfRepository;
 	PTPWorkflow ptpWorkflow;
+	
+	@Autowired
+	FileWriterEventListener fileWriter;
+
+	@Autowired
+	GitWriterEventListener gitWriter;
 
 	@Before
 	public void setup() {
@@ -93,6 +99,9 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 				.build();
 
 		generator.setWfDefinition(ptpWorkflow);
+		generator.addListener(fileWriter);
+		generator.addListener(gitWriter);
+		
 		InfaPowermartObject pmObj = generator.generate();
 
 		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
@@ -124,6 +133,8 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 				.build();
 
 		generator.setWfDefinition(ptpWorkflow);
+		generator.addListener(fileWriter);
+		generator.addListener(gitWriter);
 		InfaPowermartObject pmObj = generator.generate();
 
 		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
