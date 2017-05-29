@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.globi.infa.generator.FileWriterEventListener;
+import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
 import com.globi.infa.generator.PTPPrimaryGenerationStrategy;
 
@@ -24,6 +25,10 @@ public class InfaPTPWorkflowController {
 	FileWriterEventListener fileWriter;
 
 	@Autowired
+	GitWriterEventListener gitWriter;
+	
+	
+	@Autowired
 	private PTPExtractGenerationStrategy ptpExtractgenerator;
 	
 	
@@ -36,10 +41,9 @@ public class InfaPTPWorkflowController {
 	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow(@RequestBody PTPWorkflow ptpWorkflow) {
 
 		ptpExtractgenerator.setWfDefinition(ptpWorkflow);
-		ptpPrimarygenerator.addListener(fileWriter);
+		ptpExtractgenerator.addListener(fileWriter);
+		ptpExtractgenerator.addListener(gitWriter);
 		ptpExtractgenerator.generate();
-
-
 
 		return new ResponseEntity<PTPWorkflow>(repository.save(ptpWorkflow), HttpStatus.CREATED);
 	}
@@ -51,7 +55,8 @@ public class InfaPTPWorkflowController {
 
 		ptpPrimarygenerator.setWfDefinition(ptpWorkflow);
 		ptpPrimarygenerator.addListener(fileWriter);
-		
+		ptpPrimarygenerator.addListener(gitWriter);
+	
 		ptpPrimarygenerator.generate();
 
 
