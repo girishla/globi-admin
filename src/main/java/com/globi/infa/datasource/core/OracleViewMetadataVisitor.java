@@ -17,7 +17,7 @@ public class OracleViewMetadataVisitor implements TableMetadataVisitor {
 	
 	protected static final RowMapper<DataSourceTableDTO> tableMapper = new RowMapper<DataSourceTableDTO>() {
 		public DataSourceTableDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-			DataSourceTableDTO table = new DataSourceTableDTO(rowNum, rs.getString("OWNER"), rs.getString("VIEW_NAME"));
+			DataSourceTableDTO table = new DataSourceTableDTO(rowNum, rs.getString("OWNER"), rs.getString("VIEW_NAME"),"");
 			return table;
 		}
 	};

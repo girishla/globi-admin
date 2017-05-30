@@ -27,6 +27,7 @@ public class DataSourceTableDTO  {
 	private String tableName;
 	
 	
-
+	@NonNull
+	private String sourceName;
 	
 }

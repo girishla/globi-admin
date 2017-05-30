@@ -34,7 +34,6 @@ public class FBMTableColumnController {
 	public FBMTableColumnController(FBMTableColumnRepository repo) {
 		repository = repo;
 	}
-
 	
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/datasources/fbm/tables/{tableName}/columns")
 	public @ResponseBody ResponseEntity<?> getTableColumns(@PathVariable String tableName) {

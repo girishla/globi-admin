@@ -25,20 +25,23 @@ public class DataSourceTableColumnDTO  {
 	private Integer  id;
 	
 	@NonNull
+	private String sourceName;
+	
+	@NonNull
 	private String tableOwner;
 	
 	@NonNull
 	private String tableName;
 	
 	@NonNull
-	private String name;
+	private String colName;
 	
 	@NonNull
 	private String dataType;
 
-	private String integrationId;
+	private boolean integrationId;
 
-	private String changeCaptureCol;
+	private boolean changeCaptureCol;
 	
 	
 }

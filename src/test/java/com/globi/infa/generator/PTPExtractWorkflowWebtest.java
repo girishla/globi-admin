@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -29,8 +30,6 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 
 	@Before
 	public void setup(){
-		
-		
 				
 
 		ptpWorkflow = PTPWorkflow.builder()//
@@ -49,7 +48,7 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 		
 	}
 	
-	@Test
+	@Test @Ignore
 	public void createsWorkflowResourceFromWorkflowDefinition() throws Exception {
 
 		mvc.perform(post("/infagen/workflows/ptpExtract")//
@@ -64,17 +63,19 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 
 	}
 	
-	public void canCreateWorkflowFromTargetTableDefinition() throws Exception{
+	
+	@Test
+	public void canCreateWorkflowFromExistingTopDownMetadata() throws Exception{
 		
-		mvc.perform(post("/infagen/workflows/ptpFromTargetDefn")//
-				.content(asJsonString(ptpWorkflow))//
+		mvc.perform(post("/infagen/workflows/ptpFromMetadata")//
+				.content("")//
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//
 				.andDo(MockMvcResultHandlers.print())//
 				.andExpect(status().isCreated())//
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))//
-				.andExpect(jsonPath("$.workflow.workflowName", notNullValue()))//
-				.andExpect(jsonPath("$.workflow.workflowUri", notNullValue()));
+				.andExpect(jsonPath("$[0].workflow.workflowName", notNullValue()))//
+				.andExpect(jsonPath("$[0].workflow.workflowUri", notNullValue()));
 		
 		
 	}
