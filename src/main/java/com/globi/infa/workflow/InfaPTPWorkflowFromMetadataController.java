@@ -60,34 +60,35 @@ public class InfaPTPWorkflowFromMetadataController {
 					.tableOwner(column.getTableOwner()).build();
 		}).collect(Collectors.toMap(DataSourceTableDTO::getTableName, p -> p, (p, q) -> p));
 
-		
 		tables.keySet().stream().forEach(table -> {
-			
+
+			// Build input WF definition and run generator once for each table
 			log.info("------------------------------------------*");
 			log.info("**************beginning to process " + table);
 
-			// Build input WF definition and run generator once for each table
-
 			List<PTPWorkflowSourceColumn> workflowSourceColumnList = new ArrayList<>();
-			columns.stream().filter(column -> column.getTableName().equals(table)).forEach(column -> {
 
-				if (column.getColName().equals("ROW_ID")) {
-					column.setIntegrationId(true);
-				}
+			//all columns in the metadata become input columns to the generator 
+			columns.stream()//
+					.filter(column -> column.getTableName().equals(table))//
+					.forEach(column -> {
+						// ugly hack to deal with Siebel sources. to be removed
+						// where this metadata is captured elsewhere
+						if (column.getColName().equals("ROW_ID")) {
+							column.setIntegrationId(true);
+						}
 
-				if (column.getColName().equals("LAST_UPD")) {
-					column.setChangeCaptureCol(true);
-				}
+						if (column.getColName().equals("LAST_UPD")) {
+							column.setChangeCaptureCol(true);
+						}
 
-				workflowSourceColumnList.add(PTPWorkflowSourceColumn.builder()//
-						.changeCaptureColumn(column.isChangeCaptureCol())//
-						.integrationIdColumn(column.isIntegrationId())//
-						.sourceColumnName(column.getColName()).build());
+						workflowSourceColumnList.add(PTPWorkflowSourceColumn.builder()//
+								.changeCaptureColumn(column.isChangeCaptureCol())//
+								.integrationIdColumn(column.isIntegrationId())//
+								.sourceColumnName(column.getColName())//
+								.build());
 
-			});
-			
-			
-			
+					});
 
 			PTPWorkflow ptpWorkflow = PTPWorkflow.builder()//
 					.sourceName(tables.get(table).getSourceName())//
@@ -101,12 +102,8 @@ public class InfaPTPWorkflowFromMetadataController {
 					.build();
 
 			log.info("************************************************");
-			log.info("************************************************");
-			log.info("************************************************");
-			log.info("************************************************");
-			
 			log.info(ptpWorkflow.toString());
-			
+
 			ptpExtractgenerator.setWfDefinition(ptpWorkflow);
 			ptpExtractgenerator.addListener(fileWriter);
 			ptpExtractgenerator.addListener(gitWriter);
