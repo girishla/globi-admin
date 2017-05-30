@@ -241,7 +241,7 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
 			xformExpressionField.setNAME("DATASOURCE_NUM_ID");
 			xformExpressionField.setPICTURETEXT("");
-			xformExpressionField.setPORTTYPE("INPUT/OUTPUT");
+			xformExpressionField.setPORTTYPE("OUTPUT");
 			xformExpressionField.setPRECISION("10");
 			xformExpressionField.setSCALE("0");
 

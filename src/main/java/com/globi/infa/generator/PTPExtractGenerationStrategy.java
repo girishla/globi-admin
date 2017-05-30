@@ -144,7 +144,8 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.expression("EXP_Resolve")//
 						.addEffectiveFromDateField()//
 						.addEtlProcWidField()//
-						.addDatasourceNumIdField().addIntegrationIdField(sourceTableDef.getColumns())//
+						.addDatasourceNumIdField()//
+						.addIntegrationIdField(sourceTableDef.getColumns())//
 						.addPGUIDField(sourceTableDef.getDatabaseName(), sourceTableDef.getColumns())
 						.addMD5HashField(sourceTableDef.getColumns())//
 						.addRowWidField()//
