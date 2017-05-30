@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.globi.infa.DataSourceTableDTO;
+import com.globi.infa.datasource.core.DataSourceTableDTO;
 import com.globi.infa.datasource.core.TableMetadataVisitor;
 import com.globi.infa.datasource.core.TableRepository;
 import com.globi.metadata.sourcesystem.SourceSystem;

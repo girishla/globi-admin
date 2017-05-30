@@ -1,10 +1,7 @@
 package com.globi.infa.generator;
 
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getEtlProcWidMappingVariable;
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getFolderFor;
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getInitialExtractDateMappingVariable;
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getMappingFrom;
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getRepository;
+import static com.globi.infa.generator.builder.InfaObjectStaticFactory.*;
+
 
 import java.io.IOException;
 import java.util.List;
@@ -150,7 +147,9 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 				.noMoreConnectors()//
 				.noMoreTargetLoadOrders()//
 				.mappingvariable(getEtlProcWidMappingVariable())//
-				.mappingvariable(getInitialExtractDateMappingVariable()).noMoreMappingVariables()//
+				.mappingvariable(getInitialExtractDateMappingVariable())//
+				.mappingvariable(getDataSourceNumIdMappingVariable())
+				.noMoreMappingVariables()//
 				.setdefaultConfigFromSeed("Seed_DefaultSessionConfig")//
 				.workflow(WorkflowDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//

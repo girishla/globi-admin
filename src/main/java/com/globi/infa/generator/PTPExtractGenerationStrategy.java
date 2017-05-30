@@ -1,5 +1,6 @@
 package com.globi.infa.generator;
 
+import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getDataSourceNumIdMappingVariable;
 import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getEtlProcWidMappingVariable;
 import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getFolderFor;
 import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getInitialExtractDateMappingVariable;
@@ -95,7 +96,15 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		Optional<PTPWorkflowSourceColumn> sourceQualifierFilterClauseColumn = inputSelectedColumns.stream()//
 				.filter(column -> column.isChangeCaptureColumn())//
 				.findAny();
-
+		
+		String sourceFilter="";
+		
+		if(sourceQualifierFilterClauseColumn.isPresent()){
+			sourceFilter=sourceTableDef.getSourceTableName() + "." + sourceQualifierFilterClauseColumn.get().getSourceColumnName()
+					+ " >= TO_DATE('$$INITIAL_EXTRACT_DATE','dd/MM/yyyy HH24:mi:ss')";
+				
+		}
+		
 		sourceTableDef.getColumns().addAll(matchedColumns);
 
 		lookupXformValuesMap.put("targetTableName",
@@ -125,10 +134,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.mappingDefn(getMappingFrom("PTP_" + sourceTableDef.getSourceTableName() + "_Extract"))//
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.setValue("sourceFilter",
-								sourceTableDef.getSourceTableName() + "."
-										+ sourceQualifierFilterClauseColumn.get().getSourceColumnName()
-										+ " >= TO_DATE('$$INITIAL_EXTRACT_DATE','dd/MM/yyyy HH24:mi:ss')")
+						.setValue("sourceFilter",sourceFilter)
 						.noMoreValues().loadSourceQualifierFromSeed("Seed_SourceQualifier")//
 						.addFields(dataTypeMapper, sourceTableDef.getColumns())//
 						.name("SQ_ExtractData")//
@@ -177,7 +183,9 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.noMoreConnectors()//
 				.noMoreTargetLoadOrders()//
 				.mappingvariable(getEtlProcWidMappingVariable())//
-				.mappingvariable(getInitialExtractDateMappingVariable()).noMoreMappingVariables()//
+				.mappingvariable(getInitialExtractDateMappingVariable())//
+				.mappingvariable(getDataSourceNumIdMappingVariable())
+				.noMoreMappingVariables()//
 				.setdefaultConfigFromSeed("Seed_DefaultSessionConfig")//
 				.workflow(WorkflowDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
@@ -185,7 +193,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.setValue("primaryName", sourceTableDef.getSourceTableName())//
 						.setValue("suffix", "Extract")//
 						.setValue("sourceShortCode", sourceTableDef.getDatabaseName())//
-						.setValue("TargetShortCode", "LAW")//
+						.setValue("TargetShortCode", "PDL")//
 						.noMoreValues()//
 						.loadWorkflowFromSeed("Seed_PTPExtractWorkflow")//
 						.nameAlreadySet()//
@@ -195,14 +203,13 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		return pmObj;
 	}
 
-	
 	@Override
 	public InfaPowermartObject generate() {
 		InfaPowermartObject pmObj = null;
 
 		try {
 			pmObj = this.generateWorkflow();
-			this.notifyListeners(pmObj,wfDefinition);
+			this.notifyListeners(pmObj, wfDefinition);
 		} catch (IOException | SAXException | JAXBException e) {
 			e.printStackTrace();
 			throw new WorkflowGenerationException((GeneratedWorkflow) this.wfDefinition, e.getMessage());

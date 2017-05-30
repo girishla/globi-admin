@@ -8,8 +8,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
-import com.globi.infa.DataSourceTableDTO;
-
 
 @Component
 public class OracleViewMetadataVisitor implements TableMetadataVisitor {

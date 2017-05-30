@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import com.globi.AbstractWebIntegrationTest;
+import com.globi.infa.datasource.core.DataSourceTableColumnDTO;
 import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
@@ -28,6 +29,9 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 
 	@Before
 	public void setup(){
+		
+		
+				
 
 		ptpWorkflow = PTPWorkflow.builder()//
 				.sourceName(source)//
@@ -40,6 +44,8 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 						.workflowType("PTP")//
 						.build())
 				.build();
+
+		
 		
 	}
 	
@@ -57,5 +63,22 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 				.andExpect(jsonPath("$.workflow.workflowUri", notNullValue()));
 
 	}
+	
+	public void canCreateWorkflowFromTargetTableDefinition() throws Exception{
+		
+		mvc.perform(post("/infagen/workflows/ptpFromTargetDefn")//
+				.content(asJsonString(ptpWorkflow))//
+				.contentType(MediaType.APPLICATION_JSON_VALUE)//
+				.accept(MediaType.APPLICATION_JSON_VALUE))//
+				.andDo(MockMvcResultHandlers.print())//
+				.andExpect(status().isCreated())//
+				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))//
+				.andExpect(jsonPath("$.workflow.workflowName", notNullValue()))//
+				.andExpect(jsonPath("$.workflow.workflowUri", notNullValue()));
+		
+		
+	}
+	
+	
 
 }

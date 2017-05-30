@@ -134,6 +134,23 @@ public class InfaObjectStaticFactory {
 
 	}
 
+	
+	public static MAPPINGVARIABLE getDataSourceNumIdMappingVariable() {
+
+		MAPPINGVARIABLE mappingVariable = new MAPPINGVARIABLE();
+		mappingVariable.setDATATYPE("decimal");
+		mappingVariable.setDEFAULTVALUE("0");
+		mappingVariable.setDESCRIPTION("");
+		mappingVariable.setISEXPRESSIONVARIABLE("NO");
+		mappingVariable.setISPARAM("YES");
+		mappingVariable.setNAME("$$DATASOURCE_NUM_ID");
+		mappingVariable.setPRECISION("10");
+		mappingVariable.setSCALE("0");
+		mappingVariable.setUSERDEFINED("YES");
+		return mappingVariable;
+
+	}
+
 	public static MAPPINGVARIABLE getInitialExtractDateMappingVariable() {
 
 		MAPPINGVARIABLE mappingVariable = new MAPPINGVARIABLE();

@@ -21,7 +21,6 @@ public class InfaConfig {
 		
 		marshallerProps.put(Marshaller.JAXB_FRAGMENT, true);
 		marshallerProps.put("com.sun.xml.internal.bind.xmlHeaders","<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE POWERMART SYSTEM \"powrmart.dtd\">");
-//		marshallerProps.put("com.sun.xml.internal.bind.xmlHeaders","<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 		marshaller.setMarshallerProperties(marshallerProps);
 		marshaller.setSupportDtd(true);
 		return marshaller;

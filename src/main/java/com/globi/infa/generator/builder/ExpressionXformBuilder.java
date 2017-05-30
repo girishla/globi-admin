@@ -235,7 +235,7 @@ public class ExpressionXformBuilder {
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("decimal");
-			xformExpressionField.setDEFAULTVALUE("ERROR('transformation error')");
+			xformExpressionField.setDEFAULTVALUE("");
 			xformExpressionField.setDESCRIPTION("");
 			xformExpressionField.setEXPRESSION("$$DATASOURCE_NUM_ID");
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
@@ -259,7 +259,7 @@ public class ExpressionXformBuilder {
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("decimal");
-			xformExpressionField.setDEFAULTVALUE("ERROR('transformation error')");
+			xformExpressionField.setDEFAULTVALUE("");
 			xformExpressionField.setDESCRIPTION("");
 			xformExpressionField.setEXPRESSION("$$ETL_PROC_WID");
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
@@ -303,7 +303,7 @@ public class ExpressionXformBuilder {
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("string");
-			xformExpressionField.setDEFAULTVALUE("ERROR('transformation error')");
+			xformExpressionField.setDEFAULTVALUE("");
 			xformExpressionField.setDESCRIPTION("");
 			xformExpressionField.setEXPRESSION(concatenatedId);
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
@@ -328,9 +328,9 @@ public class ExpressionXformBuilder {
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("string");
-			xformExpressionField.setDEFAULTVALUE("ERROR('transformation error')");
+			xformExpressionField.setDEFAULTVALUE("");
 			xformExpressionField.setDESCRIPTION("");
-			xformExpressionField.setEXPRESSION("'" + sourceName + "':" + concatenatedId);
+			xformExpressionField.setEXPRESSION("'" + sourceName + "'||':' ||" + concatenatedId);
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
 			xformExpressionField.setNAME("PGUID");
 			xformExpressionField.setPICTURETEXT("");
@@ -352,7 +352,7 @@ public class ExpressionXformBuilder {
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("string");
-			xformExpressionField.setDEFAULTVALUE("ERROR('transformation error')");
+			xformExpressionField.setDEFAULTVALUE("");
 			xformExpressionField.setDESCRIPTION("");
 			xformExpressionField.setEXPRESSION("MD5(" + MD5Value + ")");
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
