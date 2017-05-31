@@ -19,8 +19,6 @@ import lombok.Setter;
 
 public abstract class AbstractGenerationStrategy {
 
-	
-	
 	@Autowired
 	protected Jaxb2Marshaller marshaller;
 
@@ -32,7 +30,6 @@ public abstract class AbstractGenerationStrategy {
 
 	protected SourceMetadataFactory sourceMetadataFactory;
 
-
 	protected PTPWorkflow wfDefinition;
 
 	@Setter
@@ -41,31 +38,30 @@ public abstract class AbstractGenerationStrategy {
 	protected TableColumnRepository colRepository;
 	@Setter
 	protected TableColumnMetadataVisitor columnQueryVisitor;
-	
-	
+
 	protected final List<WorkflowCreatedEventListener> createdEventListeners = new ArrayList<>();;
 
 	public void addListener(WorkflowCreatedEventListener listener) {
-		createdEventListeners.add(listener);
+		if (!createdEventListeners.contains(listener)) {
+			createdEventListeners.add(listener);
+		}
 	}
 
 	public void removeListener(WorkflowCreatedEventListener listener) {
 		createdEventListeners.remove(listener);
 	}
 
-	protected void notifyListeners(InfaPowermartObject pmo,GeneratedWorkflow wf) {
+	protected void notifyListeners(InfaPowermartObject pmo, GeneratedWorkflow wf) {
 		for (WorkflowCreatedEventListener listener : createdEventListeners) {
-			listener.notify(pmo,wf);
+			listener.notify(pmo, wf);
 		}
 	}
 
-	
 	public void setWfDefinition(PTPWorkflow wfDefinition) {
 		this.wfDefinition = wfDefinition;
 
 		// get the correct factory based on the Source System Name.
-		// Each Source needs a different Factory due to the inherent differences
-		// between them
+		// Each Source needs a different Factory due to the inherent differences between them
 		this.sourceMetadataFactory = this.metadataFactoryMapper.getMetadataFactoryMap()
 				.get(wfDefinition.getSourceName());
 		this.dataTypeMapper = sourceMetadataFactory.createDatatypeMapper();
@@ -73,6 +69,5 @@ public abstract class AbstractGenerationStrategy {
 		this.columnQueryVisitor = sourceMetadataFactory.createTableColumnMetadataVisitor();
 
 	}
-	
-	
+
 }

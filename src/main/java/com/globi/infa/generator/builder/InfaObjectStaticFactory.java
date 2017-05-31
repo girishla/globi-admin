@@ -74,6 +74,7 @@ public class InfaObjectStaticFactory {
 		instance.setTRANSFORMATIONTYPE(xform.getTYPE());
 		instance.setTRANSFORMATIONNAME(xform.getNAME());
 		instance.setTYPE("TRANSFORMATION");
+		instance.setREUSABLE("NO");
 
 		return instance;
 	}
@@ -86,6 +87,7 @@ public class InfaObjectStaticFactory {
 		instance.setTRANSFORMATIONTYPE("Source Definition");
 		instance.setTRANSFORMATIONNAME(source.getNAME());
 		instance.setTYPE("SOURCE");
+		instance.setDBDNAME(source.getDBDNAME());
 
 		return instance;
 	}
