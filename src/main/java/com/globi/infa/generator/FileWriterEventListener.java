@@ -18,12 +18,13 @@ public class FileWriterEventListener implements WorkflowCreatedEventListener {
 	@Autowired
 	private Jaxb2Marshaller marshaller;
 		
-	@Value("${output.dir}")
+	@Value("${temp.dir}")
 	private String fileDirectory;
 
 	private void saveXML(Object jaxbObject,String fileName) throws IOException {
 		FileOutputStream os = null;
 		try {
+			
 			os = new FileOutputStream(fileDirectory + fileName + ".xml");
 			this.marshaller.marshal(jaxbObject, new StreamResult(os));
 		} finally {
