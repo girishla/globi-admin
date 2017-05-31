@@ -1,7 +1,10 @@
 package com.globi.infa.workflow;
 
 
+import java.util.Optional;
+
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 /**
@@ -18,8 +21,8 @@ public interface PTPWorkflowRepository extends CrudRepository<PTPWorkflow, Long>
 	 * @param workflowName must not be {@literal null}.
 	 * @return
 	 */
-//	Optional<PTPWorkflow> findByWorkflowName(@Param("workflowName") String workflowName);
-
 	
+	Optional<PTPWorkflow> findByWorkflow_workflowName(@Param("workflowName") String workflowName);
+
 
 }

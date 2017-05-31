@@ -31,7 +31,7 @@ public class InfaWorkflow extends AbstractEntity{
 		
 	@NonNull
 	@NotBlank(message = "Workflow name cannot be empty!")
-	@Column(name="wf_name")
+	@Column(name="wf_name",unique=true)
 	private String workflowName;
 	
 	@Column(name="wf_uri")

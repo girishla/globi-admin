@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.WhereJoinTable;
 import org.hibernate.validator.constraints.NotBlank;
@@ -35,7 +36,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "M_INFA_PTP_WF")
+@Table(name = "M_INFA_PTP_WF",uniqueConstraints={@UniqueConstraint(columnNames = {"src_name" , "src_table_name"})})
 @AllArgsConstructor
 @Builder
 public class PTPWorkflow extends AbstractEntity implements GeneratedWorkflow{
@@ -64,6 +65,7 @@ public class PTPWorkflow extends AbstractEntity implements GeneratedWorkflow{
 	private InfaWorkflow workflow;
  
 	
+
 	
 	
 }

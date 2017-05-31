@@ -34,8 +34,7 @@ public class FileWriterEventListener implements WorkflowCreatedEventListener {
 		}
 	}
 
-	
-	
+
 	@Override
 	public void notify(InfaPowermartObject generatedObject,GeneratedWorkflow wf) {
 

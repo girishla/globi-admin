@@ -34,13 +34,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @EntityListeners(AuditingEntityListener.class)
 public class AbstractEntity implements Identifiable<Long> {
 
-	private final @Id @GeneratedValue(strategy = GenerationType.AUTO) Long id;
+	@Id @GeneratedValue(strategy = GenerationType.AUTO)
+	final private Long id;
 	private @Version Long version;
 
 	protected AbstractEntity() {
 		this.id = null;
 	}
 	
+//	public void setId(Long id){
+//		this.id=id;
+//	}
+//	
 
 	@Override
 	public Long getId() {
