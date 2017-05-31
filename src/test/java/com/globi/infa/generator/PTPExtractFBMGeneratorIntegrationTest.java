@@ -39,7 +39,7 @@ import com.rits.cloning.Cloner;
 
 import xjc.POWERMART;
 
-public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrationTest {
+public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private Jaxb2Marshaller marshaller;
@@ -50,7 +50,6 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 	@Autowired
 	PTPWorkflowRepository wfRepository;
 
-
 	@Autowired
 	FileWriterEventListener fileWriter;
 	
@@ -60,27 +59,43 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 	@Autowired
 	GitWriterEventListener gitWriter;
 
-/*	@Autowired
+	@Autowired
 	private FBMTableColumnRepository fbmColrepository;
 
 	@Autowired
 	private OracleTableColumnMetadataVisitor oraColumnQueryVisitor;
-	*/
 	
-	private PTPWorkflow ptpWorkflowInputToGenerator;
+	
+	PTPWorkflow ptpWorkflowGeneratorInput ;
 
 	@Before
 	public void setup() {
 		
-		String sourceTable = "S_ORG_EXT";
-		String source = "CUK";
+		String sourceTable = "PS_LN_BI_INV_LN_VW";
+		String source = "FBM";
+		List<InfaSourceColumnDefinition> columns = fbmColrepository.accept(oraColumnQueryVisitor, sourceTable);
+		
+		// Build workflow columns DTO from source columns
+		List<PTPWorkflowSourceColumn> workflowSourceColumnList = columns.stream().map(column -> {
 
-		ptpWorkflowInputToGenerator  = PTPWorkflow.builder()//
+			if (column.getColumnName().equals("INVOICE") || column.getColumnName().equals("LINE_SEQ_NUM")) {
+				column.setIntegrationIdFlag(true);
+			}
+
+			PTPWorkflowSourceColumn wfCol = PTPWorkflowSourceColumn.builder()//
+					.integrationIdColumn(column.getIntegrationIdFlag())//
+					.changeCaptureColumn(false)//
+					.sourceColumnName(column.getColumnName())//
+					.build();
+
+			return wfCol;
+		}).collect(Collectors.toList());
+
+		
+		//Build definition to be passed as input to generator
+		ptpWorkflowGeneratorInput  = PTPWorkflow.builder()//
 				.sourceName(source)//
-				.sourceTableName(sourceTable)//
-				.column(new PTPWorkflowSourceColumn("ROW_ID", true, false))
-				.column(new PTPWorkflowSourceColumn("LAST_UPD", false, true))
-				.column(new PTPWorkflowSourceColumn("NAME", false, false))
+				.sourceTableName(sourceTable).columns(workflowSourceColumnList)
 				.workflow(InfaWorkflow.builder()//
 						.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
 						.workflowName("PTP_" + sourceTable + "_Extract")//
@@ -89,23 +104,20 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 				.build();
 
 	}
-
-
-
+	
+	
 	@Test
 	@Rollback(false)
-	public void generatesPTPWorkflowForOrgExtTable()
+	public void generatesPTPWorkflowForFBMView()
 			throws JAXBException, FileNotFoundException, IOException, SAXException {
 
-
-
-		generator.setWfDefinition(ptpWorkflowInputToGenerator);
+	
+		generator.setWfDefinition(ptpWorkflowGeneratorInput);
 		generator.addListener(fileWriter);
 		generator.addListener(gitWriter);
 		generator.addListener(repoWriter);
-
 		InfaPowermartObject pmObj = generator.generate();
-		
+
 		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
 
 		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/SOURCE")));
@@ -118,10 +130,7 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 				"/POWERMART/REPOSITORY/FOLDER/MAPPING/INSTANCE[@NAME='SQ_ExtractData']/ASSOCIATED_SOURCE_INSTANCE")));
 
 
-
 	}
-
-
 
 
 }
