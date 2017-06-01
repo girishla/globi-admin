@@ -56,7 +56,6 @@ public class InfaPTPWorkflowController {
 		ptpPrimarygenerator.setWfDefinition(ptpWorkflow);
 		ptpPrimarygenerator.addListener(fileWriter);
 		ptpPrimarygenerator.addListener(gitWriter);
-	
 		ptpPrimarygenerator.generate();
 
 

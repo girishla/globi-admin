@@ -20,7 +20,7 @@ import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
-public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
+public class PTPWorkflowsFromTopDownMetadataWebtest extends AbstractWebIntegrationTest {
 
 	@Autowired
 	PTPWorkflowRepository wfRepository;
@@ -31,34 +31,25 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 	@Before
 	public void setup(){
 
-		ptpWorkflow = PTPWorkflow.builder()//
-				.sourceName(source)//
-				.column(new PTPWorkflowSourceColumn("INVOICE_NUMBER",true,false))
-				.column(new PTPWorkflowSourceColumn("INPUT_DATE",false,true))
-				.sourceTableName(sourceTable)//
-				.workflow(InfaWorkflow.builder()//
-						.workflowUri("/GeneratedWorkflows/ptp/" + "PTP_" + sourceTable + ".xml")//
-						.workflowName("PTP_" + sourceTable + "_Extract")//
-						.workflowType("PTP")//
-						.build())
-				.build();
 	}
-
 	
-	@Test @Ignore
-	public void createsWorkflowResourceFromWorkflowDefinition() throws Exception {
-
-		mvc.perform(post("/infagen/workflows/ptpExtract")//
-				.content(asJsonString(ptpWorkflow))//
+	
+	@Test
+	public void canCreateWorkflowFromExistingTopDownMetadata() throws Exception{
+		
+		mvc.perform(post("/infagen/workflows/ptpFromMetadata")//
+				.content("")//
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//
 				.andDo(MockMvcResultHandlers.print())//
 				.andExpect(status().isCreated())//
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))//
-				.andExpect(jsonPath("$.workflow.workflowName", notNullValue()))//
-				.andExpect(jsonPath("$.workflow.workflowUri", notNullValue()));
-
+				.andExpect(jsonPath("$[0].workflow.workflowName", notNullValue()))//
+				.andExpect(jsonPath("$[0].workflow.workflowUri", notNullValue()));
+		
+		
 	}
-
+	
+	
 
 }

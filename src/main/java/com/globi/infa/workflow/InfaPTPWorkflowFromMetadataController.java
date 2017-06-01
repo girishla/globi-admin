@@ -3,6 +3,7 @@ package com.globi.infa.workflow;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,8 @@ public class InfaPTPWorkflowFromMetadataController {
 	@Autowired
 	DataSourceTableColumnRepository metadataColumnRepository;
 
+	private PTPWorkflow ptpWorkflow;
+
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/ptpFromMetadata")
 	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow() {
 
@@ -68,34 +71,58 @@ public class InfaPTPWorkflowFromMetadataController {
 
 			List<PTPWorkflowSourceColumn> workflowSourceColumnList = new ArrayList<>();
 
-			//all columns in the metadata become input columns to the generator 
-			columns.stream()//
+			// Gen distinct list of cols for the table
+			Map<String, DataSourceTableColumnDTO> distinctCols = columns.stream()
 					.filter(column -> column.getTableName().equals(table))//
+					.collect(Collectors.toMap(DataSourceTableColumnDTO::getColName, p -> p, (p, q) -> p));
+
+			// all columns in the metadata become input columns to the generator
+			distinctCols.entrySet().stream()//
+					.filter(column -> column.getValue().getTableName().equals(table))//
 					.forEach(column -> {
 						// ugly hack to deal with Siebel sources. to be removed
 						// where this metadata is captured elsewhere
-						if (column.getColName().equals("ROW_ID")) {
-							column.setIntegrationId(true);
+						if (column.getValue().getColName().equals("ROW_ID")) {
+							column.getValue().setIntegrationId(true);
 						}
 
-						if (column.getColName().equals("LAST_UPD")) {
-							column.setChangeCaptureCol(true);
+						if (column.getValue().getColName().equals("LAST_UPD")) {
+							column.getValue().setChangeCaptureCol(true);
 						}
 
 						workflowSourceColumnList.add(PTPWorkflowSourceColumn.builder()//
-								.changeCaptureColumn(column.isChangeCaptureCol())//
-								.integrationIdColumn(column.isIntegrationId())//
-								.sourceColumnName(column.getColName())//
+								.changeCaptureColumn(column.getValue().isChangeCaptureCol())//
+								.integrationIdColumn(column.getValue().isIntegrationId())//
+								.sourceColumnName(column.getValue().getColName())//
 								.build());
 
 					});
 
-			PTPWorkflow ptpWorkflow = PTPWorkflow.builder()//
+			Optional<PTPWorkflow> queriedWorkflow = repository
+					.findByWorkflow_workflowName("PTP_" + tables.get(table).getTableName() + "_Extract");
+
+			if (queriedWorkflow.isPresent()) {
+				log.info("***********************************");
+				log.info("found existing wf");
+
+				// Only columns can change during updates
+				repository.delete(queriedWorkflow.get());
+				// ptpWorkflow = queriedWorkflow.get();
+				// ptpWorkflow.setColumns(workflowSourceColumnList);
+
+			} else {
+
+				log.info("***********************************");
+				log.info("did not find existing wf");
+
+			}
+			
+			ptpWorkflow = PTPWorkflow.builder()//
 					.sourceName(tables.get(table).getSourceName())//
 					.sourceTableName(tables.get(table).getTableName()).columns(workflowSourceColumnList)
 					.workflow(InfaWorkflow.builder()//
-							.workflowUri(
-									"/GeneratedWorkflows/Repl/" + "PTP_" + tables.get(table).getTableName() + ".xml")//
+							.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + tables.get(table).getTableName()
+									+ ".xml")//
 							.workflowName("PTP_" + tables.get(table).getTableName() + "_Extract")//
 							.workflowType("PTP")//
 							.build())
@@ -108,7 +135,6 @@ public class InfaPTPWorkflowFromMetadataController {
 			ptpExtractgenerator.addListener(fileWriter);
 			ptpExtractgenerator.addListener(gitWriter);
 			ptpExtractgenerator.generate();
-
 			createdWorkflows.add(repository.save(ptpWorkflow));
 
 		});
