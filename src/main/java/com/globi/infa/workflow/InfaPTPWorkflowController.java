@@ -1,5 +1,7 @@
 package com.globi.infa.workflow;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -59,6 +61,14 @@ public class InfaPTPWorkflowController {
 		ptpPrimarygenerator.generate();
 
 
+
+		Optional<PTPWorkflow> queriedWorkflow = repository
+				.findByWorkflow_workflowName(ptpWorkflow.getWorkflow().getWorkflowName());
+
+		if (queriedWorkflow.isPresent()) {
+			repository.delete(queriedWorkflow.get());
+		}		
+		
 		return new ResponseEntity<PTPWorkflow>(repository.save(ptpWorkflow), HttpStatus.CREATED);
 	}
 	
