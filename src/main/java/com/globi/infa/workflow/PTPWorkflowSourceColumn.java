@@ -2,13 +2,8 @@ package com.globi.infa.workflow;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.globi.infa.AbstractEntity;
@@ -18,7 +13,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -43,6 +37,8 @@ public class PTPWorkflowSourceColumn extends AbstractEntity {
 	@Builder.Default
 	@Column(name="cc_indicator")
 	private boolean changeCaptureColumn = false;
-
+	@Builder.Default
+	@Column(name="pguid_indicator")
+	private boolean pguidColumn = false;
 
 }

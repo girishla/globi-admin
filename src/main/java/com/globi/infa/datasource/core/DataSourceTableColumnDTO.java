@@ -43,5 +43,6 @@ public class DataSourceTableColumnDTO  {
 
 	private boolean changeCaptureCol;
 	
+	private boolean pguidCol;
 	
 }

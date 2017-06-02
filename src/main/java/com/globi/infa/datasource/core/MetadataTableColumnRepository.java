@@ -11,27 +11,23 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 
-
 @Repository
-public class DataSourceTableColumnRepository {
+public class MetadataTableColumnRepository {
 
 	@Autowired
 	@Qualifier("jdbcOracleMDT")
 	protected JdbcTemplate jdbcOracleMDT;
 
-	protected String columnSQL = "SELECT DISTINCT\r\n" + 
-			"               R.SRC_NAME SRC_NAME\r\n" + 
-			",               NVL(S.SRC_TBL,A.AUX_TBL_NAME) SRC_TBL\r\n" + 
-			",               M.SRC_TBL_COL SRC_TBL_COL\r\n" + 
-			"FROM\r\n" + 
-			"                LAW.S_LAW_COL C\r\n" + 
-			"                INNER JOIN LAW.S_LAW_TBL T ON C.TBL_ID=T.TBL_ID\r\n" + 
-			"                INNER JOIN LAW.S_LAW_STG_SRC S ON S.STG_NAME=T.STG_NAME\r\n" + 
-			"                LEFT OUTER JOIN LAW.S_LAW_SRC_AUX A ON S.STG_SRC_ID=A.STG_SRC_ID\r\n" + 
-			"                INNER JOIN LAW.S_LAW_MAP M ON C.COL_ID=M.COL_ID AND M.SRC_TBL_ALIS IN (S.SRC_TBL,A.AUX_TBL_ALIS)\r\n" + 
-			"                INNER JOIN LAW.S_LAW_SRC R ON R.SRC_ID=S.SRC_ID     \r\n" + 
-			"WHERE R.SRC_NAME IN ('CUK','CGL','FBM','GEN') AND  M.SRC_TBL_COL IS NOT NULL\r\n" + 
-			"";
+	protected String columnSQL = "SELECT SRC_NAME, \r\n" + 
+			"       SRC_TBL, \r\n" + 
+			"       SRC_TBL_COL, \r\n" + 
+			"       MAX(INT_ID_INDICATOR) INT_ID_INDICATOR, \r\n" + 
+			"       MAX(PGUID_INDICATOR)  PGUID_INDICATOR \r\n" + 
+			"FROM   MDT_SOURCE_TBL_COLS \r\n" + 
+			"WHERE (SRC_TBL IS NOT NULL) AND (SRC_TBL_COL IS NOT NULL) AND SRC_NAME IN ('FBM','GEN','CUK','CGL')\r\n" + 
+			"GROUP BY SRC_NAME, \r\n" + 
+			"          SRC_TBL, \r\n" + 
+			"          SRC_TBL_COL";
 	
 
 	public List<DataSourceTableColumnDTO> getAll() {
@@ -49,8 +45,10 @@ public class DataSourceTableColumnRepository {
 					.tableOwner("")
 					.dataType("")
 					.id(rowNum)
-					.integrationId(false)//
-					.changeCaptureCol(false).build();
+					.integrationId(rs.getInt("INT_ID_INDICATOR")==1?true:false)//
+					.changeCaptureCol(false)
+					.pguidCol(rs.getInt("PGUID_INDICATOR")==1?true:false)//
+					.build();
 
 					
 			return col;

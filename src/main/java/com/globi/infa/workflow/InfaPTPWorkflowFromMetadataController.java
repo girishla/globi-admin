@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.globi.infa.datasource.core.DataSourceTableColumnDTO;
-import com.globi.infa.datasource.core.DataSourceTableColumnRepository;
+import com.globi.infa.datasource.core.MetadataTableColumnRepository;
 import com.globi.infa.datasource.core.DataSourceTableDTO;
 import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
@@ -46,7 +46,7 @@ public class InfaPTPWorkflowFromMetadataController {
 	private PTPPrimaryGenerationStrategy ptpPrimarygenerator;
 
 	@Autowired
-	DataSourceTableColumnRepository metadataColumnRepository;
+	MetadataTableColumnRepository metadataColumnRepository;
 
 	private PTPWorkflow ptpWorkflow;
 
@@ -55,7 +55,6 @@ public class InfaPTPWorkflowFromMetadataController {
 
 		List<PTPWorkflow> inputWorkflowDefinitions = new ArrayList<>();
 		List<PTPWorkflow> createdWorkflows = new ArrayList<>();
-
 
 		List<DataSourceTableColumnDTO> columns = metadataColumnRepository.getAll();
 
@@ -69,6 +68,11 @@ public class InfaPTPWorkflowFromMetadataController {
 		
 		
 		inputWorkflowDefinitions.forEach(wf -> {
+			
+			log.info("***************************************");
+			log.info("***************************************");
+			log.info("DEFINITION FOR  "+ wf.getSourceName() + ":::" +  wf.getSourceTableName());
+			
 			ptpExtractgenerator.setWfDefinition(wf);
 			ptpExtractgenerator.generate();
 			

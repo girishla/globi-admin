@@ -1,6 +1,8 @@
 package com.globi.infa.workflow;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,18 +42,21 @@ public class MetadataToPTPWorkflowDefnConverter {
 
 	private PTPWorkflowSourceColumn buildSourceColumnDefnFrom(DataSourceTableColumnDTO column) {
 
-		if (column.getColName().equals("ROW_ID")) {
+		String colName = column.getColName();
+
+		// Ugly hack - please remove as soon as this info is captured elsewhere
+		if (colName.equals("ROW_ID")) {
 			column.setIntegrationId(true);
 		}
-
-		if (column.getColName().equals("LAST_UPD")) {
+		if (colName.equals("LAST_UPD")) {
 			column.setChangeCaptureCol(true);
 		}
 
 		return (PTPWorkflowSourceColumn.builder()//
 				.changeCaptureColumn(column.isChangeCaptureCol())//
 				.integrationIdColumn(column.isIntegrationId())//
-				.sourceColumnName(column.getColName())//
+				.pguidColumn(column.isPguidCol())
+				.sourceColumnName(colName)//
 				.build());
 
 	}

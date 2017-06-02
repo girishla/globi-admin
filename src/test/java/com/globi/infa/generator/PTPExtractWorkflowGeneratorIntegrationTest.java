@@ -78,9 +78,9 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 		ptpWorkflowInputToGenerator  = PTPWorkflow.builder()//
 				.sourceName(source)//
 				.sourceTableName(sourceTable)//
-				.column(new PTPWorkflowSourceColumn("ROW_ID", true, false))
-				.column(new PTPWorkflowSourceColumn("LAST_UPD", false, true))
-				.column(new PTPWorkflowSourceColumn("NAME", false, false))
+				.column(new PTPWorkflowSourceColumn("ROW_ID", true, false,true))
+				.column(new PTPWorkflowSourceColumn("LAST_UPD", false, true,false))
+				.column(new PTPWorkflowSourceColumn("NAME", false, false,false))
 				.workflow(InfaWorkflow.builder()//
 						.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
 						.workflowName("PTP_" + sourceTable + "_Extract")//

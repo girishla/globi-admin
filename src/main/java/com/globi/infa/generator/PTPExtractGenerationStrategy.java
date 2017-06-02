@@ -87,6 +87,14 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 			})) {
 				column.setIntegrationIdFlag(true);
 			}
+			
+			if (inputSelectedColumns.stream().anyMatch(selectedCol -> {
+				return selectedCol.getSourceColumnName().equals(column.getColumnName())
+						&& selectedCol.isPguidColumn();
+			})) {
+				column.setPguidFlag(true);
+			}
+			
 
 			return column;
 
