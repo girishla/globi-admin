@@ -322,7 +322,7 @@ public class ExpressionXformBuilder {
 		public AddFieldsStep addPGUIDField(String sourceName, List<InfaSourceColumnDefinition> columns) {
 
 			String concatenatedId = columns.stream()//
-					.filter(InfaSourceColumnDefinition::getIntegrationIdFlag)//
+					.filter(InfaSourceColumnDefinition::getPguidFlag)//
 					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
 

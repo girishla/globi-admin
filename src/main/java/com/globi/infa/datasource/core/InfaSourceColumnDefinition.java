@@ -43,8 +43,8 @@ public class InfaSourceColumnDefinition extends AbstractEntity {
 	private int scale;
 	@Size(min = 1, max = 1)
 	private Boolean integrationIdFlag;
-	
-	private Boolean pguidFlag;
+	@Builder.Default
+	private Boolean pguidFlag=false;
 
 	public String getColumnName() {
 
