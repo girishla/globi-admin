@@ -9,25 +9,28 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @RequiredArgsConstructor
 @Builder
-public class DataSourceTableDTO  {
+public class DataSourceTableDTO {
 
 	@JsonIgnore
-	private Integer  id;
-	
+	private Integer id;
+
 	@NonNull
 	private String tableOwner;
-	
+
 	@NonNull
 	private String tableName;
-	
-	
+
 	@NonNull
 	private String sourceName;
-	
+
+	public String getSourceAndTableName() {
+
+		return sourceName + ":" + tableName;
+	}
+
 }

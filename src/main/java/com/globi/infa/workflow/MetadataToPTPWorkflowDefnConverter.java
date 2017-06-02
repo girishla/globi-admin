@@ -32,10 +32,11 @@ public class MetadataToPTPWorkflowDefnConverter {
 
 	}
 
-	private Map<String, DataSourceTableColumnDTO> getDistinctColumnMapFor(String tableName,
+	private Map<String, DataSourceTableColumnDTO> getDistinctColumnMapFor(String sourceName, String tableName,
 			List<DataSourceTableColumnDTO> columns) {
 
-		return columns.stream().filter(column -> column.getTableName().equals(tableName))//
+		return columns.stream().filter(
+				column -> (column.getTableName().equals(tableName) && column.getSourceName().equals(sourceName)))//
 				.collect(Collectors.toMap(DataSourceTableColumnDTO::getColName, p -> p, (p, q) -> p));
 
 	}
@@ -55,8 +56,7 @@ public class MetadataToPTPWorkflowDefnConverter {
 		return (PTPWorkflowSourceColumn.builder()//
 				.changeCaptureColumn(column.isChangeCaptureCol())//
 				.integrationIdColumn(column.isIntegrationId())//
-				.pguidColumn(column.isPguidCol())
-				.sourceColumnName(colName)//
+				.pguidColumn(column.isPguidCol()).sourceColumnName(colName)//
 				.build());
 
 	}
@@ -72,7 +72,8 @@ public class MetadataToPTPWorkflowDefnConverter {
 
 		List<PTPWorkflowSourceColumn> workflowSourceColumnList = new ArrayList<>();
 
-		Map<String, DataSourceTableColumnDTO> distinctCols = getDistinctColumnMapFor(table.getTableName(), columns);
+		Map<String, DataSourceTableColumnDTO> distinctCols = getDistinctColumnMapFor(table.getSourceName(),
+				table.getTableName(), columns);
 
 		// all columns in the metadata become input columns to the generator
 		distinctCols.entrySet().stream()//
@@ -93,11 +94,19 @@ public class MetadataToPTPWorkflowDefnConverter {
 
 	public List<PTPWorkflow> getWorkflowDefinitionObjects() {
 		List<PTPWorkflow> ptpWorkflows = new ArrayList<>();
-		Map<String, DataSourceTableDTO> tables = getDistinctTableMapFrom(columns);
+		columns.stream().map(column -> column.getSourceName()).distinct().forEach(sourceName -> {
 
-		tables.keySet()//
-				.stream()//
-				.forEach(table -> ptpWorkflows.add(getWorkflowDefinitionFor(tables.get(table))));
+			Map<String, DataSourceTableDTO> tables = getDistinctTableMapFrom(
+					columns.stream()//
+					.filter(column -> column.getSourceName().equals(sourceName))//
+					.collect(Collectors.toList()));
+
+			tables.keySet()//
+					.stream()//
+					.filter(table -> tables.get(table).getSourceName().equals(sourceName))
+					.forEach(table -> ptpWorkflows.add(getWorkflowDefinitionFor(tables.get(table))));
+
+		});
 
 		return ptpWorkflows;
 
