@@ -114,7 +114,7 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 						.noMoreFields().name(targetTableDefnName)//
 						.build())//
 				.noMoreTargets()//
-				.mappingDefn(getMappingFrom("PTP_" + sourceTableDef.getSourceTableName() + "_Primary"))//
+				.mappingDefn(getMappingFrom("PTP_" + sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName() + "_Primary"))//
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setValue("sourceFilter",

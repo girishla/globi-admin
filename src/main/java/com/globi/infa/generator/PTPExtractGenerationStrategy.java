@@ -139,7 +139,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.name(sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName())//
 						.build())//
 				.noMoreTargets()//
-				.mappingDefn(getMappingFrom("PTP_" + sourceTableDef.getSourceTableName() + "_Extract"))//
+				.mappingDefn(getMappingFrom("PTP_" + sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName() + "_Extract"))//
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setValue("sourceFilter",sourceFilter)
@@ -199,7 +199,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.workflow(WorkflowDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setValue("phasePrefix", "PTP")//
-						.setValue("primaryName", sourceTableDef.getSourceTableName())//
+						.setValue("primaryName", sourceTableDef.getDatabaseName() + "_"+ sourceTableDef.getSourceTableName())//
 						.setValue("suffix", "Extract")//
 						.setValue("sourceShortCode", sourceTableDef.getDatabaseName())//
 						.setValue("TargetShortCode", "PDL")//

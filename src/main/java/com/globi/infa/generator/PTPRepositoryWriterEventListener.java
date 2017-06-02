@@ -47,8 +47,8 @@ public class PTPRepositoryWriterEventListener implements WorkflowCreatedEventLis
 					.sourceTableName(inWorkflow.getSourceTableName()).columns(inWorkflow.getColumns())
 					.workflow(InfaWorkflow.builder()//
 							.workflowUri(
-									"/GeneratedWorkflows/Repl/" + "PTP_" + inWorkflow.getSourceTableName() + ".xml")//
-							.workflowName("PTP_" + inWorkflow.getSourceTableName() + "_Extract")//
+									"/GeneratedWorkflows/Repl/" + "PTP_" + inWorkflow.getSourceName() + "_" +  inWorkflow.getSourceTableName() + ".xml")//
+							.workflowName("PTP_" +inWorkflow.getSourceName() + "_"  + inWorkflow.getSourceTableName() + "_Extract")//
 							.workflowType("PTP")//
 							.build())
 					.build();

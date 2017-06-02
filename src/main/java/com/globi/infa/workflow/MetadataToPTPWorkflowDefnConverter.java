@@ -67,7 +67,7 @@ public class MetadataToPTPWorkflowDefnConverter {
 		log.info("------------------------------------------*");
 		log.info("**************beginning to process " + table);
 
-		String generatedWFName = "PTP_" + table.getTableName() + "_Extract";
+		String generatedWFName = "PTP_" + table.getSourceName() + "_" + table.getTableName() + "_Extract";
 		String generatedWFUri = "/GeneratedWorkflows/Repl/" + "PTP_" + table.getTableName() + ".xml";
 
 		List<PTPWorkflowSourceColumn> workflowSourceColumnList = new ArrayList<>();
