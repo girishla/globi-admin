@@ -11,6 +11,7 @@ import com.globi.infa.datasource.core.SourceMetadataFactory;
 import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
 import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.datasource.core.TableColumnRepository;
+import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;

@@ -2,15 +2,12 @@ package com.globi.infa.workflow;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -18,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.globi.infa.datasource.core.DataSourceTableColumnDTO;
 import com.globi.infa.datasource.core.MetadataTableColumnRepository;
-import com.globi.infa.datasource.core.DataSourceTableDTO;
+import com.globi.infa.generator.AggregateGitWriterEventListener;
 import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
@@ -38,6 +35,9 @@ public class InfaPTPWorkflowFromMetadataController {
 
 	@Autowired
 	GitWriterEventListener gitWriter;
+	
+	@Autowired
+	AggregateGitWriterEventListener aggregateGitWriter;
 
 	@Autowired
 	private PTPExtractGenerationStrategy ptpExtractgenerator;
@@ -47,8 +47,6 @@ public class InfaPTPWorkflowFromMetadataController {
 
 	@Autowired
 	MetadataTableColumnRepository metadataColumnRepository;
-
-	private PTPWorkflow ptpWorkflow;
 
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/ptpFromMetadata")
 	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow() {
@@ -65,13 +63,10 @@ public class InfaPTPWorkflowFromMetadataController {
 
 		ptpExtractgenerator.addListener(fileWriter);
 		ptpExtractgenerator.addListener(gitWriter);
+		ptpExtractgenerator.addListener(aggregateGitWriter);
 		
 		
 		inputWorkflowDefinitions.forEach(wf -> {
-			
-			log.info("***************************************");
-			log.info("***************************************");
-			log.info("DEFINITION FOR  "+ wf.getSourceName() + ":::" +  wf.getSourceTableName());
 			
 			ptpExtractgenerator.setWfDefinition(wf);
 			ptpExtractgenerator.generate();

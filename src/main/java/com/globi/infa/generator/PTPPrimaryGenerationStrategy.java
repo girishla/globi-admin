@@ -18,6 +18,7 @@ import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
 import com.globi.infa.datasource.core.InfaSourceDefinition;
 import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
+import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.generator.builder.LookupXformBuilder;
 import com.globi.infa.generator.builder.PowermartObjectBuilder;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
@@ -98,8 +99,8 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 		InfaPowermartObject pmObj = PowermartObjectBuilder//
 				.newBuilder()//
 				.powermartObject().repository(getRepository())//
-				.marshaller(marshaller)//
 				.folder(getFolderFor("LAW_PTP_" + sourceTableDef.getDatabaseName(), "Pull to puddle folder"))//
+				.marshaller(marshaller)//
 				.primaryExtractClass("primaryExtractClass")//
 				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
 						.sourceDefnFromPrototype("SourceFromPrototype")//

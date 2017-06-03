@@ -19,7 +19,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
-import com.globi.infa.generator.InfaPowermartObject;
 import com.rits.cloning.Cloner;
 
 import lombok.extern.slf4j.Slf4j;
@@ -53,15 +52,18 @@ public class PowermartObjectBuilder {
 	}
 
 	public interface RepositoryStep {
-		SetMarshallerStep repository(REPOSITORY repo);
+		 FolderStep repository(REPOSITORY repo);
 	}
 
 	public interface SetMarshallerStep {
-		FolderStep marshaller(Jaxb2Marshaller marshaller);
+		ClassStep marshaller(Jaxb2Marshaller marshaller);
+		InfaPowermartObject buildPowermartObjWithBlankFolder();
 	}
 
 	public interface FolderStep {
-		ClassStep folder(FOLDER folder);
+		 SetMarshallerStep folder(FOLDER folder);
+		 
+		 
 	}
 
 	public interface ClassStep {
@@ -170,9 +172,10 @@ public class PowermartObjectBuilder {
 		private Map<String, TARGET> targetMap = new HashMap<>();
 		private Jaxb2Marshaller marshaller;
 		private POWERMART powermartObject;
+		private List<InfaFolderObject> folderObjects =new ArrayList<>();
 
 		@Override
-		public SetMarshallerStep repository(REPOSITORY repo) {
+		public  FolderStep repository(REPOSITORY repo) {
 			this.powermartObject.getREPOSITORY().add(repo);
 			this.repository = repo;
 
@@ -180,17 +183,18 @@ public class PowermartObjectBuilder {
 		}
 
 		@Override
-		public FolderStep marshaller(Jaxb2Marshaller marshaller) {
+		public ClassStep marshaller(Jaxb2Marshaller marshaller) {
 			this.marshaller = marshaller;
 			return this;
 		}
 
 		@Override
-		public ClassStep folder(FOLDER folder) {
+		public  SetMarshallerStep folder(FOLDER folder) {
 
 			this.repository.getFOLDER().add(folder);
 			this.folderChildren = folder
 					.getFOLDERVERSIONOrCONFIGOrSCHEDULEROrTASKOrSESSIONOrWORKLETOrWORKFLOWOrSOURCEOrTARGETOrTRANSFORMATIONOrMAPPLETOrMAPPINGOrSHORTCUTOrEXPRMACRO();
+			
 			return this;
 		}
 
@@ -216,6 +220,7 @@ public class PowermartObjectBuilder {
 		public SourceTableStep sourceDefn(SOURCE sourceDefn) {
 
 			this.folderChildren.add(sourceDefn);
+			this.folderObjects.add(new InfaSourceObject(sourceDefn));
 			sourceMap.put(sourceDefn.getNAME(), sourceDefn);
 
 			return this;
@@ -225,6 +230,7 @@ public class PowermartObjectBuilder {
 		public TargetDefn targetDefn(TARGET targetDefn) {
 
 			this.folderChildren.add(targetDefn);
+			this.folderObjects.add(new InfaTargetObject(targetDefn));
 			targetMap.put(targetDefn.getNAME(), targetDefn);
 			return this;
 		}
@@ -233,6 +239,7 @@ public class PowermartObjectBuilder {
 		public TransformationStep mappingDefn(MAPPING mapping) {
 
 			this.folderChildren.add(mapping);
+			this.folderObjects.add(new InfaMappingObject(mapping));
 			this.mapping = mapping;
 			this.connectors = mapping.getCONNECTOR();
 
@@ -256,7 +263,8 @@ public class PowermartObjectBuilder {
 
 			InfaPowermartObject powermartObject = new InfaPowermartObject();
 			powermartObject.pmObject = this.powermartObject;
-
+			powermartObject.folderObjects=this.folderObjects;
+			
 			return powermartObject;
 		}
 
@@ -316,7 +324,10 @@ public class PowermartObjectBuilder {
 			try {
 				Resource resource = new ClassPathResource("seed/" + seedName + ".xml");
 				is = new FileInputStream(resource.getFile());
-				this.folderChildren.add((CONFIG) this.marshaller.unmarshal(new StreamSource(is)));
+				CONFIG configObj=(CONFIG) this.marshaller.unmarshal(new StreamSource(is));
+				this.folderChildren.add(configObj);
+				this.folderObjects.add(new InfaConfigObject(configObj));
+
 			} finally {
 				if (is != null) {
 					is.close();
@@ -575,6 +586,7 @@ public class PowermartObjectBuilder {
 		@Override
 		public BuildStep workflow(WORKFLOW workflow) {
 			this.folderChildren.add(workflow);
+			this.folderObjects.add(new InfaWorkflowObject(workflow));
 			return this;
 		}
 
@@ -627,6 +639,14 @@ public class PowermartObjectBuilder {
 
 			
 		}
+
+			@Override
+			public InfaPowermartObject buildPowermartObjWithBlankFolder() {
+				InfaPowermartObject powermartObject = new InfaPowermartObject();
+				powermartObject.pmObject = this.powermartObject;
+			
+				return powermartObject;
+			}
 
 	}
 
