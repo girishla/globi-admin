@@ -54,18 +54,18 @@ public class PowermartObjectBuilder {
 	}
 
 	public interface RepositoryStep {
-		 FolderStep repository(REPOSITORY repo);
+		FolderStep repository(REPOSITORY repo);
 	}
 
 	public interface SetMarshallerStep {
 		ClassStep marshaller(Jaxb2Marshaller marshaller);
+
 		InfaPowermartObject buildPowermartObjWithBlankFolder();
 	}
 
 	public interface FolderStep {
-		 SetMarshallerStep folder(FOLDER folder);
-		 
-		 
+		SetMarshallerStep folder(FOLDER folder);
+
 	}
 
 	public interface ClassStep {
@@ -94,10 +94,11 @@ public class PowermartObjectBuilder {
 
 	public interface MappletStep {
 		MappletStep mappletDefn(MAPPLET mapplet);
+
 		MappingStep noMoreMapplets();
 
 	}
-	
+
 	public interface MappingStep {
 		TransformationStep mappingDefn(MAPPING mapping);
 
@@ -116,10 +117,8 @@ public class PowermartObjectBuilder {
 	public interface InstanceStep {
 
 		InstanceStep addInstancesForTransformations();
-		
 
 		InstanceStep addInstancesForMapplets();
-
 
 		InstanceStep addInstancesForSources();
 
@@ -165,8 +164,9 @@ public class PowermartObjectBuilder {
 
 	}
 
-	private static class InfaRepoSteps implements PowermartObjectStep, RepositoryStep, ClassStep, SourceTableStep,
-			SourceSQLStep, TargetDefn,MappletStep, BuildStep, MappingVariableStep, TargetLoadOrderStep, ConnectorStep, InstanceStep,
+	private static class InfaRepoSteps
+			implements PowermartObjectStep, RepositoryStep, ClassStep, SourceTableStep, SourceSQLStep, TargetDefn,
+			MappletStep, BuildStep, MappingVariableStep, TargetLoadOrderStep, ConnectorStep, InstanceStep,
 			TransformationStep, MappingStep, FolderStep, DefaultConfigStep, SetMarshallerStep, WorkflowStep {
 
 		@SuppressWarnings("unused")
@@ -185,10 +185,10 @@ public class PowermartObjectBuilder {
 		private Map<String, MAPPLET> mappletMap = new HashMap<>();
 		private Jaxb2Marshaller marshaller;
 		private POWERMART powermartObject;
-		private List<InfaFolderObject> folderObjects =new ArrayList<>();
+		private List<InfaFolderObject> folderObjects = new ArrayList<>();
 
 		@Override
-		public  FolderStep repository(REPOSITORY repo) {
+		public FolderStep repository(REPOSITORY repo) {
 			this.powermartObject.getREPOSITORY().add(repo);
 			this.repository = repo;
 
@@ -202,12 +202,12 @@ public class PowermartObjectBuilder {
 		}
 
 		@Override
-		public  SetMarshallerStep folder(FOLDER folder) {
+		public SetMarshallerStep folder(FOLDER folder) {
 
 			this.repository.getFOLDER().add(folder);
 			this.folderChildren = folder
 					.getFOLDERVERSIONOrCONFIGOrSCHEDULEROrTASKOrSESSIONOrWORKLETOrWORKFLOWOrSOURCEOrTARGETOrTRANSFORMATIONOrMAPPLETOrMAPPINGOrSHORTCUTOrEXPRMACRO();
-			
+
 			return this;
 		}
 
@@ -276,8 +276,8 @@ public class PowermartObjectBuilder {
 
 			InfaPowermartObject powermartObject = new InfaPowermartObject();
 			powermartObject.pmObject = this.powermartObject;
-			powermartObject.folderObjects=this.folderObjects;
-			
+			powermartObject.folderObjects = this.folderObjects;
+
 			return powermartObject;
 		}
 
@@ -338,7 +338,7 @@ public class PowermartObjectBuilder {
 			try {
 				Resource resource = new ClassPathResource("seed/" + seedName + ".xml");
 				is = new FileInputStream(resource.getFile());
-				CONFIG configObj=(CONFIG) this.marshaller.unmarshal(new StreamSource(is));
+				CONFIG configObj = (CONFIG) this.marshaller.unmarshal(new StreamSource(is));
 				this.folderChildren.add(configObj);
 				this.folderObjects.add(new InfaConfigObject(configObj));
 
@@ -420,6 +420,11 @@ public class PowermartObjectBuilder {
 			if (sourceMap.containsKey(instanceName)) {
 				return "Source Definition";
 
+			} else if (mappletMap.containsKey(instanceName)) {
+				return "Mapplet";
+
+			} else if (targetMap.containsKey(instanceName)) {
+				return "Target Definition";
 			} else {
 				if (xformMap.containsKey(instanceName)) {
 					return xformMap.get(instanceName).getTYPE();
@@ -433,6 +438,9 @@ public class PowermartObjectBuilder {
 
 			if (targetMap.containsKey(instanceName)) {
 				return "Target Definition";
+
+			} else if (mappletMap.containsKey(instanceName)) {
+				return "Mapplet";
 
 			} else {
 				if (xformMap.containsKey(instanceName)) {
@@ -468,9 +476,8 @@ public class PowermartObjectBuilder {
 
 			// Add a connector for each matching field
 			matchingFieldNames.forEach(matchingField -> {
-				
-				this.connector(fromInstanceName, matchingField, toInstanceName,matchingField);
-			
+
+				this.connector(fromInstanceName, matchingField, toInstanceName, matchingField);
 
 			});
 
@@ -488,7 +495,7 @@ public class PowermartObjectBuilder {
 
 			return this;
 		}
-		
+
 		@Override
 		public InstanceStep addInstancesForMapplets() {
 
@@ -499,8 +506,7 @@ public class PowermartObjectBuilder {
 
 			return this;
 		}
-		
-		
+
 		@Override
 		public InstanceStep addInstancesForSources() {
 
@@ -614,10 +620,9 @@ public class PowermartObjectBuilder {
 					.map(Entry::getValue)//
 					.collect(Collectors.toList());
 		}
-		
-		
-		private Map<String, String> usingConnectorListFindSourceInstancesFor(List<TRANSFORMATION> sourceQualifiers){
-			
+
+		private Map<String, String> usingConnectorListFindSourceInstancesFor(List<TRANSFORMATION> sourceQualifiers) {
+
 			return this.connectors.stream()//
 					.filter(connector -> sourceQualifiers.stream()//
 							.anyMatch(sourceQualifier -> connector.getTOINSTANCE().equals(sourceQualifier.getNAME())))//
@@ -625,14 +630,13 @@ public class PowermartObjectBuilder {
 							connector -> connector.getTOINSTANCE(), (toInst, toInstDuplicate) -> toInst));//
 
 		}
-		
-		
-			private void addSourceQualifierInstances() {
+
+		private void addSourceQualifierInstances() {
 
 			List<TRANSFORMATION> sourceQualifiers = getAllSourceQualifiers();
-			Map<String, String> sourceQualifierSourceInstances = usingConnectorListFindSourceInstancesFor(sourceQualifiers);
-		
-			
+			Map<String, String> sourceQualifierSourceInstances = usingConnectorListFindSourceInstancesFor(
+					sourceQualifiers);
+
 			sourceQualifiers.forEach(sQualifierXform -> {
 
 				INSTANCE instance = new INSTANCE();
@@ -653,30 +657,29 @@ public class PowermartObjectBuilder {
 				this.mapping.getINSTANCE().add(instance);
 			});
 
-			
 		}
 
-			@Override
-			public InfaPowermartObject buildPowermartObjWithBlankFolder() {
-				InfaPowermartObject powermartObject = new InfaPowermartObject();
-				powermartObject.pmObject = this.powermartObject;
-			
-				return powermartObject;
-			}
+		@Override
+		public InfaPowermartObject buildPowermartObjWithBlankFolder() {
+			InfaPowermartObject powermartObject = new InfaPowermartObject();
+			powermartObject.pmObject = this.powermartObject;
 
-			@Override
-			public MappletStep mappletDefn(MAPPLET mapplet) {
-				this.folderChildren.add(mapplet);
-				this.folderObjects.add(new InfaMappletObject(mapplet));
-				mappletMap.put(mapplet.getNAME(), mapplet);
-				return this;
-			}
+			return powermartObject;
+		}
 
-			@Override
-			public MappingStep noMoreMapplets() {
+		@Override
+		public MappletStep mappletDefn(MAPPLET mapplet) {
+			this.folderChildren.add(mapplet);
+			this.folderObjects.add(new InfaMappletObject(mapplet));
+			mappletMap.put(mapplet.getNAME(), mapplet);
+			return this;
+		}
 
-				return this;
-			}
+		@Override
+		public MappingStep noMoreMapplets() {
+
+			return this;
+		}
 
 	}
 

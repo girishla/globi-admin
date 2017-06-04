@@ -146,7 +146,7 @@ public class FilterXformBuilder {
 		private static TRANSFORMFIELD filterXformFieldFrom(InfaSourceColumnDefinition column) {
 
 			TRANSFORMFIELD field = new TRANSFORMFIELD();
-			field.setDATATYPE("String");
+			field.setDATATYPE("string");
 			field.setDEFAULTVALUE("");
 			field.setDESCRIPTION("");
 			field.setNAME(column.getColumnName());
@@ -162,7 +162,7 @@ public class FilterXformBuilder {
 		private static TRANSFORMFIELD filterXformFieldFrom(String expression) {
 
 			TRANSFORMFIELD field = new TRANSFORMFIELD();
-			field.setDATATYPE("String");
+			field.setDATATYPE("string");
 			field.setDEFAULTVALUE("");
 			field.setDESCRIPTION("");
 			field.setNAME(expression);

@@ -97,6 +97,12 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				column.setPguidFlag(true);
 			}
 			
+			if (inputSelectedColumns.stream().anyMatch(selectedCol -> {
+				return selectedCol.getSourceColumnName().equals(column.getColumnName())
+						&& selectedCol.isBuidColumn();
+			})) {
+				column.setBuidFlag(true);
+			}
 
 			return column;
 
@@ -166,6 +172,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.addEtlProcWidField()//
 						.addDatasourceNumIdField()//
 						.addIntegrationIdField(sourceTableDef.getColumns())//
+						.addBUIDField(sourceTableDef.getColumns())
 						.addPGUIDField(sourceTableDef.getDatabaseName(), sourceTableDef.getColumns())
 						.addMD5HashField(sourceTableDef.getColumns())//
 						.addRowWidField()//
