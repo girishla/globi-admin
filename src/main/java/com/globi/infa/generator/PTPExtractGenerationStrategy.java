@@ -27,6 +27,7 @@ import com.globi.infa.generator.builder.ExpressionXformBuilder;
 import com.globi.infa.generator.builder.FilterXformBuilder;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.generator.builder.LookupXformBuilder;
+import com.globi.infa.generator.builder.MappletBuilder;
 import com.globi.infa.generator.builder.PowermartObjectBuilder;
 import com.globi.infa.generator.builder.SequenceXformBuilder;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
@@ -51,7 +52,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		InfaSourceDefinition sourceTableDef;
 
 		Map<String, String> emptyValuesMap = new HashMap<>();
-		Map<String, String> lookupXformValuesMap = new HashMap<>();
+		Map<String, String> commonValuesMap = new HashMap<>();
 
 		Optional<SourceSystem> source = sourceSystemRepo.findByName(wfDefinition.getSourceName());
 
@@ -116,9 +117,13 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		
 		sourceTableDef.getColumns().addAll(matchedColumns);
 
-		lookupXformValuesMap.put("targetTableName",
+		commonValuesMap.put("targetTableName",
 				sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName());
 
+		commonValuesMap.put("sourceName",
+				sourceTableDef.getDatabaseName());
+
+		
 		InfaPowermartObject pmObj = PowermartObjectBuilder//
 				.newBuilder()//
 				.powermartObject().repository(getRepository())//
@@ -140,6 +145,12 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.name(sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName())//
 						.build())//
 				.noMoreTargets()//
+				.mappletDefn(MappletBuilder.newBuilder()//
+						.marshaller(marshaller)//
+						.loadMappletFromSeed("Seed_MPLDomainLookup")//
+						.nameAlreadySet()//
+						.build())//
+				.noMoreMapplets()
 				.mappingDefn(getMappingFrom("PTP_" + sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName() + "_Extract"))//
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
@@ -170,13 +181,28 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.build())
 				.transformation(LookupXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.setInterpolationValues(lookupXformValuesMap)//
+						.setInterpolationValues(commonValuesMap)//
 						.loadLookupXformFromSeed("Seed_LKPRecordInstanceViaHash")//
 						.nameAlreadySet()//
+						.build())
+				.transformation(LookupXformBuilder.newBuilder()//
+						.marshaller(marshaller)//
+						.setInterpolationValues(commonValuesMap)//
+						.loadLookupXformFromSeed("Seed_LKPBU_" + sourceTableDef.getDatabaseName())//
+						.nameAlreadySet()//
+						.build())
+				.transformation(ExpressionXformBuilder.newBuilder()//
+						.ExpressionFromSeed("Prepare BU Domain Lookup")
+						.marshaller(marshaller)//
+						.setInterpolationValues(commonValuesMap)//
+						.loadExpressionXformFromSeed("Seed_EXPPrepDomLookup")
+						.noMoreFields()
+						.nameAlreadySet()
 						.build())
 				.transformation(FilterXformBuilder.newBuilder()//
 						.filterFromPrototype("FilterFromPrototype")//
 						.filter("FIL_ChangesOnly")//
+						.addPGUIDField()
 						.noMoreFields()//
 						.addCondition("ISNULL(HASH_RECORD)")//
 						.noMoreConditions()//
@@ -190,6 +216,11 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.connector("SEQ_WID", "NEXTVAL", "EXP_Resolve", "ROW_WID")
 				.connector("EXP_Resolve", "HASH_RECORD", "LKP_RecordInstance", "HASH_RECORD_IN")
 				.connector("LKP_RecordInstance", "HASH_RECORD", "FIL_ChangesOnly", "HASH_RECORD")//
+				.connector("EXP_Resolve", "BU", "EXP_PrepBUDomLookup", "DL_01_SRC_VAL")//
+				.connector("EXP_PrepBUDomLookup", "DL_01_DEFAULT", "MPL_DomainLookup", "IN_01_DEFAULT")//
+				.connector("EXP_PrepBUDomLookup", "DL_01_DOMAIN_MAP", "MPL_DomainLookup", "IN_01_DOMAIN_MAP")//
+				.connector("EXP_PrepBUDomLookup", "DL_01_SRC_VAL", "MPL_DomainLookup", "IN_01_SRC_VAL")//
+				.connector("MPL_DomainLookup", "OUT_01_TGT_VAL", "FIL_ChangesOnly", "BU_PGUID")//
 				.noMoreConnectors()//
 				.noMoreTargetLoadOrders()//
 				.mappingvariable(getEtlProcWidMappingVariable())//
@@ -204,6 +235,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.setValue("suffix", "Extract")//
 						.setValue("sourceShortCode", sourceTableDef.getDatabaseName())//
 						.setValue("TargetShortCode", "PDL")//
+						.setValue("tableName", sourceTableDef.getSourceTableName())
 						.noMoreValues()//
 						.loadWorkflowFromSeed("Seed_PTPExtractWorkflow")//
 						.nameAlreadySet()//

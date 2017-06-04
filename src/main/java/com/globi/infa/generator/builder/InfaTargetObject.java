@@ -12,6 +12,8 @@ public class InfaTargetObject extends InfaFolderObject {
 	public InfaTargetObject(TARGET target){
 		this.target=target;	
 		this.folderObj=target;
+		this.name = target.getNAME();
+		this.type = "TARGET";
 
 	}
 	

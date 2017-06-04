@@ -79,9 +79,10 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 		ptpWorkflowInputToGenerator  = PTPWorkflow.builder()//
 				.sourceName(source)//
 				.sourceTableName(sourceTable)//
-				.column(new PTPWorkflowSourceColumn("ROW_ID", true, false,true))
-				.column(new PTPWorkflowSourceColumn("LAST_UPD", false, true,false))
-				.column(new PTPWorkflowSourceColumn("NAME", false, false,false))
+				.column(new PTPWorkflowSourceColumn("ROW_ID", true, false,true,false))
+				.column(new PTPWorkflowSourceColumn("LAST_UPD", false, true,false,false))
+				.column(new PTPWorkflowSourceColumn("NAME", false, false,false,false))
+				.column(new PTPWorkflowSourceColumn("BUID", false, false,false,true))
 				.workflow(InfaWorkflow.builder()//
 						.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
 						.workflowName("PTP_" + sourceTable + "_Extract")//
@@ -103,7 +104,7 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 		generator.setWfDefinition(ptpWorkflowInputToGenerator);
 		generator.addListener(fileWriter);
 		generator.addListener(gitWriter);
-		generator.addListener(repoWriter);
+//		generator.addListener(repoWriter);
 
 		InfaPowermartObject pmObj = generator.generate();
 		

@@ -33,8 +33,8 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 
 		ptpWorkflow = PTPWorkflow.builder()//
 				.sourceName(source)//
-				.column(new PTPWorkflowSourceColumn("INVOICE_NUMBER",true,false,true))
-				.column(new PTPWorkflowSourceColumn("INPUT_DATE",false,true,false))
+				.column(new PTPWorkflowSourceColumn("INVOICE_NUMBER",true,false,true,false))
+				.column(new PTPWorkflowSourceColumn("INPUT_DATE",false,true,false,false))
 				.sourceTableName(sourceTable)//
 				.workflow(InfaWorkflow.builder()//
 						.workflowUri("/GeneratedWorkflows/ptp/" + "PTP_" + sourceTable + ".xml")//

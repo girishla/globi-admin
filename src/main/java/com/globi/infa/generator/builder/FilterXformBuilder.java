@@ -20,6 +20,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.FileCopyUtils;
 
 import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
+import com.globi.infa.generator.builder.FilterXformBuilder.AddFieldsStep;
 
 import xjc.TABLEATTRIBUTE;
 import xjc.TRANSFORMATION;
@@ -56,6 +57,7 @@ public class FilterXformBuilder {
 
 	public interface AddFieldsStep {
 		AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns);
+		AddFieldsStep addPGUIDField();
 		AddFilterCondition noMoreFields();
 		
 	}
@@ -156,6 +158,23 @@ public class FilterXformBuilder {
 			return field;
 
 		}
+		
+		private static TRANSFORMFIELD filterXformFieldFrom(String expression) {
+
+			TRANSFORMFIELD field = new TRANSFORMFIELD();
+			field.setDATATYPE("String");
+			field.setDEFAULTVALUE("");
+			field.setDESCRIPTION("");
+			field.setNAME(expression);
+			field.setPICTURETEXT("");
+			field.setPORTTYPE("INPUT/OUTPUT");
+			field.setPRECISION("100");
+			field.setSCALE("0");
+			
+			return field;
+
+		}
+		
 
 		@Override
 		public AddFieldsStep filter(String filterName) {
@@ -207,6 +226,17 @@ public class FilterXformBuilder {
 			
 			return this;
 		}
+		
+		
+		@Override
+		public AddFieldsStep addPGUIDField() {
+			
+			this.filterXformDefn.getTRANSFORMFIELD()
+			.add(filterXformFieldFrom("BU_PGUID"));
+			
+			return this;
+		}
+		
 
 
 		@Override
@@ -230,6 +260,7 @@ public class FilterXformBuilder {
 		}
 
 
+		
 
 		@Override
 		public NameStep noMoreConditions() {

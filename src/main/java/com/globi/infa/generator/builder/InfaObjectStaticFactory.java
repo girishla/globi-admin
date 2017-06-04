@@ -10,6 +10,7 @@ import xjc.FOLDER;
 import xjc.INSTANCE;
 import xjc.MAPPING;
 import xjc.MAPPINGVARIABLE;
+import xjc.MAPPLET;
 import xjc.REPOSITORY;
 import xjc.SOURCE;
 import xjc.TARGET;
@@ -91,6 +92,20 @@ public class InfaObjectStaticFactory {
 
 		return instance;
 	}
+	
+	public static INSTANCE getInstanceFor(MAPPLET mapplet) {
+
+		INSTANCE instance = new INSTANCE();
+		instance.setNAME(mapplet.getNAME());
+		instance.setDESCRIPTION("");
+		instance.setTRANSFORMATIONTYPE("Mapplet");
+		instance.setTRANSFORMATIONNAME(mapplet.getNAME());
+		instance.setTYPE("MAPPLET");
+		instance.setREUSABLE("YES");
+
+		return instance;
+	}
+
 
 	public static INSTANCE getInstanceFor(TARGET target) {
 

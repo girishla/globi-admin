@@ -45,6 +45,8 @@ public class InfaSourceColumnDefinition extends AbstractEntity {
 	private Boolean integrationIdFlag;
 	@Builder.Default
 	private Boolean pguidFlag=false;
+	@Builder.Default
+	private Boolean buidFlag=false;
 
 	public String getColumnName() {
 

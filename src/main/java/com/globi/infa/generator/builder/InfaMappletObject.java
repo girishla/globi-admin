@@ -12,6 +12,8 @@ public class InfaMappletObject extends InfaFolderObject {
 	public InfaMappletObject(MAPPLET mapplet){
 		this.mapplet=mapplet;	
 		this.folderObj=mapplet;
+		this.name = mapplet.getNAME();
+		this.type = "MAPPLET";
 	
 	}
 	

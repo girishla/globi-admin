@@ -45,4 +45,7 @@ public class DataSourceTableColumnDTO  {
 	
 	private boolean pguidCol;
 	
+	private boolean buidCol;
+	
+	
 }

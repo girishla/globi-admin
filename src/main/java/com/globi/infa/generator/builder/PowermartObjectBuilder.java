@@ -19,6 +19,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
+import com.globi.infa.generator.builder.PowermartObjectBuilder.InstanceStep;
 import com.rits.cloning.Cloner;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ import xjc.FOLDER;
 import xjc.INSTANCE;
 import xjc.MAPPING;
 import xjc.MAPPINGVARIABLE;
+import xjc.MAPPLET;
 import xjc.POWERMART;
 import xjc.REPOSITORY;
 import xjc.SOURCE;
@@ -83,13 +85,19 @@ public class PowermartObjectBuilder {
 	public interface TargetDefn {
 		TargetDefn targetDefn(TARGET targetDefn);
 
-		MappingStep noMoreTargets();
+		MappletStep noMoreTargets();
 	}
 
 	public interface SourceSQLStep {
 		TransformationStep sourceSQLName(String sourceSQLName);
 	}
 
+	public interface MappletStep {
+		MappletStep mappletDefn(MAPPLET mapplet);
+		MappingStep noMoreMapplets();
+
+	}
+	
 	public interface MappingStep {
 		TransformationStep mappingDefn(MAPPING mapping);
 
@@ -108,6 +116,10 @@ public class PowermartObjectBuilder {
 	public interface InstanceStep {
 
 		InstanceStep addInstancesForTransformations();
+		
+
+		InstanceStep addInstancesForMapplets();
+
 
 		InstanceStep addInstancesForSources();
 
@@ -154,7 +166,7 @@ public class PowermartObjectBuilder {
 	}
 
 	private static class InfaRepoSteps implements PowermartObjectStep, RepositoryStep, ClassStep, SourceTableStep,
-			SourceSQLStep, TargetDefn, BuildStep, MappingVariableStep, TargetLoadOrderStep, ConnectorStep, InstanceStep,
+			SourceSQLStep, TargetDefn,MappletStep, BuildStep, MappingVariableStep, TargetLoadOrderStep, ConnectorStep, InstanceStep,
 			TransformationStep, MappingStep, FolderStep, DefaultConfigStep, SetMarshallerStep, WorkflowStep {
 
 		@SuppressWarnings("unused")
@@ -170,6 +182,7 @@ public class PowermartObjectBuilder {
 		private Map<String, TRANSFORMATION> xformMap = new HashMap<>();
 		private Map<String, SOURCE> sourceMap = new HashMap<>();
 		private Map<String, TARGET> targetMap = new HashMap<>();
+		private Map<String, MAPPLET> mappletMap = new HashMap<>();
 		private Jaxb2Marshaller marshaller;
 		private POWERMART powermartObject;
 		private List<InfaFolderObject> folderObjects =new ArrayList<>();
@@ -274,6 +287,7 @@ public class PowermartObjectBuilder {
 			this.addInstancesForTransformations();
 			this.addInstancesForSources();
 			this.addInstancesForTargets();
+			this.addInstancesForMapplets();
 
 			return this.noMoreInstances();
 		}
@@ -363,7 +377,7 @@ public class PowermartObjectBuilder {
 		}
 
 		@Override
-		public MappingStep noMoreTargets() {
+		public MappletStep noMoreTargets() {
 
 			return this;
 		}
@@ -457,17 +471,7 @@ public class PowermartObjectBuilder {
 				
 				this.connector(fromInstanceName, matchingField, toInstanceName,matchingField);
 			
-/*
-				CONNECTOR matchingConnector = new CONNECTOR();
-				matchingConnector.setFROMFIELD(matchingField);
-				matchingConnector.setTOFIELD(matchingField);
-				matchingConnector.setFROMINSTANCE(fromInstanceName);
-				matchingConnector.setTOINSTANCE(toInstanceName);
-				matchingConnector.setFROMINSTANCETYPE(getFromInstanceType(fromInstanceName));
-				matchingConnector.setTOINSTANCETYPE(getToInstanceType(toInstanceName));
 
-				mapping.getCONNECTOR().add(matchingConnector);
-*/
 			});
 
 			return this;
@@ -484,7 +488,19 @@ public class PowermartObjectBuilder {
 
 			return this;
 		}
+		
+		@Override
+		public InstanceStep addInstancesForMapplets() {
 
+			mappletMap.forEach((name, mapplet) -> {
+				this.mapping.getINSTANCE().add(getInstanceFor(mapplet));
+
+			});
+
+			return this;
+		}
+		
+		
 		@Override
 		public InstanceStep addInstancesForSources() {
 
@@ -646,6 +662,20 @@ public class PowermartObjectBuilder {
 				powermartObject.pmObject = this.powermartObject;
 			
 				return powermartObject;
+			}
+
+			@Override
+			public MappletStep mappletDefn(MAPPLET mapplet) {
+				this.folderChildren.add(mapplet);
+				this.folderObjects.add(new InfaMappletObject(mapplet));
+				mappletMap.put(mapplet.getNAME(), mapplet);
+				return this;
+			}
+
+			@Override
+			public MappingStep noMoreMapplets() {
+
+				return this;
 			}
 
 	}

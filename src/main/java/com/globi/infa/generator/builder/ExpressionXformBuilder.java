@@ -20,6 +20,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.FileCopyUtils;
 
 import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
+import com.globi.infa.generator.builder.ExpressionXformBuilder.AddFieldsStep;
 
 import xjc.TABLEATTRIBUTE;
 import xjc.TRANSFORMATION;
@@ -33,7 +34,8 @@ public class ExpressionXformBuilder {
 
 	public interface ClassStep {
 		ExpressionStep expressionFromPrototype(String className);
-
+		
+		
 		SetMarshallerStep ExpressionFromSeed(String className);
 	}
 
@@ -57,6 +59,8 @@ public class ExpressionXformBuilder {
 	public interface AddFieldsStep {
 		AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns);
 
+		AddFieldsStep addBUIDField(List<InfaSourceColumnDefinition> columns);
+
 		AddFieldsStep addRowWidField();
 
 		AddFieldsStep addEtlProcWidField();
@@ -64,7 +68,7 @@ public class ExpressionXformBuilder {
 		AddFieldsStep addEffectiveFromDateField();
 
 		AddFieldsStep addIntegrationIdField(List<InfaSourceColumnDefinition> columns);
-		
+
 		AddFieldsStep addDatasourceNumIdField();
 
 		AddFieldsStep addPGUIDField(String sourceName, List<InfaSourceColumnDefinition> columns);
@@ -228,8 +232,7 @@ public class ExpressionXformBuilder {
 
 			return this;
 		}
-		
-		
+
 		@Override
 		public AddFieldsStep addDatasourceNumIdField() {
 
@@ -249,10 +252,6 @@ public class ExpressionXformBuilder {
 
 			return this;
 		}
-		
-		
-		
-		
 
 		@Override
 		public AddFieldsStep addEtlProcWidField() {
@@ -300,6 +299,10 @@ public class ExpressionXformBuilder {
 					.filter(InfaSourceColumnDefinition::getIntegrationIdFlag)//
 					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
+			
+			if(concatenatedId.isEmpty()){
+				concatenatedId="'INTEGRATION_ID not set'";
+			}
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("string");
@@ -317,6 +320,35 @@ public class ExpressionXformBuilder {
 
 			return this;
 		}
+		
+		@Override
+		public AddFieldsStep addBUIDField(List<InfaSourceColumnDefinition> columns) {
+
+			String concatenatedId = columns.stream()//
+					.filter(InfaSourceColumnDefinition::getBuidFlag)//
+					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
+					.collect(Collectors.joining("|| ':' ||"));
+			
+			if(concatenatedId.isEmpty()){
+				concatenatedId="'BU not set'";
+			}
+	
+			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
+			xformExpressionField.setDATATYPE("string");
+			xformExpressionField.setDEFAULTVALUE("");
+			xformExpressionField.setDESCRIPTION("");
+			xformExpressionField.setEXPRESSION( "IIF(ISNULL(:LKP.LKP_BU({{buid}})),{{buid}},:LKP.LKP_BU({{buid}}))".replace("{{buid}}", concatenatedId));
+			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
+			xformExpressionField.setNAME("BU");
+			xformExpressionField.setPICTURETEXT("");
+			xformExpressionField.setPORTTYPE("OUTPUT");
+			xformExpressionField.setPRECISION("100");
+			xformExpressionField.setSCALE("0");
+
+			this.expressionXformDefn.getTRANSFORMFIELD().add(xformExpressionField);
+
+			return this;
+		}
 
 		@Override
 		public AddFieldsStep addPGUIDField(String sourceName, List<InfaSourceColumnDefinition> columns) {
@@ -325,6 +357,10 @@ public class ExpressionXformBuilder {
 					.filter(InfaSourceColumnDefinition::getPguidFlag)//
 					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
+			
+			if (concatenatedId.isEmpty()) {
+				concatenatedId = "'PGUID not set'";
+			}
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("string");

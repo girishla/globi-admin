@@ -12,6 +12,8 @@ public class InfaMappingObject extends InfaFolderObject {
 	public InfaMappingObject(MAPPING mapping){
 		this.mapping=mapping;	
 		this.folderObj=mapping;
+		this.name = mapping.getNAME();
+		this.type = "MAPPING";
 	}
 	
 	

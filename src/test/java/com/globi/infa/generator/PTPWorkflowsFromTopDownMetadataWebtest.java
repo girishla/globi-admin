@@ -7,26 +7,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import com.globi.AbstractWebIntegrationTest;
-import com.globi.infa.datasource.core.DataSourceTableColumnDTO;
-import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
-import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
 public class PTPWorkflowsFromTopDownMetadataWebtest extends AbstractWebIntegrationTest {
 
 	@Autowired
 	PTPWorkflowRepository wfRepository;
 	PTPWorkflow ptpWorkflow;
-	static final String sourceTable = "R_INVOICE_MASTER";
-	static final String source = "GEN";
 
 	@Before
 	public void setup(){
