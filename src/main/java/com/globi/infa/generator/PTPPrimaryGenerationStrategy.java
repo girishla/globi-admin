@@ -14,8 +14,6 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
-import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
-import com.globi.infa.datasource.core.InfaSourceDefinition;
 import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
 import com.globi.infa.generator.builder.InfaPowermartObject;
@@ -25,6 +23,8 @@ import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
+import com.globi.infa.metadata.source.InfaSourceColumnDefinition;
+import com.globi.infa.metadata.source.InfaSourceDefinition;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
 

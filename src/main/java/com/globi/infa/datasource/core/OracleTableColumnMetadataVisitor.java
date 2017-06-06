@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
-import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
+import com.globi.infa.metadata.source.InfaSourceColumnDefinition;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;
 
 @Component
@@ -56,7 +56,7 @@ public class OracleTableColumnMetadataVisitor implements TableColumnMetadataVisi
 		public InfaSourceColumnDefinition mapRow(ResultSet rs, int rowNum) throws SQLException {
 
 			InfaSourceColumnDefinition colDefn = InfaSourceColumnDefinition.builder()//
-					.columnName(rs.getString("COLUMN_NAME"))//
+					.columnName(rs.getString("COLUMN_NAME").equals("INTEGRATION_ID") ? "SRC_INTEGRATION_ID" : rs.getString("COLUMN_NAME"))//
 					.columnLength(tryParse(rs.getString("COL_LENGTH")))//
 					.columnNumber(tryParse(rs.getString("COLUMN_NUMBER")))//
 					.columnDataType(mapper.mapType(rs.getString("DATA_TYPE")))//

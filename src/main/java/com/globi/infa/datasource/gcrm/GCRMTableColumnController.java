@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.globi.infa.datasource.core.OracleTableColumnMetadataVisitor;
 import com.globi.infa.datasource.gcrm.GCRMTableColumnRepository;
-import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
+import com.globi.infa.metadata.source.InfaSourceColumnDefinition;
 
 @RestController
 public class GCRMTableColumnController {

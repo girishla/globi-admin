@@ -13,9 +13,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
-import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
-
-
+import com.globi.infa.metadata.source.InfaSourceColumnDefinition;
 
 import xjc.TARGET;
 import xjc.TARGETFIELD;

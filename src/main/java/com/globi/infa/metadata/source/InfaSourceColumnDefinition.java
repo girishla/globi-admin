@@ -1,4 +1,4 @@
-package com.globi.infa.datasource.core;
+package com.globi.infa.metadata.source;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -15,13 +15,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-//@Entity
+@Entity
 @ToString(callSuper = true)
 @RequiredArgsConstructor
 @Getter
 @Setter
 @NoArgsConstructor
-//@Table(name = "COLS")
+@Table(name = "M_INFA_SRC_DEFN_COLS")
 @AllArgsConstructor
 @Builder
 public class InfaSourceColumnDefinition extends AbstractEntity {
@@ -30,7 +30,6 @@ public class InfaSourceColumnDefinition extends AbstractEntity {
 	private String columnName;
 	@NonNull
 	private String columnDataType;
-
 	private int columnNumber;
 
 	private String nullable;
@@ -41,17 +40,12 @@ public class InfaSourceColumnDefinition extends AbstractEntity {
 	private int physicalOffset;
 	private int precision;
 	private int scale;
-	@Size(min = 1, max = 1)
 	private Boolean integrationIdFlag;
 	@Builder.Default
 	private Boolean pguidFlag=false;
 	@Builder.Default
 	private Boolean buidFlag=false;
 
-	public String getColumnName() {
 
-		return columnName.equals("INTEGRATION_ID") ? "SRC_INTEGRATION_ID" : columnName;
-
-	}
 
 }

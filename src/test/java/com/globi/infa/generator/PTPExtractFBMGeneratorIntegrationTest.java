@@ -28,10 +28,10 @@ import org.springframework.test.annotation.Rollback;
 import org.xml.sax.SAXException;
 
 import com.globi.AbstractIntegrationTest;
-import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
 import com.globi.infa.datasource.core.OracleTableColumnMetadataVisitor;
 import com.globi.infa.datasource.fbm.FBMTableColumnRepository;
 import com.globi.infa.generator.builder.InfaPowermartObject;
+import com.globi.infa.metadata.source.InfaSourceColumnDefinition;
 import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
@@ -49,7 +49,7 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 	private PTPExtractGenerationStrategy generator;
 
 	@Autowired
-	PTPWorkflowRepository wfRepository;
+	PTPWorkflowRepository repository;
 
 	@Autowired
 	FileWriterEventListener fileWriter;
@@ -96,10 +96,11 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 		//Build definition to be passed as input to generator
 		ptpWorkflowGeneratorInput  = PTPWorkflow.builder()//
 				.sourceName(source)//
-				.sourceTableName(sourceTable).columns(workflowSourceColumnList)
+				.sourceTableName(sourceTable)//
+				.columns(workflowSourceColumnList)
 				.workflow(InfaWorkflow.builder()//
 						.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
-						.workflowName("PTP_" + sourceTable + "_Extract")//
+						.workflowName("PTP_" + source + "_" + sourceTable + "_Extract")//
 						.workflowType("PTP")//
 						.build())
 				.build();
@@ -116,9 +117,16 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 		generator.setWfDefinition(ptpWorkflowGeneratorInput);
 		generator.addListener(fileWriter);
 		generator.addListener(gitWriter);
-		generator.addListener(repoWriter);
+	//	generator.addListener(repoWriter);
 		InfaPowermartObject pmObj = generator.generate();
 
+		
+		Optional<PTPWorkflow> existingWorkflow = repository.findByWorkflow_workflowName(ptpWorkflowGeneratorInput.getWorkflow().getWorkflowName());
+		if (existingWorkflow.isPresent()) {
+			repository.delete(existingWorkflow.get());
+		}
+		repository.save(ptpWorkflowGeneratorInput);
+		
 		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
 
 		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/SOURCE")));
@@ -130,6 +138,8 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 		assertThat(testXML, (hasXPath(
 				"/POWERMART/REPOSITORY/FOLDER/MAPPING/INSTANCE[@NAME='SQ_ExtractData']/ASSOCIATED_SOURCE_INSTANCE")));
 
+		
+		
 
 	}
 

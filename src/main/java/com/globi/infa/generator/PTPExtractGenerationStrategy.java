@@ -20,8 +20,6 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
-import com.globi.infa.datasource.core.InfaSourceColumnDefinition;
-import com.globi.infa.datasource.core.InfaSourceDefinition;
 import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
 import com.globi.infa.generator.builder.FilterXformBuilder;
@@ -34,6 +32,8 @@ import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
+import com.globi.infa.metadata.source.InfaSourceColumnDefinition;
+import com.globi.infa.metadata.source.InfaSourceDefinition;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
@@ -62,6 +62,10 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		if (wfDefinition == null)
 			throw new IllegalArgumentException("Workflow Definition Must be set before invoking generate");
 
+		List<InfaSourceColumnDefinition> allTableColumns = colRepository.accept(columnQueryVisitor,
+				wfDefinition.getSourceTableName());
+		
+		
 		sourceTableDef = InfaSourceDefinition.builder()//
 				.sourceTableName(wfDefinition.getSourceTableName())//
 				.ownerName(source.get().getOwnerName())//
@@ -69,11 +73,12 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.databaseType(source.get().getDbType())//
 				.build();
 
-		List<InfaSourceColumnDefinition> allTableColumns = colRepository.accept(columnQueryVisitor,
-				wfDefinition.getSourceTableName());
+
+
 
 		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
 
+		
 		// Filter for selected columns for which generation must take place.
 		// Also tag the integration Id
 		List<InfaSourceColumnDefinition> matchedColumns = allTableColumns.stream().filter(column -> {
@@ -122,6 +127,8 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		}
 		
 		sourceTableDef.getColumns().addAll(matchedColumns);
+		
+		sourceDefnRepo.save(sourceTableDef);
 
 		commonValuesMap.put("targetTableName",
 				sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName());
