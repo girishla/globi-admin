@@ -27,7 +27,6 @@ public class PTPWorkflowsFromTopDownMetadataWebtest extends AbstractWebIntegrati
 
 	}
 	
-	
 	@Test
 	public void canCreateWorkflowFromExistingTopDownMetadata() throws Exception{
 		

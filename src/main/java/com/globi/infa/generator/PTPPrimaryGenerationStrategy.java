@@ -1,6 +1,6 @@
 package com.globi.infa.generator;
 
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.*;
+import static com.globi.infa.generator.builder.InfaObjectMother.*;
 
 
 import java.io.IOException;

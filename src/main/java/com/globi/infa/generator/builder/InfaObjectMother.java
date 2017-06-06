@@ -22,7 +22,7 @@ import xjc.TRANSFORMATION;
  * */
 
 
-public class InfaObjectStaticFactory {
+public class InfaObjectMother {
 
 
 	public static MAPPING getMappingFrom(String mappingName) {
@@ -47,7 +47,6 @@ public class InfaObjectStaticFactory {
 		folder.setOWNER("Administrator");
 		folder.setSHARED("SHARED");
 		folder.setPERMISSIONS(DEFAULT_FOLDER_PERMISSION.getValue());
-//		folder.setUUID(UUID.randomUUID().toString());
 		folder.setUUID("AUTOGEN_UUID");
 		return folder;
 

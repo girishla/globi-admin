@@ -1,6 +1,6 @@
 package com.globi.infa.generator.builder;
 
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getInstanceFor;
+import static com.globi.infa.generator.builder.InfaObjectMother.getInstanceFor;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

@@ -1,7 +1,7 @@
 package com.globi.infa.generator;
 
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getFolderFor;
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getRepository;
+import static com.globi.infa.generator.builder.InfaObjectMother.getFolderFor;
+import static com.globi.infa.generator.builder.InfaObjectMother.getRepository;
 
 import java.io.File;
 import java.io.FileOutputStream;

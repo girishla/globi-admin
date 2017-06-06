@@ -1,11 +1,11 @@
 package com.globi.infa.generator;
 
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getDataSourceNumIdMappingVariable;
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getEtlProcWidMappingVariable;
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getFolderFor;
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getInitialExtractDateMappingVariable;
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getMappingFrom;
-import static com.globi.infa.generator.builder.InfaObjectStaticFactory.getRepository;
+import static com.globi.infa.generator.builder.InfaObjectMother.getDataSourceNumIdMappingVariable;
+import static com.globi.infa.generator.builder.InfaObjectMother.getEtlProcWidMappingVariable;
+import static com.globi.infa.generator.builder.InfaObjectMother.getFolderFor;
+import static com.globi.infa.generator.builder.InfaObjectMother.getInitialExtractDateMappingVariable;
+import static com.globi.infa.generator.builder.InfaObjectMother.getMappingFrom;
+import static com.globi.infa.generator.builder.InfaObjectMother.getRepository;
 
 import java.io.IOException;
 import java.util.HashMap;
