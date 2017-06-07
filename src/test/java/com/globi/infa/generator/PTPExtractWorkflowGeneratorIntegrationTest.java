@@ -37,6 +37,7 @@ import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.rits.cloning.Cloner;
+import static com.globi.infa.generator.StaticObjectMother.*;
 
 import xjc.POWERMART;
 
@@ -79,10 +80,10 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 		ptpWorkflowInputToGenerator  = PTPWorkflow.builder()//
 				.sourceName(source)//
 				.sourceTableName(sourceTable)//
-				.column(new PTPWorkflowSourceColumn("ROW_ID", true, false,true,false))
-				.column(new PTPWorkflowSourceColumn("LAST_UPD", false, true,false,false))
-				.column(new PTPWorkflowSourceColumn("NAME", false, false,false,false))
-				.column(new PTPWorkflowSourceColumn("BU_ID", false, false,false,true))
+				.column(getIntegrationIdColumn("ROW_ID"))
+				.column(getIntegrationIdColumn("LAST_UPD"))
+				.column(getNormalColumn("NAME"))
+				.column(getBuidColumn("BU_ID"))
 				.workflow(InfaWorkflow.builder()//
 						.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
 						.workflowName("PTP_" + sourceTable + "_Extract")//

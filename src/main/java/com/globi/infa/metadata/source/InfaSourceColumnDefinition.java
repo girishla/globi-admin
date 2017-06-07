@@ -2,6 +2,7 @@ package com.globi.infa.metadata.source;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 
 import com.globi.infa.AbstractEntity;
@@ -40,12 +41,18 @@ public class InfaSourceColumnDefinition extends AbstractEntity {
 	private int physicalOffset;
 	private int precision;
 	private int scale;
-	private Boolean integrationIdFlag;
+	
+	@Builder.Default
+	private Boolean integrationIdFlag=false;
 	@Builder.Default
 	private Boolean pguidFlag=false;
 	@Builder.Default
 	private Boolean buidFlag=false;
+	@Builder.Default
+	private Boolean ccFlag=false;
 
-
-
+	@Transient
+	@Builder.Default
+	private Boolean selected=false;
+	
 }
