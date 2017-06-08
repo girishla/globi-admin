@@ -57,8 +57,8 @@ public class InfaObjectMother {
 		REPOSITORY repository = new REPOSITORY();
 
 		repository = new REPOSITORY();
-		repository.setNAME("DEV_Oracle_BI_RS");
-		repository.setVERSION("181");
+		repository.setNAME("GLOBI_RS");
+		repository.setVERSION("186");
 		repository.setDATABASETYPE("Oracle");
 		repository.setCODEPAGE("UTF-8");
 

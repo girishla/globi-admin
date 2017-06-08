@@ -40,7 +40,7 @@ import com.rits.cloning.Cloner;
 
 import xjc.POWERMART;
 
-public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTest {
+public class PTPExtractFBMInvoiceLNGeneratorIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private Jaxb2Marshaller marshaller;
@@ -72,14 +72,14 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 	@Before
 	public void setup() {
 		
-		String sourceTable = "PS_LN_BI_INV_HD_VW";
+		String sourceTable = "PS_LN_BI_INV_LN_VW";
 		String source = "FBM";
 		List<InfaSourceColumnDefinition> columns = fbmColrepository.accept(oraColumnQueryVisitor, sourceTable);
 		
 		// Build workflow columns DTO from source columns
 		List<PTPWorkflowSourceColumn> workflowSourceColumnList = columns.stream()//
 				.map(column -> {
-			if (column.getColumnName().equals("INVOICE")) {
+			if (column.getColumnName().equals("INVOICE") || column.getColumnName().equals("LINE_SEQ_NUM")) {
 				column.setIntegrationIdFlag(true);
 			}
 

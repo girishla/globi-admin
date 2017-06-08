@@ -20,20 +20,19 @@ public class OracleTableColumnMetadataVisitor implements TableColumnMetadataVisi
 	@Autowired
 	protected OracleSourceDataTypeMapper mapper;
 
-	protected String columnSQL = "SELECT \r\n" + 
-			"COLUMN_ID COLUMN_NUMBER\r\n" + 
-			",COLUMN_NAME\r\n" + 
-			",DATA_TYPE\r\n" + 
-			",CASE WHEN DATA_TYPE='NUMBER' THEN DATA_LENGTH ELSE CHAR_LENGTH END PHYSICAL_LENGTH\r\n" + 
-			",CASE WHEN DATA_TYPE ='DATE' THEN 19 WHEN DATA_TYPE='NUMBER' THEN DATA_PRECISION +2  WHEN DATA_TYPE='LONG' THEN 4000 ELSE 0 END COL_LENGTH\r\n" + 
-			",CASE WHEN NULLABLE='Y' THEN 'NULL' ELSE 'NOTNULL' END NULLABLE\r\n" + 
-			",CASE WHEN DATA_TYPE='DATE' THEN 19 WHEN DATA_TYPE IN ('VARCHAR2','CHAR') THEN CHAR_LENGTH WHEN DATA_TYPE='LONG' THEN 4000 WHEN DATA_TYPE='NUMBER' THEN DATA_LENGTH ELSE DATA_PRECISION END COL_PRECISION\r\n" + 
-			",NVL(DATA_SCALE,0) COL_SCALE\r\n" + 
-			",CASE WHEN DATA_TYPE='DATE' THEN 19 ELSE 0 END COL_OFFSET\r\n" + 
-			",sum(CHAR_LENGTH) over (ORDER BY COLUMN_ID\r\n" + 
-			"ROWS BETWEEN UNBOUNDED PRECEDING\r\n" + 
-			"AND CURRENT ROW)-(CHAR_LENGTH) PHYSICAL_OFFSET\r\n" + 
-			"FROM ALL_TAB_COLUMNS WHERE TABLE_NAME=?";
+	protected String columnSQL = "SELECT COLUMN_ID COLUMN_NUMBER\r\n" + 
+			"			,COLUMN_NAME\r\n" + 
+			"			,DATA_TYPE\r\n" + 
+			"			,CASE WHEN DATA_TYPE='NUMBER' THEN DATA_LENGTH WHEN DATA_TYPE IN ('DATE','TIMESTAMP(6)') THEN 19  ELSE CHAR_LENGTH END PHYSICAL_LENGTH\r\n" + 
+			"			,CASE WHEN DATA_TYPE IN ('DATE','TIMESTAMP(6)') THEN 19 WHEN DATA_TYPE='NUMBER' THEN DATA_LENGTH WHEN DATA_TYPE='LONG' THEN 4000 ELSE 0 END COL_LENGTH\r\n" + 
+			"			,CASE WHEN NULLABLE='Y' THEN 'NULL' ELSE 'NOTNULL' END NULLABLE\r\n" + 
+			"			,CASE WHEN DATA_TYPE IN ('DATE','TIMESTAMP(6)') THEN 19 WHEN DATA_TYPE IN ('VARCHAR2','CHAR') THEN CHAR_LENGTH WHEN DATA_TYPE='LONG' THEN 4000 WHEN DATA_TYPE='NUMBER' THEN DATA_LENGTH ELSE DATA_PRECISION END COL_PRECISION\r\n" + 
+			"			,CASE WHEN DATA_TYPE IN ('DATE','TIMESTAMP(6)') THEN 0 ELSE NVL(DATA_SCALE,0) END COL_SCALE\r\n" + 
+			"			,CASE WHEN DATA_TYPE IN ('DATE','TIMESTAMP(6)') THEN 19 ELSE 0 END COL_OFFSET\r\n" + 
+			"			,sum(CHAR_LENGTH) over (ORDER BY COLUMN_ID\r\n" + 
+			"			ROWS BETWEEN UNBOUNDED PRECEDING\r\n" + 
+			"			AND CURRENT ROW)-(CHAR_LENGTH) PHYSICAL_OFFSET\r\n" + 
+			"			FROM ALL_TAB_COLUMNS WHERE TABLE_NAME=?";
 	
 	@Autowired
 	SourceSystemRepository sourceSystemRepo;
@@ -59,7 +58,7 @@ public class OracleTableColumnMetadataVisitor implements TableColumnMetadataVisi
 					.columnName(rs.getString("COLUMN_NAME").equals("INTEGRATION_ID") ? "SRC_INTEGRATION_ID" : rs.getString("COLUMN_NAME"))//
 					.columnLength(tryParse(rs.getString("COL_LENGTH")))//
 					.columnNumber(tryParse(rs.getString("COLUMN_NUMBER")))//
-					.columnDataType(mapper.mapType(rs.getString("DATA_TYPE")))//
+					.columnDataType(mapper.mapType(rs.getString("DATA_TYPE").toUpperCase()))//
 					.nullable(rs.getString("NULLABLE"))//
 					.offset(tryParse(rs.getString("COL_OFFSET")))//
 					.physicalLength(tryParse(rs.getString("PHYSICAL_LENGTH")))//

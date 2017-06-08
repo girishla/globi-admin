@@ -10,7 +10,9 @@
             <SESSTRANSFORMATIONINST ISREPARTITIONPOINT ="YES" PARTITIONTYPE ="PASS THROUGH" PIPELINE ="1" SINSTANCENAME ="SQ_PrimaryData" STAGE ="2" TRANSFORMATIONNAME ="SQ_PrimaryData" TRANSFORMATIONTYPE ="Source Qualifier"/>
             <SESSTRANSFORMATIONINST ISREPARTITIONPOINT ="NO" PIPELINE ="1" SINSTANCENAME ="EXP_Resolve" STAGE ="2" TRANSFORMATIONNAME ="EXP_Resolve" TRANSFORMATIONTYPE ="Expression"/>
             <SESSTRANSFORMATIONINST ISREPARTITIONPOINT ="NO" PIPELINE ="1" SINSTANCENAME ="LKP_RecordKeys" STAGE ="2" TRANSFORMATIONNAME ="LKP_RecordKeys" TRANSFORMATIONTYPE ="Lookup Procedure"/>
-            <CONFIGREFERENCE REFOBJECTNAME ="default_session_config" TYPE ="Session config"/>
+            <CONFIGREFERENCE REFOBJECTNAME ="default_session_config" TYPE ="Session config">
+                <ATTRIBUTE NAME ="Custom Properties" VALUE ="lookupOverrideParsingSetting=2;"/>
+            </CONFIGREFERENCE>
             <SESSIONCOMPONENT REFOBJECTNAME ="presession_variable_assignment" REUSABLE ="NO" TYPE ="Pre-session variable assignment">
                 <TASK DESCRIPTION ="" NAME ="presession_variable_assignment" REUSABLE ="NO" TYPE ="Command" VERSIONNUMBER ="1">
                     <ATTRIBUTE NAME ="Fail task if any command fails" VALUE ="NO"/>

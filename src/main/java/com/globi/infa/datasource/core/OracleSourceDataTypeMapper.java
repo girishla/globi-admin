@@ -1,6 +1,5 @@
 package com.globi.infa.datasource.core;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
@@ -28,7 +27,8 @@ public class OracleSourceDataTypeMapper implements DataTypeMapper {
 		typeMap.put("REAL","number(p,s)");
 		typeMap.put("ROWID","varchar2");
 		typeMap.put("SMALLINT","number(p,s)");
-		typeMap.put("TIMESTAMP","timestamp");
+		typeMap.put("TIMESTAMP","date");
+		typeMap.put("TIMESTAMP(6)","date");
 		typeMap.put("TIME","varchar2");
 		typeMap.put("TINYINT","number(p,s)");
 		typeMap.put("VARCHAR","varchar");
@@ -43,7 +43,6 @@ public class OracleSourceDataTypeMapper implements DataTypeMapper {
 	@Override
 	public String mapType(String fromType) {
 
-		
 		return typeMap.get(fromType);
 
 	}

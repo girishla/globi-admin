@@ -23,7 +23,7 @@
             <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="SRC_VAL" PICTURETEXT ="" PORTTYPE ="LOOKUP" PRECISION ="150" SCALE ="0"/>
             <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="TGT_VAL" PICTURETEXT ="" PORTTYPE ="LOOKUP/RETURN/OUTPUT" PRECISION ="150" SCALE ="0"/>
             <TABLEATTRIBUTE NAME ="Lookup Sql Override" VALUE =""/>
-            <TABLEATTRIBUTE NAME ="Lookup table name" VALUE ="S_LAW_DOM_LKP_V"/>
+            <TABLEATTRIBUTE NAME ="Lookup table name" VALUE ="LAW.S_LAW_DOM_LKP_V"/>
             <TABLEATTRIBUTE NAME ="Lookup Source Filter" VALUE =""/>
             <TABLEATTRIBUTE NAME ="Lookup caching enabled" VALUE ="YES"/>
             <TABLEATTRIBUTE NAME ="Lookup policy on multiple match" VALUE ="Use First Value"/>
