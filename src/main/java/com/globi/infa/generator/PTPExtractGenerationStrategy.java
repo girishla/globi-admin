@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
@@ -45,26 +46,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
-	
 	Optional<SourceSystem> source;
-	
-	
+
 	PTPExtractGenerationStrategy(Jaxb2Marshaller marshaller, SourceMetadataFactoryMapper metadataFactoryMapper) {
-		
+
 		this.marshaller = marshaller;
 		this.metadataFactoryMapper = metadataFactoryMapper;
 
 	}
 
-	
-	
 	private List<InfaSourceColumnDefinition> getFilteredSourceDefnColumns(
 			List<InfaSourceColumnDefinition> allTableColumns, List<PTPWorkflowSourceColumn> inputSelectedColumns) {
 
 		Map<String, InfaSourceColumnDefinition> allColsMap = allTableColumns.stream()
 				.collect(Collectors.toMap(InfaSourceColumnDefinition::getColumnName, Function.identity()));
 
-		
 		inputSelectedColumns.stream().forEach(inputColumn -> {
 			if (allColsMap.containsKey(inputColumn.getSourceColumnName())) {
 				allColsMap.get(inputColumn.getSourceColumnName())
@@ -78,24 +74,48 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		List<InfaSourceColumnDefinition> matchedColumns = allColsMap.values()//
 				.stream()//
-				.filter(column -> column.getSelected())
-				.collect(Collectors.toList());
+				.filter(column -> column.getSelected()).collect(Collectors.toList());
 
 		return matchedColumns;
 
 	}
-	
-	
-	private void setupSourceSystemDefn(){
-		
+
+	private void setupSourceSystemDefn() {
+
 		if (wfDefinition == null)
 			throw new IllegalArgumentException("Workflow Definition Must be set before invoking generate");
-		
+
 		this.source = sourceSystemRepo.findByName(wfDefinition.getSourceName());
 
 		if (!source.isPresent())
 			throw new IllegalArgumentException("Source System not recognised");
-		
+
+	}
+
+	private String getSourceFilterString(String sourceFilter, List<PTPWorkflowSourceColumn> inputSelectedColumns,
+			String tableName) {
+
+		// Find and set the sourceQualifier filter column
+		Optional<PTPWorkflowSourceColumn> sourceQualifierFilterClauseColumn = inputSelectedColumns.stream()//
+				.filter(column -> column.isChangeCaptureColumn())//
+				.findAny();
+
+		String ccFilter = "";
+		String combinedFilter = "";
+		sourceFilter=ObjectUtils.defaultIfNull(sourceFilter,"");
+
+		if (sourceQualifierFilterClauseColumn.isPresent()) {
+			ccFilter = tableName + "." + sourceQualifierFilterClauseColumn.get().getSourceColumnName()
+					+ " >= TO_DATE('$$INITIAL_EXTRACT_DATE','dd/MM/yyyy HH24:mi:ss')";
+		}
+
+		if (!ccFilter.isEmpty() && !sourceFilter.isEmpty()) {
+			combinedFilter = ccFilter + " AND " + sourceFilter;
+		} else {
+			combinedFilter = ObjectUtils.firstNonNull(ccFilter, combinedFilter);
+		}
+
+		return combinedFilter == null ? "" : combinedFilter;
 	}
 
 	private InfaPowermartObject generateWorkflow() throws IOException, SAXException, JAXBException {
@@ -104,69 +124,60 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		Map<String, String> emptyValuesMap = new HashMap<>();
 		Map<String, String> commonValuesMap = new HashMap<>();
-		
+
 		this.setupSourceSystemDefn();
 
-		List<InfaSourceColumnDefinition> allTableColumns = colRepository.accept(columnQueryVisitor,
-				wfDefinition.getSourceTableName());
-		
+		String tblName = wfDefinition.getSourceTableName();
+		String dbName = wfDefinition.getSourceName();
+		String sourceFilter = wfDefinition.getSourceFilter();
+
+		List<InfaSourceColumnDefinition> allTableColumns = colRepository.accept(columnQueryVisitor, tblName);
+
 		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
-		
-		List<InfaSourceColumnDefinition> matchedColumns = this.getFilteredSourceDefnColumns(colRepository.accept(columnQueryVisitor,
-				wfDefinition.getSourceTableName()), inputSelectedColumns);
+
+		List<InfaSourceColumnDefinition> matchedColumns = this
+				.getFilteredSourceDefnColumns(colRepository.accept(columnQueryVisitor, tblName), inputSelectedColumns);
 
 		sourceTableDef = InfaSourceDefinition.builder()//
-				.sourceTableName(wfDefinition.getSourceTableName())//
+				.sourceTableName(tblName)//
 				.ownerName(source.get().getOwnerName())//
 				.databaseName(source.get().getName())//
 				.databaseType(source.get().getDbType())//
 				.build();
 
-		// Find and set the sourceQualifier filter column
-		Optional<PTPWorkflowSourceColumn> sourceQualifierFilterClauseColumn = inputSelectedColumns.stream()//
-				.filter(column -> column.isChangeCaptureColumn())//
-				.findAny();
+		String combinedFilter = getSourceFilterString(sourceFilter, inputSelectedColumns, tblName);
 
-		String sourceFilter = "";
-
-		if (sourceQualifierFilterClauseColumn.isPresent()) {
-			sourceFilter = sourceTableDef.getSourceTableName() + "."
-					+ sourceQualifierFilterClauseColumn.get().getSourceColumnName()
-					+ " >= TO_DATE('$$INITIAL_EXTRACT_DATE','dd/MM/yyyy HH24:mi:ss')";
-
-		}
-
-		//Save all columns for reference and then add back matched columns for processing
+		// Save all columns for reference and then add back matched columns for
+		// processing
 		sourceTableDef.getColumns().addAll(allTableColumns);
 		sourceDefnRepo.save(sourceTableDef);
 
 		sourceTableDef.getColumns().clear();
 		sourceTableDef.getColumns().addAll(matchedColumns);
-		
 
-		commonValuesMap.put("targetTableName",
-				sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName());
-		commonValuesMap.put("sourceName", sourceTableDef.getDatabaseName());
+		commonValuesMap.put("targetTableName", dbName + "_" + tblName);
+		commonValuesMap.put("sourceName", dbName);
+
+		List<InfaSourceColumnDefinition> columnsList = sourceTableDef.getColumns();
 
 		InfaPowermartObject pmObj = PowermartObjectBuilder//
 				.newBuilder()//
 				.powermartObject().repository(getRepository())//
-				.folder(getFolderFor("LAW_PTP_" + sourceTableDef.getDatabaseName(), "Pull to puddle folder"))//
+				.folder(getFolderFor("LAW_PTP_" + dbName, "Pull to puddle folder"))//
 				.marshaller(marshaller)//
 				.simpleTableSyncClass("simpleTableSyncClass")//
 				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
 						.sourceDefnFromPrototype("SourceFromPrototype")//
 						.sourceDefn(sourceTableDef)//
 						.addFields(allTableColumns)//
-						.name(sourceTableDef.getSourceTableName())//
+						.name(tblName)//
 						.build())
 				.noMoreSources()//
 				.targetDefn(TargetDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.loadTargetFromSeed("Seed_PTPTargetTableSystemCols")//
-						.addFields(sourceTableDef.getColumns())//
-						.noMoreFields()
-						.name(sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName())//
+						.addFields(columnsList)//
+						.noMoreFields().name(dbName + "_" + tblName)//
 						.build())//
 				.noMoreTargets()//
 				.mappletDefn(MappletBuilder.newBuilder()//
@@ -174,14 +185,12 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.loadMappletFromSeed("Seed_MPLDomainLookup")//
 						.nameAlreadySet()//
 						.build())//
-				.noMoreMapplets()
-				.mappingDefn(getMappingFrom("PTP_" + sourceTableDef.getDatabaseName() + "_"
-						+ sourceTableDef.getSourceTableName() + "_Extract"))//
+				.noMoreMapplets().mappingDefn(getMappingFrom("PTP_" + dbName + "_" + tblName + "_Extract"))//
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.setValue("sourceFilter", sourceFilter).noMoreValues()
-						.loadSourceQualifierFromSeed("Seed_SourceQualifier")//
-						.addFields(dataTypeMapper, sourceTableDef.getColumns())//
+						.setValue("sourceFilter", combinedFilter)//
+						.noMoreValues().loadSourceQualifierFromSeed("Seed_SourceQualifier")//
+						.addFields(dataTypeMapper, columnsList)//
 						.name("SQ_ExtractData")//
 						.build())//
 				.transformation(ExpressionXformBuilder.newBuilder()//
@@ -190,10 +199,8 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.addEffectiveFromDateField()//
 						.addEtlProcWidField()//
 						.addDatasourceNumIdField()//
-						.addIntegrationIdField(sourceTableDef.getColumns())//
-						.addBUIDField(sourceTableDef.getColumns())
-						.addPGUIDField(sourceTableDef.getDatabaseName(), sourceTableDef.getColumns())
-						.addMD5HashField(sourceTableDef.getColumns())//
+						.addIntegrationIdField(columnsList)//
+						.addBUIDField(columnsList).addPGUIDField(dbName, columnsList).addMD5HashField(columnsList)//
 						.addRowWidField()//
 						.noMoreFields()//
 						.nameAlreadySet()//
@@ -214,26 +221,30 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.transformation(LookupXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setInterpolationValues(commonValuesMap)//
-						.loadLookupXformFromSeed("Seed_LKPBU_" + sourceTableDef.getDatabaseName())//
+						.loadLookupXformFromSeed("Seed_LKPBU_" + dbName)//
 						.nameAlreadySet()//
 						.build())
 				.transformation(ExpressionXformBuilder.newBuilder()//
-						.ExpressionFromSeed("Prepare BU Domain Lookup").marshaller(marshaller)//
+						.ExpressionFromSeed("Prepare BU Domain Lookup")//
+						.marshaller(marshaller)//
 						.setInterpolationValues(commonValuesMap)//
-						.loadExpressionXformFromSeed("Seed_EXPPrepDomLookup").noMoreFields().nameAlreadySet().build())
+						.loadExpressionXformFromSeed("Seed_EXPPrepDomLookup")//
+						.noMoreFields()//
+						.nameAlreadySet()//
+						.build())
 				.transformation(FilterXformBuilder.newBuilder()//
 						.filterFromPrototype("FilterFromPrototype")//
 						.filter("FIL_ChangesOnly")//
-						.addPGUIDField().noMoreFields()//
+						.addPGUIDField()//
+						.noMoreFields()//
 						.addCondition("ISNULL(HASH_RECORD)")//
 						.noMoreConditions()//
 						.nameAlreadySet()//
 						.build())
 				.transformationCopyConnectAllFields("EXP_Resolve", "FIL_ChangesOnly")//
 				.noMoreTransformations()//
-				.autoConnectByName(sourceTableDef.getSourceTableName(), "SQ_ExtractData")//
-				.autoConnectByName("FIL_ChangesOnly",
-						sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName())//
+				.autoConnectByName(tblName, "SQ_ExtractData")//
+				.autoConnectByName("FIL_ChangesOnly", dbName + "_" + tblName)//
 				.connector("SEQ_WID", "NEXTVAL", "EXP_Resolve", "ROW_WID")
 				.connector("EXP_Resolve", "HASH_RECORD", "LKP_RecordInstance", "HASH_RECORD_IN")
 				.connector("LKP_RecordInstance", "HASH_RECORD", "FIL_ChangesOnly", "HASH_RECORD")//
@@ -246,17 +257,17 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.noMoreTargetLoadOrders()//
 				.mappingvariable(getEtlProcWidMappingVariable())//
 				.mappingvariable(getInitialExtractDateMappingVariable())//
-				.mappingvariable(getDataSourceNumIdMappingVariable()).noMoreMappingVariables()//
+				.mappingvariable(getDataSourceNumIdMappingVariable())//
+				.noMoreMappingVariables()//
 				.setdefaultConfigFromSeed("Seed_DefaultSessionConfig")//
 				.workflow(WorkflowDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setValue("phasePrefix", "PTP")//
-						.setValue("primaryName",
-								sourceTableDef.getDatabaseName() + "_" + sourceTableDef.getSourceTableName())//
+						.setValue("primaryName", dbName + "_" + tblName)//
 						.setValue("suffix", "Extract")//
-						.setValue("sourceShortCode", sourceTableDef.getDatabaseName())//
+						.setValue("sourceShortCode", dbName)//
 						.setValue("TargetShortCode", "PDL")//
-						.setValue("tableName", sourceTableDef.getSourceTableName()).noMoreValues()//
+						.setValue("tableName", tblName).noMoreValues()//
 						.loadWorkflowFromSeed("Seed_PTPExtractWorkflow")//
 						.nameAlreadySet()//
 						.build())//

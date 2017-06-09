@@ -51,6 +51,9 @@ public class PTPWorkflow extends AbstractEntity implements GeneratedWorkflow{
 	@Column(name="src_table_name")
 	private String sourceTableName;
 	
+	@Column(name="src_filter")
+	private String sourceFilter;
+	
 	@OrderColumn //
 	@Column(unique = true) //
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true) //
