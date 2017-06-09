@@ -13,6 +13,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
+import com.globi.infa.generator.builder.TargetDefinitionBuilder.AddFieldsStep;
 import com.globi.infa.metadata.source.InfaSourceColumnDefinition;
 
 import xjc.TARGET;
@@ -27,6 +28,7 @@ public class TargetDefinitionBuilder {
 	
 	public interface SetMarshallerStep {
 		LoadFromSeedStep marshaller(Jaxb2Marshaller marshaller);
+		AddFieldsStep noMarshaller();
 	}
 	
 	public interface LoadFromSeedStep {
@@ -36,6 +38,7 @@ public class TargetDefinitionBuilder {
 
 	public interface AddFieldsStep {
 		AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns);
+		AddFieldsStep addTargetField(TARGETFIELD field);
 		NameStep noMoreFields();
 	}
 
@@ -54,7 +57,7 @@ public class TargetDefinitionBuilder {
 
 		
 	 	private Jaxb2Marshaller marshaller;
-	 	private TARGET targetDefinition;
+	 	private TARGET targetDefinition=new TARGET();
 		
 		
 		@Override
@@ -135,6 +138,17 @@ public class TargetDefinitionBuilder {
 
 		@Override
 		public NameStep noMoreFields() {
+			return this;
+		}
+
+		@Override
+		public AddFieldsStep noMarshaller() {
+			return this;
+		}
+
+		@Override
+		public AddFieldsStep addTargetField(TARGETFIELD field) {
+			this.targetDefinition.getTARGETFIELD().add(field);
 			return this;
 		}
 		

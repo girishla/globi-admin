@@ -62,12 +62,6 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 	@Autowired
 	GitWriterEventListener gitWriter;
 
-/*	@Autowired
-	private FBMTableColumnRepository fbmColrepository;
-
-	@Autowired
-	private OracleTableColumnMetadataVisitor oraColumnQueryVisitor;
-	*/
 	
 	private PTPWorkflow ptpWorkflowInputToGenerator;
 
