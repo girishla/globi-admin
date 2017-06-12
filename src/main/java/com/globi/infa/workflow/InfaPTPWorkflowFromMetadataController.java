@@ -20,7 +20,7 @@ import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
 import com.globi.infa.generator.PTPPrimaryGenerationStrategy;
-import com.globi.infa.metadata.target.InfaTargetDefinitionRepositoryWriter;
+import com.globi.infa.metadata.tgt.InfaTargetDefinitionRepositoryWriter;
 
 import lombok.extern.slf4j.Slf4j;
 

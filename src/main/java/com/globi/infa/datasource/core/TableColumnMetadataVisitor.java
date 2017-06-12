@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.globi.infa.metadata.source.InfaSourceColumnDefinition;
+import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
 public interface TableColumnMetadataVisitor {
 	

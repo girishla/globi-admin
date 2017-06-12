@@ -1,4 +1,4 @@
-package com.globi.infa.metadata.source;
+package com.globi.infa.metadata.tgt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,6 @@ import javax.persistence.Table;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.globi.infa.AbstractEntity;
-import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +22,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.Singular;
 import lombok.ToString;
 
 @Entity
@@ -32,20 +30,14 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "M_INFA_SRC_DEFN")
+@Table(name = "M_INFA_TGT_DEFN")
 @AllArgsConstructor
 @Builder
-public class InfaSourceDefinition extends AbstractEntity {
-
-	@NotBlank(message = "Database name cannot be empty!")
-	private String databaseName;
-
-	@NotBlank(message = "Database type cannot be empty!")
-	private String databaseType;
+public class InfaTargetDefinition extends AbstractEntity {
 
 	@NonNull
 	@NotBlank(message = "Source name cannot be empty!")
-	private String sourceTableName;
+	private String targetTableName;
 
 	@NotBlank(message = "Owner name cannot be empty!")
 	private String ownerName;
@@ -53,8 +45,8 @@ public class InfaSourceDefinition extends AbstractEntity {
 	@OrderColumn //
 	@Column(unique = true) //
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true) //
-	@JoinColumn(name="source_id",referencedColumnName="id")
+	@JoinColumn(name="target_id",referencedColumnName="id")
 	@Builder.Default
-	private List<InfaSourceColumnDefinition> columns = new ArrayList<>();
+	private List<InfaTargetColumnDefinition> columns = new ArrayList<>();
 	
 }

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.globi.infa.datasource.core.OracleTableColumnMetadataVisitor;
 import com.globi.infa.datasource.lnicrm.LNICRMTableColumnRepository;
-import com.globi.infa.metadata.source.InfaSourceColumnDefinition;
+import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
 @RestController
 public class LNICRMTableColumnController {

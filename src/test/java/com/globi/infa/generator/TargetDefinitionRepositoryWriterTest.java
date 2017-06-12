@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.globi.AbstractIntegrationTest;
 import com.globi.infa.generator.builder.InfaTargetObject;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
-import com.globi.infa.metadata.target.InfaTargetDefinitionRepository;
-import com.globi.infa.metadata.target.InfaTargetDefinitionRepositoryWriter;
+import com.globi.infa.metadata.tgt.InfaTargetDefinitionRepository;
+import com.globi.infa.metadata.tgt.InfaTargetDefinitionRepositoryWriter;
 
 
 

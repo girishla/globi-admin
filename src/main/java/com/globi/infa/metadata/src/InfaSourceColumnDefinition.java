@@ -1,4 +1,4 @@
-package com.globi.infa.metadata.source;
+package com.globi.infa.metadata.src;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;

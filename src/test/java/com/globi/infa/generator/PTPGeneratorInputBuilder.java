@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.globi.infa.datasource.core.OracleTableColumnMetadataVisitor;
 import com.globi.infa.datasource.fbm.FBMTableColumnRepository;
-import com.globi.infa.metadata.source.InfaSourceColumnDefinition;
+import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;

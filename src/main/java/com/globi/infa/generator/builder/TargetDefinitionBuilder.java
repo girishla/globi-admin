@@ -14,7 +14,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import com.globi.infa.generator.builder.TargetDefinitionBuilder.AddFieldsStep;
-import com.globi.infa.metadata.source.InfaSourceColumnDefinition;
+import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
 import xjc.TARGET;
 import xjc.TARGETFIELD;

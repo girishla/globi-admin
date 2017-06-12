@@ -20,7 +20,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.FileCopyUtils;
 
 import com.globi.infa.generator.builder.ExpressionXformBuilder.AddFieldsStep;
-import com.globi.infa.metadata.source.InfaSourceColumnDefinition;
+import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
 import xjc.TABLEATTRIBUTE;
 import xjc.TRANSFORMATION;
