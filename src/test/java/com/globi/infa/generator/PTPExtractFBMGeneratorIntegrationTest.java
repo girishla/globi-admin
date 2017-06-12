@@ -120,7 +120,6 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 
 		assertThat(testXML, (hasXPath(
 				"/POWERMART/REPOSITORY/FOLDER/MAPPING/INSTANCE[@NAME='SQ_ExtractData']/ASSOCIATED_SOURCE_INSTANCE")));
-
 	}
 
 	@Test

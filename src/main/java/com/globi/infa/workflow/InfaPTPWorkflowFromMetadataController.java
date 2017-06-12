@@ -20,6 +20,7 @@ import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
 import com.globi.infa.generator.PTPPrimaryGenerationStrategy;
+import com.globi.infa.metadata.target.InfaTargetDefinitionRepositoryWriter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,6 +45,9 @@ public class InfaPTPWorkflowFromMetadataController {
 
 	@Autowired
 	private PTPPrimaryGenerationStrategy ptpPrimarygenerator;
+	
+	@Autowired
+	private InfaTargetDefinitionRepositoryWriter targetDefnWriter;
 
 	@Autowired
 	MetadataTableColumnRepository metadataColumnRepository;
@@ -61,15 +65,25 @@ public class InfaPTPWorkflowFromMetadataController {
 
 		inputWorkflowDefinitions = metadatatoWFDefnConverter.getWorkflowDefinitionObjects();
 
-		ptpExtractgenerator.addListener(fileWriter);
+//		ptpExtractgenerator.addListener(fileWriter);
 		ptpExtractgenerator.addListener(gitWriter);
-		ptpExtractgenerator.addListener(aggregateGitWriter);
+//		ptpExtractgenerator.addListener(aggregateGitWriter);
+		ptpExtractgenerator.addListener(targetDefnWriter);		
+
+		
+//		ptpPrimarygenerator.addListener(fileWriter);
+		ptpPrimarygenerator.addListener(gitWriter);
+//		ptpPrimarygenerator.addListener(aggregateGitWriter);
+		ptpPrimarygenerator.addListener(targetDefnWriter);				
 		
 		
 		inputWorkflowDefinitions.forEach(wf -> {
 			
 			ptpExtractgenerator.setWfDefinition(wf);
 			ptpExtractgenerator.generate();
+
+			ptpPrimarygenerator.setWfDefinition(wf);
+			ptpPrimarygenerator.generate();			
 			
 			Optional<PTPWorkflow> existingWorkflow = repository.findByWorkflow_workflowName(wf.getWorkflow().getWorkflowName());
 			if (existingWorkflow.isPresent()) {

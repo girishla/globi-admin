@@ -5,13 +5,13 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OracleSourceDataTypeMapper implements DataTypeMapper {
+public class OracleToInfaSourceDataTypeMapper implements DataTypeMapper {
 
 	
 	private Map<String,String>  typeMap= new DefaultHashMap<>("varchar2");
 	
 	
-	OracleSourceDataTypeMapper(){
+	OracleToInfaSourceDataTypeMapper(){
 	
 		typeMap.put("BIGINT","number(p,s)");
 		typeMap.put("BIT","char");

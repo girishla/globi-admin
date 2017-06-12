@@ -67,14 +67,13 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 
 			try (Git git = Git.open(new File(gitDirectory + ".git"));) {
 
-				this.saveXML(this.generatedObject.pmObject, wf.getWorkflow().getWorkflowName());
+				this.saveXML(this.generatedObject.pmObject, this.generatedObject.pmObjectName);
 
 				git.add()//
-						.addFilepattern(wf.getWorkflow().getWorkflowName() + ".xml").call();
+						.addFilepattern(this.generatedObject.pmObjectName+ ".xml").call();
 
-				git.commit().setMessage("Added " + wf.getWorkflow().getWorkflowName()).call();
-				System.out.println("Added file " + wf.getWorkflow().getWorkflowName() + ".xml" + " to repository at "
-						+ repository.getDirectory());
+				git.commit().setMessage("Added " + this.generatedObject.pmObjectName).call();
+
 			} catch (NoFilepatternException e) {
 				e.printStackTrace();
 			} catch (GitAPIException e) {

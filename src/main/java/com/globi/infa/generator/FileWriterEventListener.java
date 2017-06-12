@@ -40,7 +40,7 @@ public class FileWriterEventListener implements WorkflowCreatedEventListener {
 	public void notify(InfaPowermartObject generatedObject,GeneratedWorkflow wf) {
 
 		try {
-			this.saveXML(generatedObject.pmObject,wf.getWorkflow().getWorkflowName());
+			this.saveXML(generatedObject.pmObject,generatedObject.pmObjectName);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

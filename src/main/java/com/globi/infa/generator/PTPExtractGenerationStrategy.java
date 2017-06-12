@@ -149,10 +149,10 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		// Save all columns for reference and then add back matched columns for
 		// processing
-		sourceTableDef.getColumns().addAll(allTableColumns);
-		sourceDefnRepo.save(sourceTableDef);
+//		sourceTableDef.getColumns().addAll(allTableColumns);
+//		sourceDefnRepo.save(sourceTableDef);
+//		sourceTableDef.getColumns().clear();
 
-		sourceTableDef.getColumns().clear();
 		sourceTableDef.getColumns().addAll(matchedColumns);
 
 		commonValuesMap.put("targetTableName", dbName + "_" + tblName);
@@ -267,12 +267,15 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.setValue("suffix", "Extract")//
 						.setValue("sourceShortCode", dbName)//
 						.setValue("TargetShortCode", "PDL")//
-						.setValue("tableName", tblName).noMoreValues()//
+						.setValue("tableName", tblName)//
+						.noMoreValues()//
 						.loadWorkflowFromSeed("Seed_PTPExtractWorkflow")//
 						.nameAlreadySet()//
 						.build())//
 				.build();
 
+		pmObj.pmObjectName="PTP_" + dbName + "_" + tblName +"_Extract";
+		
 		return pmObj;
 	}
 

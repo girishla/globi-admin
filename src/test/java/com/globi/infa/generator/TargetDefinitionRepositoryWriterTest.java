@@ -25,7 +25,9 @@ public class TargetDefinitionRepositoryWriterTest extends AbstractIntegrationTes
 	List<InfaTargetObject> tgtObjects=new ArrayList<>();
 	
 	@Autowired
-	InfaTargetDefinitionRepository rgtRepo;
+	InfaTargetDefinitionRepositoryWriter tgtRepoWriter;
+	
+	
 	@Before
 	public void setup(){
 		
@@ -49,8 +51,7 @@ public class TargetDefinitionRepositoryWriterTest extends AbstractIntegrationTes
 	
 	public void savesTargetTableAndColumnsIntoDatabaseWhenGivenATargetDefinitionObject(){
 		
-		InfaTargetDefinitionRepositoryWriter targetRepoWriter=new InfaTargetDefinitionRepositoryWriter(tgtObjects,rgtRepo);
-		targetRepoWriter.writeToRepository();
+		tgtRepoWriter.writeToRepository(tgtObjects);
 		
 		
 	}

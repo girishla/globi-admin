@@ -18,7 +18,7 @@ public class OracleTableColumnMetadataVisitor implements TableColumnMetadataVisi
 
 
 	@Autowired
-	protected OracleSourceDataTypeMapper mapper;
+	protected OracleToInfaSourceDataTypeMapper mapper;
 
 	protected String columnSQL = "SELECT COLUMN_ID COLUMN_NUMBER\r\n" + 
 			"			,COLUMN_NAME\r\n" + 

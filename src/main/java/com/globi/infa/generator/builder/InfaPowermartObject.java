@@ -8,6 +8,8 @@ public class InfaPowermartObject {
 
 	public POWERMART pmObject;
 	
+	public String pmObjectName;
+	
 	public List<InfaFolderObject> folderObjects;
 	
 }
