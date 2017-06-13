@@ -74,6 +74,9 @@ public class InfaPTPWorkflowFromMetadataController {
 		ptpPrimarygenerator.addListener(aggregateGitWriter);
 		ptpPrimarygenerator.addListener(targetDefnWriter);
 
+		
+		aggregateGitWriter.notifyBatchStart();
+		
 		inputExtractWorkflowDefinitions.stream()//
 				.filter(wf -> wf.getWorkflow().getWorkflowType().equals("PTP"))//
 				.forEach(wf -> {

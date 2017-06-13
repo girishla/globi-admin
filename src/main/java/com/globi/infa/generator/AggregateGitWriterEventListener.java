@@ -46,8 +46,8 @@ public class AggregateGitWriterEventListener
 	@Override
 	public void notify(InfaPowermartObject generatedObject, GeneratedWorkflow wf) {
 
-		this.generatedObjects.put(wf.getWorkflow().getWorkflowName(), generatedObject);
-		this.workflows.put(wf.getWorkflow().getWorkflowName(), wf);
+		this.generatedObjects.put(generatedObject.pmObjectName, generatedObject);
+		this.workflows.put(generatedObject.pmObjectName, wf);
 
 	}
 
@@ -135,6 +135,13 @@ public class AggregateGitWriterEventListener
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+	}
+
+	@Override
+	public void notifyBatchStart() {
+		generatedObjects.clear();
+		workflows.clear();
 
 	}
 
