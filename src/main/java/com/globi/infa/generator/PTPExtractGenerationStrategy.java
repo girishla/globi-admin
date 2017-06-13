@@ -37,6 +37,7 @@ import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.InfaSourceDefinition;
 import com.globi.infa.workflow.GeneratedWorkflow;
+import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
 
@@ -46,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
-	Optional<SourceSystem> source;
+	private PTPWorkflow wfDefinition;
 
 	PTPExtractGenerationStrategy(Jaxb2Marshaller marshaller, SourceMetadataFactoryMapper metadataFactoryMapper) {
 
@@ -80,15 +81,20 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 	}
 
-	private void setupSourceSystemDefn() {
+	private Optional<SourceSystem> setupSourceSystemDefn() {
+		
+		
+		Optional<SourceSystem> source;
 
 		if (wfDefinition == null)
 			throw new IllegalArgumentException("Workflow Definition Must be set before invoking generate");
 
-		this.source = sourceSystemRepo.findByName(wfDefinition.getSourceName());
+		source = sourceSystemRepo.findByName(wfDefinition.getSourceName());
 
 		if (!source.isPresent())
 			throw new IllegalArgumentException("Source System not recognised");
+		
+		return source;
 
 	}
 
@@ -120,12 +126,14 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 	private InfaPowermartObject generateWorkflow() throws IOException, SAXException, JAXBException {
 
+		
+		
 		InfaSourceDefinition sourceTableDef;
 
 		Map<String, String> emptyValuesMap = new HashMap<>();
 		Map<String, String> commonValuesMap = new HashMap<>();
 
-		this.setupSourceSystemDefn();
+		Optional<SourceSystem> source=this.setupSourceSystemDefn();
 
 		String tblName = wfDefinition.getSourceTableName();
 		String dbName = wfDefinition.getSourceName();
@@ -133,7 +141,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		List<InfaSourceColumnDefinition> allTableColumns = colRepository.accept(columnQueryVisitor, tblName);
 
-		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
+		List<PTPWorkflowSourceColumn> inputSelectedColumns =wfDefinition.getColumns();
 
 		List<InfaSourceColumnDefinition> matchedColumns = this
 				.getFilteredSourceDefnColumns(colRepository.accept(columnQueryVisitor, tblName), inputSelectedColumns);
@@ -294,5 +302,12 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		return pmObj;
 
+	}
+
+	public void setWfDefinition(PTPWorkflow ptpWorkflow) {
+
+		this.wfDefinition=ptpWorkflow;
+		this.setContext(ptpWorkflow.getSourceName());
+		
 	}
 }

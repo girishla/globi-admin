@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.globi.AbstractIntegrationTest;
 import com.globi.infa.generator.builder.InfaTargetObject;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
-import com.globi.infa.metadata.tgt.InfaTargetDefinitionRepository;
-import com.globi.infa.metadata.tgt.InfaTargetDefinitionRepositoryWriter;
+import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepository;
+import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 
 
 
@@ -25,7 +25,7 @@ public class TargetDefinitionRepositoryWriterTest extends AbstractIntegrationTes
 	List<InfaTargetObject> tgtObjects=new ArrayList<>();
 	
 	@Autowired
-	InfaTargetDefinitionRepositoryWriter tgtRepoWriter;
+	InfaPuddleDefinitionRepositoryWriter tgtRepoWriter;
 	
 	
 	@Before

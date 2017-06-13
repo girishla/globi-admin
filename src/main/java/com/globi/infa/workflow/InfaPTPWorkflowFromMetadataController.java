@@ -20,7 +20,7 @@ import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
 import com.globi.infa.generator.PTPPrimaryGenerationStrategy;
-import com.globi.infa.metadata.tgt.InfaTargetDefinitionRepositoryWriter;
+import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,14 +29,16 @@ import lombok.extern.slf4j.Slf4j;
 public class InfaPTPWorkflowFromMetadataController {
 
 	@Autowired
-	private PTPWorkflowRepository repository;
+	private PTPWorkflowRepository ptpRepository;
+
+
 
 	@Autowired
 	FileWriterEventListener fileWriter;
 
 	@Autowired
 	GitWriterEventListener gitWriter;
-	
+
 	@Autowired
 	AggregateGitWriterEventListener aggregateGitWriter;
 
@@ -45,9 +47,9 @@ public class InfaPTPWorkflowFromMetadataController {
 
 	@Autowired
 	private PTPPrimaryGenerationStrategy ptpPrimarygenerator;
-	
+
 	@Autowired
-	private InfaTargetDefinitionRepositoryWriter targetDefnWriter;
+	private InfaPuddleDefinitionRepositoryWriter targetDefnWriter;
 
 	@Autowired
 	MetadataTableColumnRepository metadataColumnRepository;
@@ -55,44 +57,47 @@ public class InfaPTPWorkflowFromMetadataController {
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/ptpFromMetadata")
 	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow() {
 
-		List<PTPWorkflow> inputWorkflowDefinitions = new ArrayList<>();
-		List<PTPWorkflow> createdWorkflows = new ArrayList<>();
+		List<PTPWorkflow> inputExtractWorkflowDefinitions = new ArrayList<>();
+		List<GeneratedWorkflow> createdWorkflows = new ArrayList<>();
 
 		List<DataSourceTableColumnDTO> columns = metadataColumnRepository.getAll();
 
-		MetadataToPTPWorkflowDefnConverter metadatatoWFDefnConverter = new MetadataToPTPWorkflowDefnConverter(
-				repository, columns);
+		MetadataToPTPWorkflowDefnConverter metadatatoWFDefnConverter = new MetadataToPTPWorkflowDefnConverter(columns);
 
-		inputWorkflowDefinitions = metadatatoWFDefnConverter.getWorkflowDefinitionObjects();
+		inputExtractWorkflowDefinitions = metadatatoWFDefnConverter.getExtractWorkflowDefinitionObjects();
 
-//		ptpExtractgenerator.addListener(fileWriter);
 		ptpExtractgenerator.addListener(gitWriter);
-//		ptpExtractgenerator.addListener(aggregateGitWriter);
-		ptpExtractgenerator.addListener(targetDefnWriter);		
+		ptpExtractgenerator.addListener(aggregateGitWriter);
+		ptpExtractgenerator.addListener(targetDefnWriter);
 
-		
-//		ptpPrimarygenerator.addListener(fileWriter);
 		ptpPrimarygenerator.addListener(gitWriter);
-//		ptpPrimarygenerator.addListener(aggregateGitWriter);
-		ptpPrimarygenerator.addListener(targetDefnWriter);				
-		
-		
-		inputWorkflowDefinitions.forEach(wf -> {
-			
-			ptpExtractgenerator.setWfDefinition(wf);
-			ptpExtractgenerator.generate();
+		ptpPrimarygenerator.addListener(aggregateGitWriter);
+		ptpPrimarygenerator.addListener(targetDefnWriter);
 
-			ptpPrimarygenerator.setWfDefinition(wf);
-			ptpPrimarygenerator.generate();			
-			
-			Optional<PTPWorkflow> existingWorkflow = repository.findByWorkflow_workflowName(wf.getWorkflow().getWorkflowName());
-			if (existingWorkflow.isPresent()) {
-				repository.delete(existingWorkflow.get());
-			}
-			createdWorkflows.add(repository.save(wf));
-		});
+		inputExtractWorkflowDefinitions.stream()//
+				.filter(wf -> wf.getWorkflow().getWorkflowType().equals("PTP"))//
+				.forEach(wf -> {
 
-		return new ResponseEntity<List<PTPWorkflow>>(createdWorkflows, HttpStatus.CREATED);
+					ptpExtractgenerator.setWfDefinition(wf);
+					ptpExtractgenerator.generate();
+
+					ptpPrimarygenerator.setWfDefinition(wf);
+					ptpPrimarygenerator.generate();
+					
+					Optional<PTPWorkflow> existingWorkflow = ptpRepository
+							.findByWorkflow_workflowName(wf.getWorkflow().getWorkflowName());
+					if (existingWorkflow.isPresent()) {
+						ptpRepository.delete(existingWorkflow.get());
+					}
+
+					createdWorkflows.add(ptpRepository.save(wf));
+				});
+
+
+
+		aggregateGitWriter.notifyBatchComplete();
+
+		return new ResponseEntity<List<GeneratedWorkflow>>(createdWorkflows, HttpStatus.CREATED);
 	}
 
 }

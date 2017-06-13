@@ -1,4 +1,4 @@
-package com.globi.infa.metadata.tgt;
+package com.globi.infa.metadata.pdl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +30,14 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "M_INFA_TGT_DEFN")
+@Table(name = "M_INFA_PDL_DEFN")
 @AllArgsConstructor
 @Builder
-public class InfaTargetDefinition extends AbstractEntity {
+public class InfaPuddleDefinition extends AbstractEntity {
 
 	@NonNull
 	@NotBlank(message = "Source name cannot be empty!")
-	private String targetTableName;
+	private String pdlTableName;
 
 	@NotBlank(message = "Owner name cannot be empty!")
 	private String ownerName;
@@ -45,8 +45,8 @@ public class InfaTargetDefinition extends AbstractEntity {
 	@OrderColumn //
 	@Column(unique = true) //
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true) //
-	@JoinColumn(name="target_id",referencedColumnName="id")
+	@JoinColumn(name="pdl_defn_id",referencedColumnName="id")
 	@Builder.Default
-	private List<InfaTargetColumnDefinition> columns = new ArrayList<>();
+	private List<InfaPuddleColumnDefinition> columns = new ArrayList<>();
 	
 }

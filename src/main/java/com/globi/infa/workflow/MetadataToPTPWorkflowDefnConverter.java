@@ -17,7 +17,7 @@ public class MetadataToPTPWorkflowDefnConverter {
 
 	private final List<DataSourceTableColumnDTO> columns;
 
-	MetadataToPTPWorkflowDefnConverter(PTPWorkflowRepository wfRepository, List<DataSourceTableColumnDTO> columns) {
+	MetadataToPTPWorkflowDefnConverter(List<DataSourceTableColumnDTO> columns) {
 		this.columns = columns;
 	}
 
@@ -60,15 +60,13 @@ public class MetadataToPTPWorkflowDefnConverter {
 				.build());
 
 	}
+	
 
-	private PTPWorkflow getWorkflowDefinitionFor(DataSourceTableDTO table) {
 
-		// Build input WF definition and run generator once for each table
-		log.info("------------------------------------------*");
-		log.info("**************beginning to process " + table);
+	private PTPWorkflow getExtractWorkflowDefinitionFor(DataSourceTableDTO table) {
 
 		String generatedWFName = "PTP_" + table.getSourceName() + "_" + table.getTableName() + "_Extract";
-		String generatedWFUri = "/GeneratedWorkflows/Repl/" + "PTP_" + table.getTableName() + ".xml";
+		String generatedWFUri = "/GeneratedWorkflows/Repl/" + generatedWFName + ".xml";
 
 		List<PTPWorkflowSourceColumn> workflowSourceColumnList = new ArrayList<>();
 
@@ -80,36 +78,41 @@ public class MetadataToPTPWorkflowDefnConverter {
 				.filter(column -> column.getValue().getTableName().equals(table.getTableName()))//
 				.forEach(column -> workflowSourceColumnList.add(buildSourceColumnDefnFrom(column.getValue())));
 
-		return PTPWorkflow.builder()//
-				.sourceName(table.getSourceName())//
-				.sourceTableName(table.getTableName()).columns(workflowSourceColumnList)
-				.workflow(InfaWorkflow.builder()//
-						.workflowUri(generatedWFUri)//
-						.workflowName(generatedWFName)//
-						.workflowType("PTP")//
-						.build())
-				.build();
 
-	}
+			return PTPWorkflow.builder()//
+					.sourceName(table.getSourceName())//
+					.sourceTableName(table.getTableName()).columns(workflowSourceColumnList)
+					.workflow(InfaWorkflow.builder()//
+							.workflowUri(generatedWFUri)//
+							.workflowName(generatedWFName)//
+							.workflowType("PTP")//
+							.build())
+					.build();
 
-	public List<PTPWorkflow> getWorkflowDefinitionObjects() {
+		}
+
+
+
+	public List<PTPWorkflow> getExtractWorkflowDefinitionObjects() {
 		List<PTPWorkflow> ptpWorkflows = new ArrayList<>();
 		columns.stream().map(column -> column.getSourceName()).distinct().forEach(sourceName -> {
 
-			Map<String, DataSourceTableDTO> tables = getDistinctTableMapFrom(
-					columns.stream()//
+			Map<String, DataSourceTableDTO> tables = getDistinctTableMapFrom(columns.stream()//
 					.filter(column -> column.getSourceName().equals(sourceName))//
 					.collect(Collectors.toList()));
 
 			tables.keySet()//
 					.stream()//
 					.filter(table -> tables.get(table).getSourceName().equals(sourceName))
-					.forEach(table -> ptpWorkflows.add(getWorkflowDefinitionFor(tables.get(table))));
+					.forEach(table -> ptpWorkflows.add(getExtractWorkflowDefinitionFor(tables.get(table))));
+
 
 		});
 
 		return ptpWorkflows;
 
 	}
+	
+
 
 }

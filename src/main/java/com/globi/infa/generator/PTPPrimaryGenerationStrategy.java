@@ -34,6 +34,7 @@ import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.InfaSourceDefinition;
 import com.globi.infa.workflow.GeneratedWorkflow;
+import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
 
@@ -43,7 +44,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
-	Optional<SourceSystem> source;
+	
+	private PTPWorkflow wfDefinition;
 
 	PTPPrimaryGenerationStrategy(Jaxb2Marshaller marshaller, SourceMetadataFactoryMapper metadataFactoryMapper) {
 
@@ -77,16 +79,19 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 
 	}
 
-	private void setupSourceSystemDefn() {
+	private Optional<SourceSystem> setupSourceSystemDefn() {
 
+		Optional<SourceSystem> source;
+		
 		if (wfDefinition == null)
 			throw new IllegalArgumentException("Workflow Definition Must be set before invoking generate");
 
-		this.source = sourceSystemRepo.findByName(wfDefinition.getSourceName());
+		source = sourceSystemRepo.findByName(wfDefinition.getSourceName());
 
 		if (!source.isPresent())
 			throw new IllegalArgumentException("Source System not recognised");
 
+		return source;
 	}
 
 	private String getSourceFilterString(String sourceFilter, List<PTPWorkflowSourceColumn> inputSelectedColumns,
@@ -117,11 +122,13 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 
 	private InfaPowermartObject generateWorkflow() throws IOException, SAXException, JAXBException {
 
+		
+		
 		InfaSourceDefinition sourceTableDef;
 
 		Map<String, String> commonValuesMap = new HashMap<>();
 
-		this.setupSourceSystemDefn();
+		Optional<SourceSystem> source=setupSourceSystemDefn();
 
 		String tblName = wfDefinition.getSourceTableName();
 		String dbName = wfDefinition.getSourceName();
@@ -246,4 +253,12 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 		return pmObj;
 
 	}
+	
+	public void setWfDefinition(PTPWorkflow ptpWorkflow) {
+
+		this.wfDefinition=ptpWorkflow;
+		this.setContext(ptpWorkflow.getSourceName());
+		
+	}
+	
 }

@@ -388,6 +388,7 @@ public class PowermartObjectBuilder {
 					.filter(instance -> instance.getNAME().equals(instanceName))//
 					.map(TRANSFORMATION::getTRANSFORMFIELD)//
 					.flatMap(List::stream)//
+					.filter(transformField->transformField.getPORTTYPE().endsWith("OUTPUT"))
 					.map(TRANSFORMFIELD::getNAME)//
 					.collect(Collectors.toList());
 		}

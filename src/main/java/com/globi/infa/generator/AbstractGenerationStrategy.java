@@ -35,7 +35,7 @@ public abstract class AbstractGenerationStrategy {
 
 	protected SourceMetadataFactory sourceMetadataFactory;
 
-	protected PTPWorkflow wfDefinition;
+
 
 	@Setter
 	protected DataTypeMapper dataTypeMapper;
@@ -61,18 +61,21 @@ public abstract class AbstractGenerationStrategy {
 			listener.notify(pmo, wf);
 		}
 	}
-
-	public void setWfDefinition(PTPWorkflow wfDefinition) {
-		this.wfDefinition = wfDefinition;
+	
+	
+	public void setContext(String sourceName) {
 
 		// get the correct factory based on the Source System Name.
 		// Each Source needs a different Factory due to the inherent differences between them
 		this.sourceMetadataFactory = this.metadataFactoryMapper.getMetadataFactoryMap()
-				.get(wfDefinition.getSourceName());
+				.get(sourceName);
 		this.dataTypeMapper = sourceMetadataFactory.createDatatypeMapper();
 		this.colRepository = sourceMetadataFactory.createTableColumnRepository();
 		this.columnQueryVisitor = sourceMetadataFactory.createTableColumnMetadataVisitor();
 
 	}
+	
+
+
 
 }

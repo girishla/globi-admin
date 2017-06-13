@@ -1,4 +1,4 @@
-package com.globi.infa.metadata.tgt;
+package com.globi.infa.metadata.pdl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,37 +16,37 @@ import com.globi.infa.workflow.GeneratedWorkflow;
 import xjc.TARGETFIELD;
 
 @Component
-public class InfaTargetDefinitionRepositoryWriter implements WorkflowCreatedEventListener {
+public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEventListener {
 
 	List<InfaTargetObject> targets;
 
 	@Autowired
-	private InfaTargetDefinitionRepository rgtRepo;
+	private InfaPuddleDefinitionRepository tgtRepo;
 
 	@Autowired
 	private InfaTargetToOracleDataTypeMapper mapper;
 
-	public InfaTargetDefinitionRepositoryWriter(InfaTargetDefinitionRepository rgtRepo,
+	public InfaPuddleDefinitionRepositoryWriter(InfaPuddleDefinitionRepository tgtRepo,
 			InfaTargetToOracleDataTypeMapper mapper) {
 
-		this.rgtRepo = rgtRepo;
+		this.tgtRepo = tgtRepo;
 		this.mapper = mapper;
 
 	}
 
 	private void writeTarget(InfaTargetObject target) {
 
-		InfaTargetDefinition tgt = InfaTargetDefinition.builder()//
-				.targetTableName(target.getName())//
+		InfaPuddleDefinition tgt = InfaPuddleDefinition.builder()//
+				.pdlTableName(target.getName())//
 				.ownerName("PDL")//
 				.build();
 
-		List<InfaTargetColumnDefinition> targetCols = new ArrayList<>();
+		List<InfaPuddleColumnDefinition> targetCols = new ArrayList<>();
 		int[] idx = { 1 };
 
 		for (TARGETFIELD field : target.getTarget().getTARGETFIELD()) {
 
-			InfaTargetColumnDefinition col = InfaTargetColumnDefinition.builder()//
+			InfaPuddleColumnDefinition col = InfaPuddleColumnDefinition.builder()//
 					.columnDataType(mapper.mapType(field.getDATATYPE()))//
 					.columnName(field.getNAME())//
 					.columnNumber(idx[0]++)//
@@ -59,7 +59,7 @@ public class InfaTargetDefinitionRepositoryWriter implements WorkflowCreatedEven
 
 		tgt.setColumns(targetCols);
 
-		rgtRepo.save(tgt);
+		tgtRepo.save(tgt);
 
 	}
 
@@ -76,7 +76,6 @@ public class InfaTargetDefinitionRepositoryWriter implements WorkflowCreatedEven
 	public void writeToRepository(List<InfaTargetObject> targets) {
 
 		this.targets = targets;
-
 		this.targets.forEach(target -> this.writeTarget(target));
 
 	}

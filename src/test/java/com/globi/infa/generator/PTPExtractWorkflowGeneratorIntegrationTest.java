@@ -1,45 +1,29 @@
 package com.globi.infa.generator;
 
-import static org.xmlunit.matchers.HasXPathMatcher.hasXPath;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
+import static com.globi.infa.generator.StaticObjectMother.*;
 
-import java.io.FileInputStream;
+import static org.junit.Assert.assertThat;
+import static org.xmlunit.matchers.HasXPathMatcher.hasXPath;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.transform.stream.StreamSource;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.test.annotation.Rollback;
 import org.xml.sax.SAXException;
 
 import com.globi.AbstractIntegrationTest;
-import com.globi.infa.datasource.core.OracleTableColumnMetadataVisitor;
-import com.globi.infa.datasource.fbm.FBMTableColumnRepository;
 import com.globi.infa.generator.builder.InfaPowermartObject;
-import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
+import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
-import com.globi.infa.workflow.PTPWorkflowSourceColumn;
-import com.rits.cloning.Cloner;
-import static com.globi.infa.generator.StaticObjectMother.*;
-
-import xjc.POWERMART;
 
 public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrationTest {
 
@@ -50,33 +34,37 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 	private PTPExtractGenerationStrategy generator;
 
 	@Autowired
-	PTPWorkflowRepository wfRepository;
-
+	PTPWorkflowRepository ptpRepository;
 
 	@Autowired
 	FileWriterEventListener fileWriter;
-	
+
 	@Autowired
 	PTPRepositoryWriterEventListener repoWriter;
 
 	@Autowired
 	GitWriterEventListener gitWriter;
 
-	
+	@Autowired
+	private PTPPrimaryGenerationStrategy ptpPrimarygenerator;
+
+	@Autowired
+	private InfaPuddleDefinitionRepositoryWriter targetDefnWriter;
+
 	private PTPWorkflow ptpWorkflowInputToGenerator;
 
 	@Before
 	public void setup() {
-		
+
 		String sourceTable = "S_ORG_EXT";
 		String source = "CUK";
 
-		ptpWorkflowInputToGenerator  = PTPWorkflow.builder()//
+		ptpWorkflowInputToGenerator = PTPWorkflow.builder()//
 				.sourceName(source)//
 				.sourceTableName(sourceTable)//
-				.column(getIntegrationIdColumn("ROW_ID"))
-				.column(getIntegrationIdColumn("LAST_UPD"))
-				.column(getNormalColumn("NAME"))
+				.column(getIntegrationIdColumn("ROW_ID"))//
+				.column(getCCColumn("LAST_UPD"))
+				.column(getNormalColumn("NAME"))//
 				.column(getBuidColumn("BU_ID"))
 				.workflow(InfaWorkflow.builder()//
 						.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
@@ -87,22 +75,31 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 
 	}
 
-
-
 	@Test
 	@Rollback(false)
 	public void generatesPTPWorkflowForOrgExtTable()
 			throws JAXBException, FileNotFoundException, IOException, SAXException {
 
-
-
 		generator.setWfDefinition(ptpWorkflowInputToGenerator);
-		generator.addListener(fileWriter);
+		generator.addListener(targetDefnWriter);
 		generator.addListener(gitWriter);
-//		generator.addListener(repoWriter);
 
 		InfaPowermartObject pmObj = generator.generate();
-		
+
+		ptpPrimarygenerator.setWfDefinition(ptpWorkflowInputToGenerator);
+		ptpPrimarygenerator.addListener(targetDefnWriter);
+		ptpPrimarygenerator.addListener(gitWriter);
+
+		ptpPrimarygenerator.generate();
+
+		Optional<PTPWorkflow> existingWorkflow = ptpRepository
+				.findByWorkflow_workflowName(ptpWorkflowInputToGenerator.getWorkflow().getWorkflowName());
+		if (existingWorkflow.isPresent()) {
+			ptpRepository.delete(existingWorkflow.get());
+		}
+
+		ptpRepository.save(ptpWorkflowInputToGenerator);
+
 		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
 
 		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/SOURCE")));
@@ -114,11 +111,6 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 		assertThat(testXML, (hasXPath(
 				"/POWERMART/REPOSITORY/FOLDER/MAPPING/INSTANCE[@NAME='SQ_ExtractData']/ASSOCIATED_SOURCE_INSTANCE")));
 
-
-
 	}
-
-
-
 
 }

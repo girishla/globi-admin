@@ -1,4 +1,4 @@
-package com.globi.infa.metadata.tgt;
+package com.globi.infa.metadata.pdl;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -22,10 +22,10 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "M_INFA_TGT_DEFN_COLS")
+@Table(name = "M_INFA_PDL_DEFN_COLS")
 @AllArgsConstructor
 @Builder
-public class InfaTargetColumnDefinition extends AbstractEntity {
+public class InfaPuddleColumnDefinition extends AbstractEntity {
 
 	@NonNull
 	private String columnName;
