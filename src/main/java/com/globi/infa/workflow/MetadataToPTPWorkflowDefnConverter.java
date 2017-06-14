@@ -17,7 +17,7 @@ public class MetadataToPTPWorkflowDefnConverter {
 
 	private final List<DataSourceTableColumnDTO> columns;
 
-	MetadataToPTPWorkflowDefnConverter(List<DataSourceTableColumnDTO> columns) {
+	public MetadataToPTPWorkflowDefnConverter(List<DataSourceTableColumnDTO> columns) {
 		this.columns = columns;
 	}
 

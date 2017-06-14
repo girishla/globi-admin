@@ -19,6 +19,7 @@ import org.hibernate.annotations.WhereJoinTable;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.globi.infa.AbstractEntity;
+import com.globi.infa.AbstractInfaWorkflowEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,7 +40,7 @@ import lombok.ToString;
 @Table(name = "M_INFA_PTP_WF",uniqueConstraints={@UniqueConstraint(columnNames = {"src_name" , "src_table_name"})})
 @AllArgsConstructor
 @Builder
-public class PTPWorkflow extends AbstractEntity implements GeneratedWorkflow{
+public class PTPWorkflow extends AbstractInfaWorkflowEntity implements GeneratedWorkflow{
 	
 	@NonNull
 	@NotBlank(message = "PTP Workflow source name cannot be empty!")

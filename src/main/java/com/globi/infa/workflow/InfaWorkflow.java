@@ -8,6 +8,7 @@ import javax.persistence.Table;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.globi.infa.AbstractEntity;
+import com.globi.infa.AbstractInfaWorkflowEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +28,7 @@ import lombok.ToString;
 @Table(name = "M_INFA_WF")
 @AllArgsConstructor
 @Builder
-public class InfaWorkflow extends AbstractEntity{
+public class InfaWorkflow extends AbstractInfaWorkflowEntity{
 		
 	@NonNull
 	@NotBlank(message = "Workflow name cannot be empty!")
