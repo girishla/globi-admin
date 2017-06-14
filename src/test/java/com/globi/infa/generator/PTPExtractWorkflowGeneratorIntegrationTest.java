@@ -1,22 +1,19 @@
 package com.globi.infa.generator;
 
-import static com.globi.infa.generator.StaticObjectMother.*;
-
+import static com.globi.infa.generator.StaticObjectMother.getBuidColumn;
+import static com.globi.infa.generator.StaticObjectMother.getCCColumn;
+import static com.globi.infa.generator.StaticObjectMother.getIntegrationIdColumn;
+import static com.globi.infa.generator.StaticObjectMother.getNormalColumn;
 import static org.junit.Assert.assertThat;
 import static org.xmlunit.matchers.HasXPathMatcher.hasXPath;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Optional;
-
-import javax.xml.bind.JAXBException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.test.annotation.Rollback;
-import org.xml.sax.SAXException;
 
 import com.globi.AbstractIntegrationTest;
 import com.globi.infa.generator.builder.InfaPowermartObject;
@@ -75,10 +72,25 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 
 	}
 
+	private void assertContentOk(InfaPowermartObject pmObj) throws Exception {
+
+		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
+
+		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/SOURCE")));
+		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/TARGET")));
+		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/MAPPING")));
+		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/CONFIG")));
+		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/WORKFLOW")));
+		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/MAPPLET")));
+
+		assertThat(testXML, (hasXPath(
+				"/POWERMART/REPOSITORY/FOLDER/MAPPING/INSTANCE[@NAME='SQ_ExtractData']/ASSOCIATED_SOURCE_INSTANCE")));
+	}
+	
 	@Test
 	@Rollback(false)
 	public void generatesPTPWorkflowForOrgExtTable()
-			throws JAXBException, FileNotFoundException, IOException, SAXException {
+			throws Exception {
 
 		generator.setWfDefinition(ptpWorkflowInputToGenerator);
 		generator.addListener(targetDefnWriter);
@@ -100,16 +112,7 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 
 		ptpRepository.save(ptpWorkflowInputToGenerator);
 
-		String testXML = asString(marshaller.getJaxbContext(), pmObj.pmObject);
-
-		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/SOURCE")));
-		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/TARGET")));
-		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/MAPPING")));
-		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/CONFIG")));
-		assertThat(testXML, (hasXPath("/POWERMART/REPOSITORY/FOLDER/WORKFLOW")));
-
-		assertThat(testXML, (hasXPath(
-				"/POWERMART/REPOSITORY/FOLDER/MAPPING/INSTANCE[@NAME='SQ_ExtractData']/ASSOCIATED_SOURCE_INSTANCE")));
+		assertContentOk(pmObj);
 
 	}
 

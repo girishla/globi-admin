@@ -3,8 +3,12 @@ package com.globi.infa.generator.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.globi.infa.AbstractInfaWorkflowEntity;
@@ -19,12 +23,14 @@ import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 import com.globi.infa.workflow.MetadataToPTPWorkflowDefnConverter;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
+import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
+import lombok.extern.slf4j.Slf4j;
 
 @Service
-public class PTPGeneratorRequestProcessor implements GeneratorRequestProcessor {
+@Slf4j
+public class PTPGeneratorRequestProcessor implements GeneratorRequestBatchProcessor {
 
-	
 	@Autowired
 	private PTPWorkflowRepository ptpRepository;
 
@@ -49,81 +55,91 @@ public class PTPGeneratorRequestProcessor implements GeneratorRequestProcessor {
 	@Autowired
 	MetadataTableColumnRepository metadataColumnRepository;
 
-	
-	
 	@Override
 	public List<PTPWorkflow> buildInput() {
-		
+
 		List<PTPWorkflow> inputExtractWorkflowDefinitions = new ArrayList<>();
 		List<DataSourceTableColumnDTO> columns = metadataColumnRepository.getAll();
 		MetadataToPTPWorkflowDefnConverter metadatatoWFDefnConverter = new MetadataToPTPWorkflowDefnConverter(columns);
 		inputExtractWorkflowDefinitions = metadatatoWFDefnConverter.getExtractWorkflowDefinitionObjects();
-		
-		return  inputExtractWorkflowDefinitions;
-		
-	}
-	
 
-	
+		return inputExtractWorkflowDefinitions;
+
+	}
+
 	@Override
 	public void postProcess() {
 		// do nothing
 
 	}
+	
+	
+	
+    public PTPWorkflow processWorkflow(PTPWorkflow wf){
+        log.info(":::::::::::Processing " + wf.getWorkflow().getWorkflowName());
 
+		ptpExtractgenerator.setWfDefinition(wf);
+		ptpExtractgenerator.generate();
 
+		ptpPrimarygenerator.setWfDefinition(wf);
+		ptpPrimarygenerator.generate();
 
-
+		wf.getWorkflow().setWorkflowStatus("Processed");
+		ptpRepository.save(wf);
+        
+        return wf;
+    }
 
 	@Override
-	public List<PTPWorkflow> process(List<? extends AbstractInfaWorkflowEntity> inputExtractWorkflowDefinitions) {
+	@Async
+	@Transactional
+	public void process(List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions)  {
+
 		
-		List<PTPWorkflow> createdWorkflows = new ArrayList<>();
-		
-			
-			ptpExtractgenerator.addListener(gitWriter);
-			ptpExtractgenerator.addListener(aggregateGitWriter);
-			ptpExtractgenerator.addListener(targetDefnWriter);
+//		List<PTPWorkflow> processedWorkflows = new ArrayList<>();
 
-			ptpPrimarygenerator.addListener(gitWriter);
-			ptpPrimarygenerator.addListener(aggregateGitWriter);
-			ptpPrimarygenerator.addListener(targetDefnWriter);
+		ptpExtractgenerator.addListener(gitWriter);
+		ptpExtractgenerator.addListener(aggregateGitWriter);
+		ptpExtractgenerator.addListener(targetDefnWriter);
 
-			
-			aggregateGitWriter.notifyBatchStart();
-			
-			inputExtractWorkflowDefinitions.stream()//
-					.map(wf->(PTPWorkflow)wf)
-					.filter(wf -> wf.getWorkflow().getWorkflowType().equals("PTP"))//
-					.forEach(wf -> {
+		ptpPrimarygenerator.addListener(gitWriter);
+		ptpPrimarygenerator.addListener(aggregateGitWriter);
+		ptpPrimarygenerator.addListener(targetDefnWriter);
 
-						ptpExtractgenerator.setWfDefinition(wf);
-						ptpExtractgenerator.generate();
+		aggregateGitWriter.notifyBatchStart();
 
-						ptpPrimarygenerator.setWfDefinition(wf);
-						ptpPrimarygenerator.generate();
-						
-						Optional<PTPWorkflow> existingWorkflow = ptpRepository
-								.findByWorkflow_workflowName(wf.getWorkflow().getWorkflowName());
-						if (existingWorkflow.isPresent()) {
-							ptpRepository.delete(existingWorkflow.get());
-						}
+		inputWorkflowDefinitions.stream()//
+				.map(wf -> (PTPWorkflow) wf)//
+				.filter(wf -> wf.getWorkflow().getWorkflowType().equals("PTP"))//
+				.forEach(this::processWorkflow);
 
-						createdWorkflows.add(ptpRepository.save(wf));
-					});
+		aggregateGitWriter.notifyBatchComplete();
 
-
-
-			aggregateGitWriter.notifyBatchComplete();
-			
-			
-			return createdWorkflows;
 	}
 
+	@Override
+	public List<PTPWorkflow> saveInput(List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions) {
+		List<PTPWorkflow> savedWorkflows = new ArrayList<>();
 
+		inputWorkflowDefinitions.stream()//
+				.map(wf -> (PTPWorkflow) wf).filter(wf -> wf.getWorkflow().getWorkflowType().equals("PTP"))//
+				.forEach(wf -> {
+					Optional<PTPWorkflow> existingWorkflow = ptpRepository
+							.findByWorkflow_workflowName(wf.getWorkflow().getWorkflowName());
+					if (existingWorkflow.isPresent()) {
+						existingWorkflow.get().getColumns().clear();
+						ptpRepository.save(existingWorkflow.get());
+						wf.setId(existingWorkflow.get().getId());
+						wf.getWorkflow().setId((existingWorkflow.get().getWorkflow().getId()));
+						wf.setVersion(existingWorkflow.get().getVersion());
+						wf.getWorkflow().setVersion(existingWorkflow.get().getWorkflow().getVersion());
+					}
+					wf.getWorkflow().setWorkflowStatus("Queued");
+					savedWorkflows.add(ptpRepository.save(wf));
+					
+				});
 
-
-
-
+		return savedWorkflows;
+	}
 
 }

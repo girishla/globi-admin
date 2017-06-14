@@ -3,7 +3,6 @@ package com.globi.infa.generator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import com.globi.infa.datasource.core.DataTypeMapper;
@@ -12,29 +11,18 @@ import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
 import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.infa.generator.builder.InfaPowermartObject;
-import com.globi.infa.metadata.src.InfaSourceDefinitionRepository;
 import com.globi.infa.workflow.GeneratedWorkflow;
-import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;
 
 import lombok.Setter;
 
 public abstract class AbstractGenerationStrategy {
 
-	@Autowired
-	protected Jaxb2Marshaller marshaller;
-
-	@Autowired
-	protected InfaSourceDefinitionRepository sourceDefnRepo;
+	protected final Jaxb2Marshaller marshaller;
+	protected final SourceSystemRepository sourceSystemRepo;
+	protected final SourceMetadataFactoryMapper metadataFactoryMapper;
 	
-	@Autowired
-	protected SourceSystemRepository sourceSystemRepo;
-
-	@Autowired
-	protected SourceMetadataFactoryMapper metadataFactoryMapper;
-
 	protected SourceMetadataFactory sourceMetadataFactory;
-
 
 
 	@Setter
@@ -45,6 +33,17 @@ public abstract class AbstractGenerationStrategy {
 	protected TableColumnMetadataVisitor columnQueryVisitor;
 
 	protected final List<WorkflowCreatedEventListener> createdEventListeners = new ArrayList<>();;
+	
+	
+	AbstractGenerationStrategy(Jaxb2Marshaller marshaller, SourceSystemRepository sourceSystemRepo,SourceMetadataFactoryMapper metadataFactoryMapper){
+	
+		this.marshaller=marshaller;
+		this.sourceSystemRepo=sourceSystemRepo;
+		this.metadataFactoryMapper=metadataFactoryMapper;
+		
+	}
+	
+	
 
 	public void addListener(WorkflowCreatedEventListener listener) {
 		if (!createdEventListeners.contains(listener)) {

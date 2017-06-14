@@ -37,6 +37,7 @@ import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
+import com.globi.metadata.sourcesystem.SourceSystemRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,13 +45,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
-	
 	private PTPWorkflow wfDefinition;
 
-	PTPPrimaryGenerationStrategy(Jaxb2Marshaller marshaller, SourceMetadataFactoryMapper metadataFactoryMapper) {
+	PTPPrimaryGenerationStrategy(Jaxb2Marshaller marshaller, SourceSystemRepository sourceSystemRepo,
+			SourceMetadataFactoryMapper metadataFactoryMapper) {
 
-		this.marshaller = marshaller;
-		this.metadataFactoryMapper = metadataFactoryMapper;
+		super(marshaller, sourceSystemRepo, metadataFactoryMapper);
 
 	}
 
@@ -82,7 +82,7 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 	private Optional<SourceSystem> setupSourceSystemDefn() {
 
 		Optional<SourceSystem> source;
-		
+
 		if (wfDefinition == null)
 			throw new IllegalArgumentException("Workflow Definition Must be set before invoking generate");
 
@@ -104,7 +104,7 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 
 		String ccFilter = "";
 		String combinedFilter = "";
-		sourceFilter=ObjectUtils.defaultIfNull(sourceFilter,"");
+		sourceFilter = ObjectUtils.defaultIfNull(sourceFilter, "");
 
 		if (sourceQualifierFilterClauseColumn.isPresent()) {
 			ccFilter = tableName + "." + sourceQualifierFilterClauseColumn.get().getSourceColumnName()
@@ -122,18 +122,16 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 
 	private InfaPowermartObject generateWorkflow() throws IOException, SAXException, JAXBException {
 
-		
-		
 		InfaSourceDefinition sourceTableDef;
 
 		Map<String, String> commonValuesMap = new HashMap<>();
 
-		Optional<SourceSystem> source=setupSourceSystemDefn();
+		Optional<SourceSystem> source = setupSourceSystemDefn();
 
 		String tblName = wfDefinition.getSourceTableName();
 		String dbName = wfDefinition.getSourceName();
 		String sourceFilter = wfDefinition.getSourceFilter();
-		
+
 		List<InfaSourceColumnDefinition> allTableColumns = colRepository.accept(columnQueryVisitor, tblName);
 
 		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
@@ -159,9 +157,8 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 				.stream()//
 				.filter(column -> column.getIntegrationIdFlag())//
 				.collect(Collectors.toList());
-		
+
 		String targetTableDefnName = dbName + "_" + tblName + "_P";
-	
 
 		InfaPowermartObject pmObj = PowermartObjectBuilder//
 				.newBuilder()//
@@ -183,12 +180,11 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 						.name(targetTableDefnName)//
 						.build())//
 				.noMoreTargets()//
-				.noMoreMapplets()
-				.mappingDefn(getMappingFrom("PTP_" + dbName + "_" + tblName + "_Primary"))//
+				.noMoreMapplets().mappingDefn(getMappingFrom("PTP_" + dbName + "_" + tblName + "_Primary"))//
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.setValue("sourceFilter",combinedFilter)
-						.noMoreValues().loadSourceQualifierFromSeed("Seed_SourceQualifier")//
+						.setValue("sourceFilter", combinedFilter).noMoreValues()
+						.loadSourceQualifierFromSeed("Seed_SourceQualifier")//
 						.addFields(dataTypeMapper, columnsList)//
 						.name("SQ_PrimaryData")//
 						.build())//
@@ -215,8 +211,7 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 				.noMoreTargetLoadOrders()//
 				.mappingvariable(getEtlProcWidMappingVariable())//
 				.mappingvariable(getInitialExtractDateMappingVariable())//
-				.mappingvariable(getDataSourceNumIdMappingVariable())
-				.noMoreMappingVariables()//
+				.mappingvariable(getDataSourceNumIdMappingVariable()).noMoreMappingVariables()//
 				.setdefaultConfigFromSeed("Seed_DefaultSessionConfig")//
 				.workflow(WorkflowDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
@@ -231,12 +226,11 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 						.build())//
 				.build();
 
-		pmObj.pmObjectName="PTP_" + dbName + "_" + tblName +"_Primary";
+		pmObj.pmObjectName = "PTP_" + dbName + "_" + tblName + "_Primary";
 
 		return pmObj;
 	}
 
-	
 	@Override
 	public InfaPowermartObject generate() {
 		InfaPowermartObject pmObj = null;
@@ -253,12 +247,12 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 		return pmObj;
 
 	}
-	
+
 	public void setWfDefinition(PTPWorkflow ptpWorkflow) {
 
-		this.wfDefinition=ptpWorkflow;
+		this.wfDefinition = ptpWorkflow;
 		this.setContext(ptpWorkflow.getSourceName());
-		
+
 	}
-	
+
 }

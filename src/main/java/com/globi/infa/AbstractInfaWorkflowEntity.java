@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class AbstractInfaWorkflowEntity implements Identifiable<Long> {
 
 	@Id @GeneratedValue(strategy = GenerationType.AUTO)
-	final private Long id;
+	private Long id;
 	private @Version Long version;
 
 	protected AbstractInfaWorkflowEntity() {
@@ -47,6 +47,15 @@ public class AbstractInfaWorkflowEntity implements Identifiable<Long> {
 	public Long getId() {
 		return this.id;
 	}
+	
+	public void setId(Long id) {
+		this.id=id;
+	}
+
+	
+	public void setVersion(Long version) {
+		this.version=version;
+	}
 
 
 	@Column(name = "created_date", updatable = false,columnDefinition = "DATE")
@@ -57,5 +66,8 @@ public class AbstractInfaWorkflowEntity implements Identifiable<Long> {
 	@Column(name = "updated_date",columnDefinition = "DATE")
 	@LastModifiedDate
 	private Date  modifiedDate;
+	
+	
+	
 
 }

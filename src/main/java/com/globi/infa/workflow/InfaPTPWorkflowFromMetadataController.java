@@ -1,6 +1,7 @@
 package com.globi.infa.workflow;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,7 +11,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.globi.infa.generator.service.PTPGeneratorRequestProcessor;
+import com.globi.infa.AbstractInfaWorkflowEntity;
+import com.globi.infa.generator.service.GeneratorRequestBatchProcessor;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,9 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class InfaPTPWorkflowFromMetadataController {
 	
-	private final PTPGeneratorRequestProcessor requestProcessor;
+	private final GeneratorRequestBatchProcessor requestProcessor;
 
-	InfaPTPWorkflowFromMetadataController(PTPGeneratorRequestProcessor requestProcessor){
+	InfaPTPWorkflowFromMetadataController(GeneratorRequestBatchProcessor requestProcessor){
 		this.requestProcessor=requestProcessor;
 		
 	}
@@ -28,11 +30,14 @@ public class InfaPTPWorkflowFromMetadataController {
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/ptpFromMetadata")
 	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow() {
 
-		List<PTPWorkflow> inputDefinitions=requestProcessor.buildInput();
-		List<PTPWorkflow> createdWorkflows=requestProcessor.process(inputDefinitions);
+		List<? extends AbstractInfaWorkflowEntity> inputDefinitions=requestProcessor.buildInput();
+		List<? extends AbstractInfaWorkflowEntity> savedWorkflows=requestProcessor.saveInput(inputDefinitions);
 		
+		List<PTPWorkflow> responseWorkflows=savedWorkflows.stream().map(wf->(PTPWorkflow)wf).collect(Collectors.toList());
 		
-		return new ResponseEntity<List<PTPWorkflow>>(createdWorkflows, HttpStatus.CREATED);
+		requestProcessor.process(savedWorkflows);
+		
+		return new ResponseEntity<List<PTPWorkflow>>(responseWorkflows, HttpStatus.CREATED);
 
 	}
 

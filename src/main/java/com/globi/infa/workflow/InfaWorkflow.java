@@ -44,4 +44,6 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity{
 	private String workflowType;
 	
 	
+	private String workflowStatus;
+	
 }

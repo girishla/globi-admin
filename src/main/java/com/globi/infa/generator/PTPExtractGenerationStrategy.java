@@ -40,6 +40,7 @@ import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
+import com.globi.metadata.sourcesystem.SourceSystemRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,10 +50,9 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 	private PTPWorkflow wfDefinition;
 
-	PTPExtractGenerationStrategy(Jaxb2Marshaller marshaller, SourceMetadataFactoryMapper metadataFactoryMapper) {
+	PTPExtractGenerationStrategy(Jaxb2Marshaller marshaller,SourceSystemRepository sourceSystemRepo, SourceMetadataFactoryMapper metadataFactoryMapper) {
 
-		this.marshaller = marshaller;
-		this.metadataFactoryMapper = metadataFactoryMapper;
+		super(marshaller,sourceSystemRepo,metadataFactoryMapper);
 
 	}
 
