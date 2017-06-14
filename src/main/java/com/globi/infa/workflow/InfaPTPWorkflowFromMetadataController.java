@@ -33,7 +33,9 @@ public class InfaPTPWorkflowFromMetadataController {
 		List<? extends AbstractInfaWorkflowEntity> inputDefinitions=requestProcessor.buildInput();
 		List<? extends AbstractInfaWorkflowEntity> savedWorkflows=requestProcessor.saveInput(inputDefinitions);
 		
-		List<PTPWorkflow> responseWorkflows=savedWorkflows.stream().map(wf->(PTPWorkflow)wf).collect(Collectors.toList());
+		List<PTPWorkflow> responseWorkflows=savedWorkflows.stream()//
+				.map(wf->(PTPWorkflow)wf)//
+				.collect(Collectors.toList());
 		
 		requestProcessor.process(savedWorkflows);
 		
