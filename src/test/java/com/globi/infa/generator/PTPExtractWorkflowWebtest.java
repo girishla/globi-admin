@@ -12,23 +12,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import com.globi.AbstractWebIntegrationTest;
-import com.globi.infa.datasource.core.DataSourceTableColumnDTO;
-import com.globi.infa.workflow.InfaWorkflow;
+import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
 public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 
 	@Autowired
-	PTPWorkflowRepository wfRepository;
+	InfaPTPWorkflowRepository wfRepository;
 	PTPWorkflow ptpWorkflow;
 	static final String sourceTable = "R_INVOICE_MASTER";
 	static final String source = "GEN";
@@ -45,7 +42,7 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 				.columns(cols)
 				.sourceTableName(sourceTable)//
 				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + source+ "_"+ sourceTable + ".xml")
-				.workflowType("PTP")
+//				.workflowType("PTP")
 				.workflowName("PTP_" + source+ "_"+ sourceTable  + "_Extract")
 				.build();
 		

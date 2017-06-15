@@ -3,7 +3,6 @@ package com.globi.infa.generator.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import javax.transaction.Transactional;
 
@@ -21,10 +20,9 @@ import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
 import com.globi.infa.generator.PTPPrimaryGenerationStrategy;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
+import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.MetadataToPTPWorkflowDefnConverter;
 import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowRepository;
-import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchProcessor {
 
 	@Autowired
-	private PTPWorkflowRepository ptpRepository;
+	private InfaPTPWorkflowRepository ptpRepository;
 
 	@Autowired
 	FileWriterEventListener fileWriter;

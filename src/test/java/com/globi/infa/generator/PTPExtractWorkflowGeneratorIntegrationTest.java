@@ -20,9 +20,8 @@ import org.springframework.test.annotation.Rollback;
 import com.globi.AbstractIntegrationTest;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
-import com.globi.infa.workflow.InfaWorkflow;
+import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
 public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrationTest {
@@ -34,7 +33,7 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 	private PTPExtractGenerationStrategy generator;
 
 	@Autowired
-	PTPWorkflowRepository ptpRepository;
+	InfaPTPWorkflowRepository ptpRepository;
 
 	@Autowired
 	FileWriterEventListener fileWriter;
@@ -70,7 +69,7 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 				.sourceTableName(sourceTable)//
 				.columns(cols)//
 				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + source+ "_"+ sourceTable  + ".xml")
-				.workflowType("PTP")
+//				.workflowType("PTP")
 				.workflowName("PTP_" + source+ "_"+ sourceTable  + "_Extract")
 				.build();
 				

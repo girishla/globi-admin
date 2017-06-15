@@ -17,8 +17,8 @@ import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
 import com.globi.infa.generator.PTPPrimaryGenerationStrategy;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
+import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncProcessor {
 
 	@Autowired
-	private PTPWorkflowRepository ptpRepository;
+	private InfaPTPWorkflowRepository ptpRepository;
 
 	@Autowired
 	FileWriterEventListener fileWriter;

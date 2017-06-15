@@ -5,22 +5,16 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 
-import org.hibernate.annotations.WhereJoinTable;
 import org.hibernate.validator.constraints.NotBlank;
-
-import com.globi.infa.AbstractEntity;
-import com.globi.infa.AbstractInfaWorkflowEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +33,7 @@ import lombok.ToString;
 @Setter
 @Table(name = "M_INFA_PTP_WF",uniqueConstraints={@UniqueConstraint(columnNames = {"src_name" , "src_table_name"})})
 @AllArgsConstructor
+@DiscriminatorValue("PTP")
 //@Builder
 public class PTPWorkflow extends InfaWorkflow{
 	
@@ -53,7 +48,6 @@ public class PTPWorkflow extends InfaWorkflow{
 	private String sourceTableName;
 	
 	@Column(name="src_filter")
-	@Builder.Default
 	private String sourceFilter="";
 	
 	@OrderColumn //
@@ -65,8 +59,8 @@ public class PTPWorkflow extends InfaWorkflow{
 	private List<PTPWorkflowSourceColumn> columns = new ArrayList<>();
 
 	 @Builder
-	  public PTPWorkflow(String workflowName,String workflowUri,String workflowType,String workflowStatus,String sourceName, String sourceTableName,String sourceFilter, List<PTPWorkflowSourceColumn> columns){
-	    super(workflowName,workflowUri,workflowType,workflowStatus);
+	  public PTPWorkflow(String workflowName,String workflowUri,String workflowStatus,String sourceName, String sourceTableName,String sourceFilter, List<PTPWorkflowSourceColumn> columns){
+	    super(workflowName,workflowUri,workflowStatus);
 	    this.sourceFilter=sourceFilter;
 	    this.sourceTableName=sourceTableName;
 	    this.sourceName=sourceName;

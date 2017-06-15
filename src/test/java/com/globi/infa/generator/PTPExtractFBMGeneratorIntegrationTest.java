@@ -13,8 +13,8 @@ import org.springframework.test.annotation.Rollback;
 
 import com.globi.AbstractIntegrationTest;
 import com.globi.infa.generator.builder.InfaPowermartObject;
+import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowRepository;
 
 public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTest {
 
@@ -25,7 +25,7 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 	private PTPExtractGenerationStrategy generator;
 
 	@Autowired
-	PTPWorkflowRepository repository;
+	InfaPTPWorkflowRepository repository;
 
 	@Autowired
 	FileWriterEventListener fileWriter;

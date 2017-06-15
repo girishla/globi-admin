@@ -13,14 +13,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import com.globi.AbstractWebIntegrationTest;
+import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowRepository;
 
 
 public class PTPWorkflowsFromTopDownMetadataWebtest extends AbstractWebIntegrationTest {
 
 	@Autowired
-	PTPWorkflowRepository wfRepository;
+	InfaPTPWorkflowRepository wfRepository;
 	PTPWorkflow ptpWorkflow;
 
 	@Before

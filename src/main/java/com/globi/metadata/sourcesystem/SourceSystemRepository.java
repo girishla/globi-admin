@@ -11,7 +11,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
  * 
  * @author Girish lakshmanan
  */
-@RepositoryRestResource
+@RepositoryRestResource(collectionResourceRel = "sourcesystems",path = "sourcesystems")
 public interface SourceSystemRepository extends CrudRepository<SourceSystem, Long> {
 
 	

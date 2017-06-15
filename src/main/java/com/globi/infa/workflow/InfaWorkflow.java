@@ -1,7 +1,10 @@
 package com.globi.infa.workflow;
 
 
+import java.util.List;
+
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -31,6 +34,7 @@ import lombok.ToString;
 @Table(name = "M_INFA_WF")
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name="TYPE")
 public class InfaWorkflow extends AbstractInfaWorkflowEntity implements GeneratedWorkflow{
 		
 	@NonNull
@@ -42,10 +46,9 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 	private String workflowUri;
 	
 	@NonNull
-	@NotBlank(message = "Workflow type cannot be empty!")
-	@Column(name="TYPE")
-	private String workflowType;
-	
+	@Column(name="TYPE",insertable = false, updatable = false)
+	private String workflowType="";
+
 	
 	private String workflowStatus;
 
@@ -55,6 +58,14 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 		// TODO Auto-generated method stub
 		return this;
 	}
+	
+	
+	  public InfaWorkflow(String workflowName,String workflowUri,String workflowStatus){
+		    this.workflowName=workflowName;
+		    this.workflowStatus=workflowStatus;
+		    this.workflowUri=workflowUri;
+		    
+		  }
 	
 }
 

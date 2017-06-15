@@ -18,15 +18,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import com.globi.AbstractWebIntegrationTest;
-import com.globi.infa.workflow.InfaWorkflow;
+import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
 public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
 
 	@Autowired
-	PTPWorkflowRepository wfRepository;
+	InfaPTPWorkflowRepository wfRepository;
 	PTPWorkflow ptpWorkflow;
 	static final String sourceTable = "S_PARTY_PER";
 	static final String source = "CUK";
@@ -44,7 +43,7 @@ public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
 				.columns(cols)
 				.sourceTableName(sourceTable)//
 				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + source+ "_"+ sourceTable  + ".xml")
-				.workflowType("PTP")
+//				.workflowType("PTP")
 				.workflowName("PTP_" + source+ "_"+ sourceTable  + "_Extract")
 				.build();
 	}
@@ -52,15 +51,15 @@ public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
 	@Test
 	public void createsWorkflowResourceFromWorkflowDefinition() throws Exception {
 
-		mvc.perform(post("/infagen/workflows/ptpPrimary")//
+		mvc.perform(post("/infagen/workflows/ptp")//
 				.content(asJsonString(ptpWorkflow))//
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//
 				.andDo(MockMvcResultHandlers.print())//
 				.andExpect(status().isCreated())//
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))//
-				.andExpect(jsonPath("$.workflow.workflowName", notNullValue()))//
-				.andExpect(jsonPath("$.workflow.workflowUri", notNullValue()));
+				.andExpect(jsonPath("$.workflowName", notNullValue()))//
+				.andExpect(jsonPath("$.workflowUri", notNullValue()));
 
 	}
 

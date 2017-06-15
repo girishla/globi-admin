@@ -12,8 +12,8 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
  * 
  * @author Girish lakshmanan
  */
-@RepositoryRestResource
-public interface PTPWorkflowRepository extends CrudRepository<PTPWorkflow, Long> {
+@RepositoryRestResource(collectionResourceRel = "ptpworkflows",path = "ptpworkflows")
+public interface InfaPTPWorkflowRepository extends CrudRepository<PTPWorkflow, Long> {
 	
 	/**
 	 * Returns all {@link InfaWorkflow}s with the given {@link workflowName}.

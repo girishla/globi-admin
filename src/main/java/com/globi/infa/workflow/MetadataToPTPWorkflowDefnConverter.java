@@ -1,8 +1,6 @@
 package com.globi.infa.workflow;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,7 +25,8 @@ public class MetadataToPTPWorkflowDefnConverter {
 				.map(column -> {
 					return DataSourceTableDTO.builder()//
 							.sourceName(column.getSourceName())//
-							.tableName(column.getTableName()).tableOwner(column.getTableOwner()).build();
+							.tableName(column.getTableName())//
+							.tableOwner(column.getTableOwner()).build();
 				}).collect(Collectors.toMap(DataSourceTableDTO::getTableName, p -> p, (p, q) -> p));
 
 	}
@@ -56,7 +55,8 @@ public class MetadataToPTPWorkflowDefnConverter {
 		return (PTPWorkflowSourceColumn.builder()//
 				.changeCaptureColumn(column.isChangeCaptureCol())//
 				.integrationIdColumn(column.isIntegrationId())//
-				.pguidColumn(column.isPguidCol()).sourceColumnName(colName)//
+				.pguidColumn(column.isPguidCol())//
+				.sourceColumnName(colName)//
 				.build());
 
 	}
@@ -78,23 +78,18 @@ public class MetadataToPTPWorkflowDefnConverter {
 				.filter(column -> column.getValue().getTableName().equals(table.getTableName()))//
 				.forEach(column -> workflowSourceColumnList.add(buildSourceColumnDefnFrom(column.getValue())));
 
-		log.info("-------------------------------------------------");
-		log.info(distinctCols.toString());
-	
-		log.info("-------------------------------------------------");
 		
 			return PTPWorkflow.builder()//
 					.sourceName(table.getSourceName())//
+					.sourceFilter("")
 					.sourceTableName(table.getTableName())
 					.columns(workflowSourceColumnList)
 					.workflowName(generatedWFName)
-					.workflowType("PTP")
+//					.workflowType("PTP")
 					.workflowUri(generatedWFUri)
 					.build();
 					
-					
 		}
-
 
 
 	public List<PTPWorkflow> getExtractWorkflowDefinitionObjects() {

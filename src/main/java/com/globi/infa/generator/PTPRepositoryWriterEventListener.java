@@ -7,9 +7,8 @@ import org.springframework.stereotype.Component;
 
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.workflow.GeneratedWorkflow;
-import com.globi.infa.workflow.InfaWorkflow;
+import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PTPRepositoryWriterEventListener implements WorkflowCreatedEventListener {
 
 	@Autowired
-	PTPWorkflowRepository wfRepository;
+	InfaPTPWorkflowRepository wfRepository;
 
 	
 
@@ -31,23 +30,17 @@ public class PTPRepositoryWriterEventListener implements WorkflowCreatedEventLis
 		PTPWorkflow wfDefinition;
 
 		if (queriedWorkflow.isPresent()) {
-			log.info("***********************************");
-			log.info("found existing wf");
-
 			//Only columns can change during updates
 			wfDefinition = queriedWorkflow.get();
 			wfDefinition.setColumns(inWorkflow.getColumns());
 
 		} else {
-
-			log.info("***********************************");
-			log.info("did not find existing wf");
 			
 			wfDefinition = PTPWorkflow.builder()//
 					.sourceName(inWorkflow.getSourceName())//
 					.sourceTableName(inWorkflow.getSourceTableName()).columns(inWorkflow.getColumns())
 					.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + inWorkflow.getSourceName()+ "_"+ inWorkflow.getSourceTableName()  + ".xml")
-					.workflowType("PTP")
+//					.workflowType("PTP")
 					.workflowName("PTP_" + inWorkflow.getSourceName()+ "_"+ inWorkflow.getSourceTableName()  + "_Extract")
 					.build();
 
