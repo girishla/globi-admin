@@ -18,8 +18,10 @@ import java.util.stream.Collectors;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.context.annotation.Scope;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
 import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
@@ -41,7 +43,8 @@ import com.globi.metadata.sourcesystem.SourceSystemRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Component
+@Service
+@Scope("prototype")
 @Slf4j
 public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 

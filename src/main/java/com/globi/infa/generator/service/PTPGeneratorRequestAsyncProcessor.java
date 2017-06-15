@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -38,12 +39,6 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	AggregateGitWriterEventListener aggregateGitWriter;
 
 	@Autowired
-	private PTPExtractGenerationStrategy ptpExtractgenerator;
-
-	@Autowired
-	private PTPPrimaryGenerationStrategy ptpPrimarygenerator;
-
-	@Autowired
 	private InfaPuddleDefinitionRepositoryWriter targetDefnWriter;
 
 	@Autowired
@@ -56,7 +51,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 
 	}
 	
-    public PTPWorkflow processWorkflow(PTPWorkflow wf){
+    private PTPWorkflow processWorkflow(PTPWorkflow wf,PTPExtractGenerationStrategy ptpExtractgenerator,PTPPrimaryGenerationStrategy ptpPrimarygenerator){
         log.info(":::::::::::Processing " + wf.getWorkflow().getWorkflowName());
 
 		ptpExtractgenerator.setWfDefinition(wf);
@@ -71,7 +66,19 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
         return wf;
     }
 
+    
 
+    @Lookup
+    public PTPExtractGenerationStrategy getPtpExtractgenerator(){
+      return null; // This implementation will be overridden by dynamically generated subclass
+    }
+
+    
+    @Lookup
+    public PTPPrimaryGenerationStrategy getPtpPrimarygenerator(){
+      return null; // This implementation will be overridden by dynamically generated subclass
+    }
+    
 	@Override
 	public AbstractInfaWorkflowEntity saveInput(AbstractInfaWorkflowEntity inputWorkflowDefinition) {
 		
@@ -97,6 +104,8 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	@Transactional
 	public void process(AbstractInfaWorkflowEntity inputWorkflowDefinition) {
 		
+		PTPExtractGenerationStrategy ptpExtractgenerator=getPtpExtractgenerator();
+		PTPPrimaryGenerationStrategy ptpPrimarygenerator=getPtpPrimarygenerator();
 		
 		ptpExtractgenerator.addListener(gitWriter);
 		ptpExtractgenerator.addListener(aggregateGitWriter);
@@ -107,7 +116,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		ptpPrimarygenerator.addListener(targetDefnWriter);
 
 
-		this.processWorkflow((PTPWorkflow)inputWorkflowDefinition);
+		this.processWorkflow((PTPWorkflow)inputWorkflowDefinition,ptpExtractgenerator,ptpPrimarygenerator);
 		
 		
 	}

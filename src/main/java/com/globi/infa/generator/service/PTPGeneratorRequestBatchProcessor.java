@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -44,12 +45,6 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchP
 	AggregateGitWriterEventListener aggregateGitWriter;
 
 	@Autowired
-	private PTPExtractGenerationStrategy ptpExtractgenerator;
-
-	@Autowired
-	private PTPPrimaryGenerationStrategy ptpPrimarygenerator;
-
-	@Autowired
 	private InfaPuddleDefinitionRepositoryWriter targetDefnWriter;
 
 	@Autowired
@@ -72,11 +67,22 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchP
 		// do nothing
 
 	}
-	
-	
-	
-    public PTPWorkflow processWorkflow(PTPWorkflow wf){
-        log.info(":::::::::::Processing " + wf.getWorkflow().getWorkflowName());
+
+	@Lookup
+	public PTPExtractGenerationStrategy getPtpExtractgenerator() {
+		return null; // This implementation will be overridden by dynamically
+						// generated subclass
+	}
+
+	@Lookup
+	public PTPPrimaryGenerationStrategy getPtpPrimarygenerator() {
+		return null; // This implementation will be overridden by dynamically
+						// generated subclass
+	}
+
+	public PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator,
+			PTPPrimaryGenerationStrategy ptpPrimarygenerator) {
+		log.info(":::::::::::Processing " + wf.getWorkflow().getWorkflowName());
 
 		ptpExtractgenerator.setWfDefinition(wf);
 		ptpExtractgenerator.generate();
@@ -86,17 +92,17 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchP
 
 		wf.getWorkflow().setWorkflowStatus("Processed");
 		ptpRepository.save(wf);
-        
-        return wf;
-    }
+
+		return wf;
+	}
 
 	@Override
 	@Async
 	@Transactional
-	public void process(List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions)  {
+	public void process(List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions) {
 
-		
-//		List<PTPWorkflow> processedWorkflows = new ArrayList<>();
+		PTPExtractGenerationStrategy ptpExtractgenerator = getPtpExtractgenerator();
+		PTPPrimaryGenerationStrategy ptpPrimarygenerator = getPtpPrimarygenerator();
 
 		ptpExtractgenerator.addListener(gitWriter);
 		ptpExtractgenerator.addListener(aggregateGitWriter);
@@ -111,7 +117,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchP
 		inputWorkflowDefinitions.stream()//
 				.map(wf -> (PTPWorkflow) wf)//
 				.filter(wf -> wf.getWorkflow().getWorkflowType().equals("PTP"))//
-				.forEach(this::processWorkflow);
+				.forEach(wf -> this.processWorkflow(wf, ptpExtractgenerator, ptpPrimarygenerator));
 
 		aggregateGitWriter.notifyBatchComplete();
 
@@ -136,7 +142,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchP
 					}
 					wf.getWorkflow().setWorkflowStatus("Queued");
 					savedWorkflows.add(ptpRepository.save(wf));
-					
+
 				});
 
 		return savedWorkflows;
