@@ -45,10 +45,10 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 	}
 
 	
-	@Test @Ignore
+	@Test
 	public void createsWorkflowResourceFromWorkflowDefinition() throws Exception {
 
-		mvc.perform(post("/infagen/workflows/ptpExtract")//
+		mvc.perform(post("/infagen/workflows/ptp")//
 				.content(asJsonString(ptpWorkflow))//
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//

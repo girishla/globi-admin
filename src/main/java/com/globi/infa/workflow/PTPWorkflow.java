@@ -14,6 +14,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.Valid;
 
 import org.hibernate.annotations.WhereJoinTable;
 import org.hibernate.validator.constraints.NotBlank;
@@ -60,12 +61,14 @@ public class PTPWorkflow extends AbstractInfaWorkflowEntity implements Generated
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true) //
 	@JoinColumn(name="workflow_id",referencedColumnName="id")
 	@Singular
+	@Valid
 	private List<PTPWorkflowSourceColumn> columns = new ArrayList<>();
 	
 	@OneToOne(fetch = FetchType.EAGER,cascade = {CascadeType.ALL})
 	@MapsId 
     @JoinColumn(name = "ID")
     @WhereJoinTable(clause = "TYPE = 'PTP'")
+	@Valid
 	private InfaWorkflow workflow;
  
 	

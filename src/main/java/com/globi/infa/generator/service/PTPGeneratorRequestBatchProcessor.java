@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class PTPGeneratorRequestProcessor implements GeneratorRequestBatchProcessor {
+public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchProcessor {
 
 	@Autowired
 	private PTPWorkflowRepository ptpRepository;

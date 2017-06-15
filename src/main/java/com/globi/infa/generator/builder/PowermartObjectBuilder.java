@@ -541,7 +541,7 @@ public class PowermartObjectBuilder {
 		public TransformationStep transformationCopyConnectAllFields(String fromTransformation,
 				String toTransformation) {
 
-			Cloner cloner = new Cloner();
+			Cloner cloner = Cloner.shared();
 
 			xformMap.get(fromTransformation).getTRANSFORMFIELD().forEach(field -> {
 				TRANSFORMFIELD toField = cloner.deepClone(field);

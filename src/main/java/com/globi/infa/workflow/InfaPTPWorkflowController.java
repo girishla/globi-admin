@@ -1,8 +1,7 @@
 package com.globi.infa.workflow;
 
-import java.util.Optional;
+import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,65 +11,27 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.globi.infa.generator.FileWriterEventListener;
-import com.globi.infa.generator.GitWriterEventListener;
-import com.globi.infa.generator.PTPExtractGenerationStrategy;
-import com.globi.infa.generator.PTPPrimaryGenerationStrategy;
+import com.globi.infa.generator.service.GeneratorRequestAsyncProcessor;
 
 @RestController
 public class InfaPTPWorkflowController {
 
-	@Autowired
-	private PTPWorkflowRepository repository;
+	private final GeneratorRequestAsyncProcessor requestProcessor;
 
-	@Autowired
-	FileWriterEventListener fileWriter;
-
-	@Autowired
-	GitWriterEventListener gitWriter;
-	
-	
-	@Autowired
-	private PTPExtractGenerationStrategy ptpExtractgenerator;
-	
-	
-	@Autowired
-	private PTPPrimaryGenerationStrategy ptpPrimarygenerator;
-	
-
-
-	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/ptpExtract")
-	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow(@RequestBody PTPWorkflow ptpWorkflow) {
-
-		ptpExtractgenerator.setWfDefinition(ptpWorkflow);
-		ptpExtractgenerator.addListener(fileWriter);
-		ptpExtractgenerator.addListener(gitWriter);
-		ptpExtractgenerator.generate();
-
-		return new ResponseEntity<PTPWorkflow>(repository.save(ptpWorkflow), HttpStatus.CREATED);
-	}
-	
-	
-	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/ptpPrimary")
-
-	public @ResponseBody ResponseEntity<?> createPTPPrimaryWorkflow(@RequestBody PTPWorkflow ptpWorkflow) {
-
-		ptpPrimarygenerator.setWfDefinition(ptpWorkflow);
-		ptpPrimarygenerator.addListener(fileWriter);
-		ptpPrimarygenerator.addListener(gitWriter);
-		ptpPrimarygenerator.generate();
-
-
-
-		Optional<PTPWorkflow> queriedWorkflow = repository
-				.findByWorkflow_workflowName(ptpWorkflow.getWorkflow().getWorkflowName());
-
-		if (queriedWorkflow.isPresent()) {
-			repository.delete(queriedWorkflow.get());
-		}		
+	InfaPTPWorkflowController(GeneratorRequestAsyncProcessor requestProcessor){
+		this.requestProcessor=requestProcessor;
 		
-		return new ResponseEntity<PTPWorkflow>(repository.save(ptpWorkflow), HttpStatus.CREATED);
 	}
+
+	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/ptp")
+	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow(@RequestBody @Valid PTPWorkflow ptpWorkflow) {
+
+		PTPWorkflow savedWorkflow=(PTPWorkflow)requestProcessor.saveInput(ptpWorkflow);
+		requestProcessor.process(savedWorkflow);
+
+		return new ResponseEntity<PTPWorkflow>(savedWorkflow, HttpStatus.CREATED);
+	}
+
 	
 
 }
