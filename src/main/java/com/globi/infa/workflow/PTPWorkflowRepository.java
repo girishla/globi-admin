@@ -22,7 +22,7 @@ public interface PTPWorkflowRepository extends CrudRepository<PTPWorkflow, Long>
 	 * @return
 	 */
 	
-	Optional<PTPWorkflow> findByWorkflow_workflowName(@Param("workflowName") String workflowName);
+	Optional<PTPWorkflow> findByWorkflowName(@Param("workflowName") String workflowName);
 
 
 }

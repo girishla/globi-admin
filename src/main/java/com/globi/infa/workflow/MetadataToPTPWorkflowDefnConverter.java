@@ -78,17 +78,15 @@ public class MetadataToPTPWorkflowDefnConverter {
 				.filter(column -> column.getValue().getTableName().equals(table.getTableName()))//
 				.forEach(column -> workflowSourceColumnList.add(buildSourceColumnDefnFrom(column.getValue())));
 
-
 			return PTPWorkflow.builder()//
 					.sourceName(table.getSourceName())//
 					.sourceTableName(table.getTableName()).columns(workflowSourceColumnList)
-					.workflow(InfaWorkflow.builder()//
-							.workflowUri(generatedWFUri)//
-							.workflowName(generatedWFName)//
-							.workflowType("PTP")//
-							.build())
+					.workflowName(generatedWFName)
+					.workflowType("PTP")
+					.workflowUri(generatedWFUri)
 					.build();
-
+					
+					
 		}
 
 

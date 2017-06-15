@@ -3,10 +3,13 @@ package com.globi.infa.workflow;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.globi.infa.AbstractEntity;
 import com.globi.infa.AbstractInfaWorkflowEntity;
 
@@ -27,8 +30,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @Table(name = "M_INFA_WF")
 @AllArgsConstructor
-@Builder
-public class InfaWorkflow extends AbstractInfaWorkflowEntity{
+@Inheritance(strategy = InheritanceType.JOINED)
+public class InfaWorkflow extends AbstractInfaWorkflowEntity implements GeneratedWorkflow{
 		
 	@NonNull
 	@NotBlank(message = "Workflow name cannot be empty!")
@@ -45,5 +48,14 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity{
 	
 	
 	private String workflowStatus;
+
+	@Override
+	@JsonIgnore
+	public InfaWorkflow getWorkflow() {
+		// TODO Auto-generated method stub
+		return this;
+	}
 	
 }
+
+

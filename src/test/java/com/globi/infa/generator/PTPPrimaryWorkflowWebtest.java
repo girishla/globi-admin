@@ -34,13 +34,10 @@ public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
 				.column(new PTPWorkflowSourceColumn("ROW_ID",true,false,true,false))
 				.column(new PTPWorkflowSourceColumn("LAST_UPD",false,true,false,false))
 				.sourceTableName(sourceTable)//
-				.workflow(InfaWorkflow.builder()//
-						.workflowUri("/GeneratedWorkflows/ptp/" + "PTP_" + sourceTable + ".xml")//
-						.workflowName("PTP_" + sourceTable + "_Primary")//
-						.workflowType("PTP")//
-						.build())
+				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + source+ "_"+ sourceTable  + ".xml")
+				.workflowType("PTP")
+				.workflowName("PTP_" + source+ "_"+ sourceTable  + "_Extract")
 				.build();
-		
 	}
 	
 	@Test

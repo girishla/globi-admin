@@ -110,13 +110,11 @@ public class PTPGeneratorInputBuilder {
 				.sourceName(sourceName)//
 				.sourceTableName(tableName)//
 				.columns(workflowSourceColumnList)
-				.workflow(InfaWorkflow.builder()//
-						.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + tableName + ".xml")//
-						.workflowName("PTP_" + sourceName + "_" + tableName + "_Extract")//
-						.workflowType("PTP")//
-						.build())
-				.sourceFilter(sourceFilter)
+				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceName + "_" + tableName + ".xml")
+				.workflowType("PTP")
+				.workflowName("PTP_" + sourceName + "_" + tableName + "_Extract")
 				.build();
+
 
 		return ptpWorkflowGeneratorInput;
 

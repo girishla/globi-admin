@@ -25,7 +25,7 @@ public class PTPRepositoryWriterEventListener implements WorkflowCreatedEventLis
 	private void  saveOrUpdateWFDefinition(GeneratedWorkflow wf){
 		
 		Optional<PTPWorkflow> queriedWorkflow = wfRepository
-				.findByWorkflow_workflowName(wf.getWorkflow().getWorkflowName());
+				.findByWorkflowName(wf.getWorkflow().getWorkflowName());
 
 		PTPWorkflow inWorkflow = (PTPWorkflow) wf;
 		PTPWorkflow wfDefinition;
@@ -46,13 +46,11 @@ public class PTPRepositoryWriterEventListener implements WorkflowCreatedEventLis
 			wfDefinition = PTPWorkflow.builder()//
 					.sourceName(inWorkflow.getSourceName())//
 					.sourceTableName(inWorkflow.getSourceTableName()).columns(inWorkflow.getColumns())
-					.workflow(InfaWorkflow.builder()//
-							.workflowUri(
-									"/GeneratedWorkflows/Repl/" + "PTP_" + inWorkflow.getSourceName() + "_" +  inWorkflow.getSourceTableName() + ".xml")//
-							.workflowName("PTP_" +inWorkflow.getSourceName() + "_"  + inWorkflow.getSourceTableName() + "_Extract")//
-							.workflowType("PTP")//
-							.build())
+					.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + inWorkflow.getSourceName()+ "_"+ inWorkflow.getSourceTableName()  + ".xml")
+					.workflowType("PTP")
+					.workflowName("PTP_" + inWorkflow.getSourceName()+ "_"+ inWorkflow.getSourceTableName()  + "_Extract")
 					.build();
+
 
 		}
 		

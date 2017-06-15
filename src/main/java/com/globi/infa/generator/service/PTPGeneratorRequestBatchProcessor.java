@@ -131,7 +131,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchP
 				.map(wf -> (PTPWorkflow) wf).filter(wf -> wf.getWorkflow().getWorkflowType().equals("PTP"))//
 				.forEach(wf -> {
 					Optional<PTPWorkflow> existingWorkflow = ptpRepository
-							.findByWorkflow_workflowName(wf.getWorkflow().getWorkflowName());
+							.findByWorkflowName(wf.getWorkflowName());
 					if (existingWorkflow.isPresent()) {
 						existingWorkflow.get().getColumns().clear();
 						ptpRepository.save(existingWorkflow.get());

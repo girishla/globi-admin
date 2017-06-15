@@ -63,12 +63,11 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 				.column(getCCColumn("LAST_UPD"))
 				.column(getNormalColumn("NAME"))//
 				.column(getBuidColumn("BU_ID"))
-				.workflow(InfaWorkflow.builder()//
-						.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceTable + ".xml")//
-						.workflowName("PTP_" + sourceTable + "_Extract")//
-						.workflowType("PTP")//
-						.build())
+				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + source+ "_"+ sourceTable  + ".xml")
+				.workflowType("PTP")
+				.workflowName("PTP_" + source+ "_"+ sourceTable  + "_Extract")
 				.build();
+				
 
 	}
 
@@ -105,7 +104,7 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 		ptpPrimarygenerator.generate();
 
 		Optional<PTPWorkflow> existingWorkflow = ptpRepository
-				.findByWorkflow_workflowName(ptpWorkflowInputToGenerator.getWorkflow().getWorkflowName());
+				.findByWorkflowName(ptpWorkflowInputToGenerator.getWorkflow().getWorkflowName());
 		if (existingWorkflow.isPresent()) {
 			ptpRepository.delete(existingWorkflow.get());
 		}

@@ -34,14 +34,13 @@ import lombok.ToString;
 
 @Entity
 @ToString(callSuper = true)
-//@RequiredArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
 @Table(name = "M_INFA_PTP_WF",uniqueConstraints={@UniqueConstraint(columnNames = {"src_name" , "src_table_name"})})
 @AllArgsConstructor
 @Builder
-public class PTPWorkflow extends AbstractInfaWorkflowEntity implements GeneratedWorkflow{
+public class PTPWorkflow extends InfaWorkflow{
 	
 	@NonNull
 	@NotBlank(message = "PTP Workflow source name cannot be empty!")
@@ -54,7 +53,8 @@ public class PTPWorkflow extends AbstractInfaWorkflowEntity implements Generated
 	private String sourceTableName;
 	
 	@Column(name="src_filter")
-	private String sourceFilter;
+	@Builder.Default
+	private String sourceFilter="";
 	
 	@OrderColumn //
 	@Column(unique = true) //
@@ -63,16 +63,17 @@ public class PTPWorkflow extends AbstractInfaWorkflowEntity implements Generated
 	@Singular
 	@Valid
 	private List<PTPWorkflowSourceColumn> columns = new ArrayList<>();
-	
-	@OneToOne(fetch = FetchType.EAGER,cascade = {CascadeType.ALL})
-	@MapsId 
-    @JoinColumn(name = "ID")
-    @WhereJoinTable(clause = "TYPE = 'PTP'")
-	@Valid
-	private InfaWorkflow workflow;
- 
-	
 
+	 @Builder
+	  public PTPWorkflow(String workflowName,String workflowUri,String workflowType,String workflowStatus,String sourceName, String sourceTableName,String sourceFilter, List<PTPWorkflowSourceColumn> cols){
+	    super(workflowName,workflowUri,workflowType,workflowStatus);
+	    this.sourceFilter=sourceFilter;
+	    this.sourceTableName=sourceTableName;
+	    this.sourceName=sourceName;
+	    this.columns=cols;
+	    
+	  }
+	
 	
 	
 }

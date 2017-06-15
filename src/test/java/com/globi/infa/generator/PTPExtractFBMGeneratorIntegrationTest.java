@@ -97,7 +97,7 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 		InfaPowermartObject pmObj = generator.generate();
 
 		Optional<PTPWorkflow> existingWorkflow = repository
-				.findByWorkflow_workflowName(ptpWorkflowGeneratorInvoiceHDInput.getWorkflow().getWorkflowName());
+				.findByWorkflowName(ptpWorkflowGeneratorInvoiceHDInput.getWorkflow().getWorkflowName());
 		if (existingWorkflow.isPresent()) {
 			repository.delete(existingWorkflow.get());
 		}
