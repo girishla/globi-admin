@@ -7,6 +7,8 @@ import static com.globi.infa.generator.StaticObjectMother.getNormalColumn;
 import static org.junit.Assert.assertThat;
 import static org.xmlunit.matchers.HasXPathMatcher.hasXPath;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -21,6 +23,7 @@ import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowRepository;
+import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
 public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrationTest {
 
@@ -55,14 +58,17 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 
 		String sourceTable = "S_ORG_EXT";
 		String source = "CUK";
-
+		
+		List<PTPWorkflowSourceColumn> cols=new ArrayList<>();
+		cols.add(getIntegrationIdColumn("ROW_ID"));
+		cols.add(getCCColumn("LAST_UPD"));
+		cols.add(getNormalColumn("NAME"));
+		cols.add(getBuidColumn("BU_ID"));
+		
 		ptpWorkflowInputToGenerator = PTPWorkflow.builder()//
 				.sourceName(source)//
 				.sourceTableName(sourceTable)//
-				.column(getIntegrationIdColumn("ROW_ID"))//
-				.column(getCCColumn("LAST_UPD"))
-				.column(getNormalColumn("NAME"))//
-				.column(getBuidColumn("BU_ID"))
+				.columns(cols)//
 				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + source+ "_"+ sourceTable  + ".xml")
 				.workflowType("PTP")
 				.workflowName("PTP_" + source+ "_"+ sourceTable  + "_Extract")

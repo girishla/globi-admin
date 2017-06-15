@@ -31,6 +31,13 @@ public class InfaPTPWorkflowFromMetadataController {
 	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow() {
 
 		List<? extends AbstractInfaWorkflowEntity> inputDefinitions=requestProcessor.buildInput();
+		
+		log.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+		log.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+		log.info(inputDefinitions.toString());
+		log.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+		
+		
 		List<? extends AbstractInfaWorkflowEntity> savedWorkflows=requestProcessor.saveInput(inputDefinitions);
 		
 		List<PTPWorkflow> responseWorkflows=savedWorkflows.stream()//

@@ -39,7 +39,7 @@ import lombok.ToString;
 @Setter
 @Table(name = "M_INFA_PTP_WF",uniqueConstraints={@UniqueConstraint(columnNames = {"src_name" , "src_table_name"})})
 @AllArgsConstructor
-@Builder
+//@Builder
 public class PTPWorkflow extends InfaWorkflow{
 	
 	@NonNull
@@ -65,12 +65,12 @@ public class PTPWorkflow extends InfaWorkflow{
 	private List<PTPWorkflowSourceColumn> columns = new ArrayList<>();
 
 	 @Builder
-	  public PTPWorkflow(String workflowName,String workflowUri,String workflowType,String workflowStatus,String sourceName, String sourceTableName,String sourceFilter, List<PTPWorkflowSourceColumn> cols){
+	  public PTPWorkflow(String workflowName,String workflowUri,String workflowType,String workflowStatus,String sourceName, String sourceTableName,String sourceFilter, List<PTPWorkflowSourceColumn> columns){
 	    super(workflowName,workflowUri,workflowType,workflowStatus);
 	    this.sourceFilter=sourceFilter;
 	    this.sourceTableName=sourceTableName;
 	    this.sourceName=sourceName;
-	    this.columns=cols;
+	    this.columns=columns;
 	    
 	  }
 	

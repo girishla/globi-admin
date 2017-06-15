@@ -1,10 +1,15 @@
 package com.globi.infa.generator;
 
+import static com.globi.infa.generator.StaticObjectMother.getCCColumn;
+import static com.globi.infa.generator.StaticObjectMother.getIntegrationIdColumn;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -30,11 +35,14 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 
 	@Before
 	public void setup(){
+		
+		List<PTPWorkflowSourceColumn> cols=new ArrayList<>();
+		cols.add(getIntegrationIdColumn("INVOICE_NUMBER"));
+		cols.add(getCCColumn("INPUT_DATE"));
 
 		ptpWorkflow = PTPWorkflow.builder()//
 				.sourceName(source)//
-				.column(new PTPWorkflowSourceColumn("INVOICE_NUMBER",true,false,true,false))
-				.column(new PTPWorkflowSourceColumn("INPUT_DATE",false,true,false,false))
+				.columns(cols)
 				.sourceTableName(sourceTable)//
 				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + source+ "_"+ sourceTable + ".xml")
 				.workflowType("PTP")
