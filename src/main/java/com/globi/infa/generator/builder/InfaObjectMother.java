@@ -172,6 +172,23 @@ public class InfaObjectMother {
 		return mappingVariable;
 
 	}
+	
+	
+	public static MAPPINGVARIABLE getTablenameMappingVariable(String tableName) {
+
+		MAPPINGVARIABLE mappingVariable = new MAPPINGVARIABLE();
+		mappingVariable.setDATATYPE("string");
+		mappingVariable.setDEFAULTVALUE(tableName);
+		mappingVariable.setDESCRIPTION("");
+		mappingVariable.setISEXPRESSIONVARIABLE("NO");
+		mappingVariable.setISPARAM("YES");
+		mappingVariable.setNAME("$$TABLE_NAME");
+		mappingVariable.setPRECISION("50");
+		mappingVariable.setSCALE("0");
+		mappingVariable.setUSERDEFINED("YES");
+		return mappingVariable;
+
+	}
 
 	public static MAPPINGVARIABLE getInitialExtractDateMappingVariable() {
 
