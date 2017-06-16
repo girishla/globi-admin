@@ -13,6 +13,7 @@ import xjc.MAPPINGVARIABLE;
 import xjc.MAPPLET;
 import xjc.REPOSITORY;
 import xjc.SOURCE;
+import xjc.TABLEATTRIBUTE;
 import xjc.TARGET;
 import xjc.TRANSFORMATION;
 
@@ -57,7 +58,7 @@ public class InfaObjectMother {
 		REPOSITORY repository = new REPOSITORY();
 
 		repository = new REPOSITORY();
-		repository.setNAME("GLOBI_RS");
+		repository.setNAME("GLOBI_RS_TST1");
 		repository.setVERSION("186");
 		repository.setDATABASETYPE("Oracle");
 		repository.setCODEPAGE("UTF-8");
@@ -88,6 +89,11 @@ public class InfaObjectMother {
 		instance.setTRANSFORMATIONNAME(source.getNAME());
 		instance.setTYPE("SOURCE");
 		instance.setDBDNAME(source.getDBDNAME());
+		
+		TABLEATTRIBUTE ta=new TABLEATTRIBUTE();
+		ta.setNAME("Source Table Name");
+		ta.setVALUE(source.getOWNERNAME() + "." + source.getNAME());
+		instance.getTABLEATTRIBUTE().add(ta);
 
 		return instance;
 	}

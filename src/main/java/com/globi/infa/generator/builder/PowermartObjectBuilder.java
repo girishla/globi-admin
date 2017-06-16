@@ -65,6 +65,7 @@ public class PowermartObjectBuilder {
 
 	public interface FolderStep {
 		SetMarshallerStep folder(FOLDER folder);
+		InfaPowermartObject buildPowermartObjWithNoFolders();
 
 	}
 
@@ -179,6 +180,7 @@ public class PowermartObjectBuilder {
 		private List<Object> folderChildren;
 		private List<CONNECTOR> connectors;
 		private MAPPING mapping;
+		private FOLDER folder;
 		private Map<String, TRANSFORMATION> xformMap = new HashMap<>();
 		private Map<String, SOURCE> sourceMap = new HashMap<>();
 		private Map<String, TARGET> targetMap = new HashMap<>();
@@ -205,6 +207,7 @@ public class PowermartObjectBuilder {
 		public SetMarshallerStep folder(FOLDER folder) {
 
 			this.repository.getFOLDER().add(folder);
+			this.folder=folder;
 			this.folderChildren = folder
 					.getFOLDERVERSIONOrCONFIGOrSCHEDULEROrTASKOrSESSIONOrWORKLETOrWORKFLOWOrSOURCEOrTARGETOrTRANSFORMATIONOrMAPPLETOrMAPPINGOrSHORTCUTOrEXPRMACRO();
 
@@ -277,7 +280,8 @@ public class PowermartObjectBuilder {
 			InfaPowermartObject powermartObject = new InfaPowermartObject();
 			powermartObject.pmObject = this.powermartObject;
 			powermartObject.folderObjects = this.folderObjects;
-
+			powermartObject.folderName=this.folder.getNAME();
+			
 			return powermartObject;
 		}
 
@@ -664,10 +668,19 @@ public class PowermartObjectBuilder {
 		public InfaPowermartObject buildPowermartObjWithBlankFolder() {
 			InfaPowermartObject powermartObject = new InfaPowermartObject();
 			powermartObject.pmObject = this.powermartObject;
-
+			powermartObject.folderName=this.folder.getNAME();
 			return powermartObject;
 		}
 
+		
+		@Override
+		public InfaPowermartObject buildPowermartObjWithNoFolders() {
+			InfaPowermartObject powermartObject = new InfaPowermartObject();
+			powermartObject.pmObject = this.powermartObject;
+			
+			return powermartObject;
+		}
+		
 		@Override
 		public MappletStep mappletDefn(MAPPLET mapplet) {
 			this.folderChildren.add(mapplet);

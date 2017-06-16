@@ -1,12 +1,10 @@
 package com.globi.infa.generator;
 
-
-
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toCollection;
 import static com.globi.infa.generator.builder.InfaObjectMother.getFolderFor;
 import static com.globi.infa.generator.builder.InfaObjectMother.getRepository;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -37,7 +36,12 @@ import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.generator.builder.PowermartObjectBuilder;
 import com.globi.infa.workflow.GeneratedWorkflow;
 
+import lombok.extern.slf4j.Slf4j;
+import xjc.FOLDER;
+import xjc.REPOSITORY;
+
 @Component
+@Slf4j
 public class AggregateGitWriterEventListener
 		implements WorkflowCreatedEventListener, WorkflowBatchRequestEventListener {
 
@@ -48,50 +52,103 @@ public class AggregateGitWriterEventListener
 
 	private final Map<String, InfaPowermartObject> generatedObjects = new HashMap<>();
 	private final Map<String, GeneratedWorkflow> workflows = new HashMap<>();
+	private final Set<String> folderSet = new HashSet<String>();
 
 	@Override
 	public void notify(InfaPowermartObject generatedObject, GeneratedWorkflow wf) {
 
-		this.generatedObjects.put(generatedObject.pmObjectName, generatedObject);
+		this.generatedObjects.put(generatedObject.folderName + "::" + generatedObject.pmObjectName, generatedObject);
 		this.workflows.put(generatedObject.pmObjectName, wf);
+
+		if (!folderSet.contains(generatedObject.folderName)) {
+			folderSet.add(generatedObject.folderName);
+			
+		}
 
 	}
 
-	private InfaPowermartObject getAggregatePowermartObject() {
+	private InfaPowermartObject getAggregateForAllFolders() {
 
-//		TreeSet<InfaFolderObject> folderObjectSet = new TreeSet<>();
+		List<InfaPowermartObject> aggregateFolderPowermartObjects = new ArrayList<>();
 
-		List<InfaFolderObject> folderObjList =this.generatedObjects.entrySet().stream()//
-				.map(pmObjectEntry -> {
+		folderSet.forEach(folder->{
 
-					return pmObjectEntry.getValue().folderObjects;
+			List<InfaFolderObject> folderObjList = this.generatedObjects.entrySet().stream()//
+					.filter(pmObjectEntry -> pmObjectEntry.getKey().startsWith(folder))
+					.map(pmObjectEntry -> pmObjectEntry.getValue().folderObjects)//
+					.flatMap(List::stream)//
+					.collect(Collectors.toList());
 
-				}).flatMap(List::stream)//
-				 .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(InfaFolderObject::getUniqueName))),
-                         ArrayList<InfaFolderObject>::new));
-//				.forEach(folderObject -> folderObjectSet.add(folderObject));
-		
-//		List<InfaFolderObject> folderObjList = new ArrayList<>(folderObjectSet);
+			aggregateFolderPowermartObjects.add(getAggregatePowermartObject(folder, folderObjList));
+
+		});
 
 		InfaPowermartObject pmObj = PowermartObjectBuilder//
 				.newBuilder()//
 				.powermartObject()//
 				.repository(getRepository())//
-				.folder(getFolderFor("DUMMY", "Pull to puddle folder"))//
+				.buildPowermartObjWithNoFolders();
+		
+				
+		aggregateFolderPowermartObjects.forEach(pmo->{
+			
+			getFolderList(pmObj).addAll(getFolderList(pmo));
+			
+		
+		});
+		
+		return pmObj;
+	}
+
+	private List<FOLDER> getFolderList(InfaPowermartObject pmObj) {
+
+		List<FOLDER> folders = null;
+
+		if (pmObj != null) {
+			for (REPOSITORY repository : pmObj.pmObject.getREPOSITORY()) {
+
+				folders = repository.getFOLDER();
+
+			}
+		}
+		return folders;
+
+	}
+
+	private InfaPowermartObject getAggregatePowermartObject(String folderName,
+			List<InfaFolderObject> folderObjInputList) {
+
+		List<InfaFolderObject> folderObjUniqueList;
+
+		folderObjUniqueList = folderObjInputList.stream().collect(
+				collectingAndThen(toCollection(() -> new TreeSet<>(comparing(InfaFolderObject::getUniqueName))),
+						ArrayList<InfaFolderObject>::new));
+
+		InfaPowermartObject pmObj = PowermartObjectBuilder//
+				.newBuilder()//
+				.powermartObject()//
+				.repository(getRepository())//
+				.folder(getFolderFor(folderName, "Pull to puddle folder"))//
 				.buildPowermartObjWithBlankFolder();
 
-		List<Object> folderChildren = folderObjList.stream()//
+		List<Object> folderChildren = folderObjUniqueList.stream()//
 				.map(folderChild -> folderChild.getFolderObj())//
 				.collect(Collectors.toList());
 
 		pmObj.pmObject.getREPOSITORY().forEach(repo -> {
-			repo.getFOLDER()
-					.forEach(folder -> folder
-							.getFOLDERVERSIONOrCONFIGOrSCHEDULEROrTASKOrSESSIONOrWORKLETOrWORKFLOWOrSOURCEOrTARGETOrTRANSFORMATIONOrMAPPLETOrMAPPINGOrSHORTCUTOrEXPRMACRO()
-							.addAll(folderChildren));
+			repo.getFOLDER().forEach(folder -> addChildren(folder, folderChildren));
 		});
 
 		return pmObj;
+
+	}
+
+	private FOLDER addChildren(FOLDER folder, List<Object> children) {
+
+		folder.getFOLDERVERSIONOrCONFIGOrSCHEDULEROrTASKOrSESSIONOrWORKLETOrWORKFLOWOrSOURCEOrTARGETOrTRANSFORMATIONOrMAPPLETOrMAPPINGOrSHORTCUTOrEXPRMACRO()
+				.addAll(children);
+
+		return folder;
 
 	}
 
@@ -111,7 +168,7 @@ public class AggregateGitWriterEventListener
 
 		File repoDir = new File(gitDirectory);
 		FileRepositoryBuilder builder = new FileRepositoryBuilder();
-		String fileName = "AGGREGATED_WF_" + UUID.randomUUID().toString();
+		String fileName = "AGGREGATED_WF";
 
 		try (Repository repository = builder.setGitDir(repoDir)//
 				.readEnvironment().findGitDir() // scan up the file system tree
@@ -119,7 +176,7 @@ public class AggregateGitWriterEventListener
 
 			try (Git git = Git.open(new File(gitDirectory + ".git"));) {
 
-				this.saveXML(this.getAggregatePowermartObject().pmObject, fileName);
+				this.saveXML(this.getAggregateForAllFolders().pmObject, fileName);
 
 				git.add()//
 						.addFilepattern(fileName + ".xml").call();
