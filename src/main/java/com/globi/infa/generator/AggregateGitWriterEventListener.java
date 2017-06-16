@@ -1,5 +1,10 @@
 package com.globi.infa.generator;
 
+
+
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toCollection;
 import static com.globi.infa.generator.builder.InfaObjectMother.getFolderFor;
 import static com.globi.infa.generator.builder.InfaObjectMother.getRepository;
 
@@ -11,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -53,21 +59,24 @@ public class AggregateGitWriterEventListener
 
 	private InfaPowermartObject getAggregatePowermartObject() {
 
-		HashSet<InfaFolderObject> folderObjectSet = new HashSet<>();
+//		TreeSet<InfaFolderObject> folderObjectSet = new TreeSet<>();
 
-		this.generatedObjects.entrySet().stream()//
+		List<InfaFolderObject> folderObjList =this.generatedObjects.entrySet().stream()//
 				.map(pmObjectEntry -> {
 
 					return pmObjectEntry.getValue().folderObjects;
 
 				}).flatMap(List::stream)//
-				.forEach(folderObject -> folderObjectSet.add(folderObject));
-
-		List<InfaFolderObject> folderObjList = new ArrayList<>(folderObjectSet);
+				 .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(InfaFolderObject::getUniqueName))),
+                         ArrayList<InfaFolderObject>::new));
+//				.forEach(folderObject -> folderObjectSet.add(folderObject));
+		
+//		List<InfaFolderObject> folderObjList = new ArrayList<>(folderObjectSet);
 
 		InfaPowermartObject pmObj = PowermartObjectBuilder//
 				.newBuilder()//
-				.powermartObject().repository(getRepository())//
+				.powermartObject()//
+				.repository(getRepository())//
 				.folder(getFolderFor("DUMMY", "Pull to puddle folder"))//
 				.buildPowermartObjWithBlankFolder();
 
@@ -122,9 +131,7 @@ public class AggregateGitWriterEventListener
 			} catch (GitAPIException e) {
 				e.printStackTrace();
 			}
-
 		}
-
 	}
 
 	@Override

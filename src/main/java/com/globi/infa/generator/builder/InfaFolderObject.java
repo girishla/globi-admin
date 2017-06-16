@@ -10,4 +10,11 @@ public abstract class InfaFolderObject {
 	
 	Object folderObj;
 	
+	public String getUniqueName(){
+		
+		
+		return type + "_" +name; 
+		
+	}
+	
 }

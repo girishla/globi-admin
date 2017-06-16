@@ -11,7 +11,7 @@ public class InfaSourceObject extends InfaFolderObject {
 	public InfaSourceObject(SOURCE source) {
 		this.source = source;
 		this.folderObj = source;
-		this.name = source.getNAME();
+		this.name = source.getDBDNAME() + "." + source.getNAME();
 		this.type = "SOURCE";
 
 	}
