@@ -31,7 +31,7 @@ public class PTPWorkflowsFromTopDownMetadataWebtest extends AbstractWebIntegrati
 	@Test 
 	public void canCreateWorkflowFromExistingTopDownMetadata() throws Exception{
 		
-		mvc.perform(post("/infagen/workflows/ptpFromMetadata")//
+		mvc.perform(post("/infagen/workflows/ptpFromMetadata?sync=true")//
 				.content("")//
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//

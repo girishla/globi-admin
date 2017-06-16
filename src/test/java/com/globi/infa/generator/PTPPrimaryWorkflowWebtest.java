@@ -43,7 +43,6 @@ public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
 				.columns(cols)
 				.sourceTableName(sourceTable)//
 				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + source+ "_"+ sourceTable  + ".xml")
-//				.workflowType("PTP")
 				.workflowName("PTP_" + source+ "_"+ sourceTable  + "_Extract")
 				.build();
 	}
@@ -51,7 +50,7 @@ public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
 	@Test
 	public void createsWorkflowResourceFromWorkflowDefinition() throws Exception {
 
-		mvc.perform(post("/infagen/workflows/ptp")//
+		mvc.perform(post("/infagen/workflows/ptp?sync=true")//
 				.content(asJsonString(ptpWorkflow))//
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//

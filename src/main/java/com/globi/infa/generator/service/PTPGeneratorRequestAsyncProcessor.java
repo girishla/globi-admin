@@ -100,9 +100,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	}
 
 	@Override
-	@Async
-	@Transactional
-	public void process(AbstractInfaWorkflowEntity inputWorkflowDefinition) {
+	public AbstractInfaWorkflowEntity process(AbstractInfaWorkflowEntity inputWorkflowDefinition) {
 		
 		PTPExtractGenerationStrategy ptpExtractgenerator=getPtpExtractgenerator();
 		PTPPrimaryGenerationStrategy ptpPrimarygenerator=getPtpPrimarygenerator();
@@ -116,8 +114,16 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		ptpPrimarygenerator.addListener(targetDefnWriter);
 
 
-		this.processWorkflow((PTPWorkflow)inputWorkflowDefinition,ptpExtractgenerator,ptpPrimarygenerator);
+		return this.processWorkflow((PTPWorkflow)inputWorkflowDefinition,ptpExtractgenerator,ptpPrimarygenerator);
 		
+		
+	}
+
+	@Override
+	@Async
+	@Transactional
+	public void processAsync(AbstractInfaWorkflowEntity inputWorkflowDefinition) {
+		this.process(inputWorkflowDefinition);
 		
 	}
 

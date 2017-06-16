@@ -3,6 +3,7 @@ package com.globi.infa.generator.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -28,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchProcessor {
+public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchAsyncProcessor {
 
 	@Autowired
 	private InfaPTPWorkflowRepository ptpRepository;
@@ -94,10 +95,19 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchP
 		return wf;
 	}
 
-	@Override
 	@Async
 	@Transactional
-	public void process(List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions) {
+	public void processAsync(List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions) {
+
+		process(inputWorkflowDefinitions);
+
+	}
+
+	@Override
+	public List<? extends AbstractInfaWorkflowEntity> process(
+			List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions) {
+
+		List<PTPWorkflow> processedWorkflows;
 
 		PTPExtractGenerationStrategy ptpExtractgenerator = getPtpExtractgenerator();
 		PTPPrimaryGenerationStrategy ptpPrimarygenerator = getPtpPrimarygenerator();
@@ -112,12 +122,14 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchP
 
 		aggregateGitWriter.notifyBatchStart();
 
-		inputWorkflowDefinitions.stream()//
+		processedWorkflows = inputWorkflowDefinitions.stream()//
 				.map(wf -> (PTPWorkflow) wf)//
-				.filter(wf -> wf.getWorkflow().getWorkflowType().equals("PTP"))//
-				.forEach(wf -> this.processWorkflow(wf, ptpExtractgenerator, ptpPrimarygenerator));
+				.map(wf -> this.processWorkflow(wf, ptpExtractgenerator, ptpPrimarygenerator))//
+				.collect(Collectors.toList());
 
 		aggregateGitWriter.notifyBatchComplete();
+
+		return processedWorkflows;
 
 	}
 
@@ -126,10 +138,9 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchP
 		List<PTPWorkflow> savedWorkflows = new ArrayList<>();
 
 		inputWorkflowDefinitions.stream()//
-				.map(wf -> (PTPWorkflow) wf).filter(wf -> wf.getWorkflow().getWorkflowType().equals("PTP"))//
+				.map(wf -> (PTPWorkflow) wf)//
 				.forEach(wf -> {
-					Optional<PTPWorkflow> existingWorkflow = ptpRepository
-							.findByWorkflowName(wf.getWorkflowName());
+					Optional<PTPWorkflow> existingWorkflow = ptpRepository.findByWorkflowName(wf.getWorkflowName());
 					if (existingWorkflow.isPresent()) {
 						existingWorkflow.get().getColumns().clear();
 						ptpRepository.save(existingWorkflow.get());

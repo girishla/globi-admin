@@ -2,7 +2,7 @@
         <TRANSFORMATION DESCRIPTION ="" NAME ="LKP_RecordInstance" OBJECTVERSION ="1" REUSABLE ="NO" TYPE ="Lookup Procedure" VERSIONNUMBER ="1">
             <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="HASH_RECORD_IN" PICTURETEXT ="" PORTTYPE ="INPUT/OUTPUT" PRECISION ="32" SCALE ="0"/>
             <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="HASH_RECORD" PICTURETEXT ="" PORTTYPE ="LOOKUP/OUTPUT" PRECISION ="32" SCALE ="0"/>
-            <TABLEATTRIBUTE NAME ="Lookup Sql Override" VALUE =""/>
+            <TABLEATTRIBUTE NAME ="Lookup Sql Override" VALUE ="SELECT {{targetTableName}}.HASH_RECORD as HASH_RECORD FROM {{targetTableName}} INNER JOIN {{targetTableName}}_P ON {{targetTableName}}.ROW_WID={{targetTableName}}_P.ROW_WID"/>
             <TABLEATTRIBUTE NAME ="Lookup table name" VALUE ="{{targetTableName}}"/>
             <TABLEATTRIBUTE NAME ="Lookup Source Filter" VALUE =""/>
             <TABLEATTRIBUTE NAME ="Lookup caching enabled" VALUE ="YES"/>
