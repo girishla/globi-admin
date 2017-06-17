@@ -128,7 +128,7 @@ public class AggregateGitWriterEventListener
 				.newBuilder()//
 				.powermartObject()//
 				.repository(getRepository())//
-				.folder(getFolderFor(folderName, "Pull to puddle folder"))//
+				.folder(getFolderFor(folderName, "Globi Folder"))//
 				.buildPowermartObjWithBlankFolder();
 
 		List<Object> folderChildren = folderObjUniqueList.stream()//

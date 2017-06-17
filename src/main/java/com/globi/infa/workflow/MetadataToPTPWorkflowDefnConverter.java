@@ -79,15 +79,30 @@ public class MetadataToPTPWorkflowDefnConverter {
 				.forEach(column -> workflowSourceColumnList.add(buildSourceColumnDefnFrom(column.getValue())));
 
 		
+		//hack to set row_id as integration id for siebel sources if none specified. To be eventually removed.
+		if((table.getSourceName().equals("CUK")) || (table.getSourceName().equals("CGL"))){
+			if(!(distinctCols.entrySet().stream().anyMatch(column->column.getValue().isIntegrationId()))){	
+				workflowSourceColumnList.add(PTPWorkflowSourceColumn.builder()//
+						.changeCaptureColumn(false)//
+						.integrationIdColumn(true)//
+						.pguidColumn(false)//
+						.sourceColumnName("ROW_ID")//
+						.build());
+				
+			}
+			
+		}
+		
 			return PTPWorkflow.builder()//
 					.sourceName(table.getSourceName())//
 					.sourceFilter("")
 					.sourceTableName(table.getTableName())
 					.columns(workflowSourceColumnList)
 					.workflowName(generatedWFName)
-//					.workflowType("PTP")
 					.workflowUri(generatedWFUri)
 					.build();
+		
+		
 					
 		}
 

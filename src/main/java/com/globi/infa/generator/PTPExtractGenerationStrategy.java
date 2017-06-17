@@ -158,12 +158,6 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		String combinedFilter = getSourceFilterString(sourceFilter, inputSelectedColumns, tblName);
 
-		// Save all columns for reference and then add back matched columns for
-		// processing
-//		sourceTableDef.getColumns().addAll(allTableColumns);
-//		sourceDefnRepo.save(sourceTableDef);
-//		sourceTableDef.getColumns().clear();
-
 		sourceTableDef.getColumns().addAll(matchedColumns);
 
 		commonValuesMap.put("targetTableName", dbName + "_" + tblName);

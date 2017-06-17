@@ -121,6 +121,12 @@ public class InfaObjectMother {
 		instance.setTRANSFORMATIONTYPE("Target Definition");
 		instance.setTRANSFORMATIONNAME(target.getNAME());
 		instance.setTYPE("TARGET");
+		
+		TABLEATTRIBUTE ta=new TABLEATTRIBUTE();
+		ta.setNAME("Pre SQL");
+		ta.setVALUE("TRUNCATE TABLE "  + target.getNAME());
+		instance.getTABLEATTRIBUTE().add(ta);
+		
 		return instance;
 	}
 

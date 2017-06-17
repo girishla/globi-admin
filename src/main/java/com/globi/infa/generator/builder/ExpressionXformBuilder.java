@@ -22,10 +22,12 @@ import org.springframework.util.FileCopyUtils;
 import com.globi.infa.generator.builder.ExpressionXformBuilder.AddFieldsStep;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
+import lombok.extern.slf4j.Slf4j;
 import xjc.TABLEATTRIBUTE;
 import xjc.TRANSFORMATION;
 import xjc.TRANSFORMFIELD;
 
+@Slf4j
 public class ExpressionXformBuilder {
 
 	public static ClassStep newBuilder() {
@@ -34,8 +36,7 @@ public class ExpressionXformBuilder {
 
 	public interface ClassStep {
 		ExpressionStep expressionFromPrototype(String className);
-		
-		
+
 		SetMarshallerStep ExpressionFromSeed(String className);
 	}
 
@@ -299,9 +300,9 @@ public class ExpressionXformBuilder {
 					.filter(InfaSourceColumnDefinition::getIntegrationIdFlag)//
 					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
-			
-			if(concatenatedId.isEmpty()){
-				concatenatedId="'INTEGRATION_ID not set'";
+
+			if (concatenatedId.isEmpty()) {
+				concatenatedId = "'INTEGRATION_ID not set'";
 			}
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
@@ -320,7 +321,7 @@ public class ExpressionXformBuilder {
 
 			return this;
 		}
-		
+
 		@Override
 		public AddFieldsStep addBUIDField(List<InfaSourceColumnDefinition> columns) {
 
@@ -328,16 +329,17 @@ public class ExpressionXformBuilder {
 					.filter(InfaSourceColumnDefinition::getBuidFlag)//
 					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
-			
-			if(concatenatedId.isEmpty()){
-				concatenatedId="'BU not set'";
+
+			if (concatenatedId.isEmpty()) {
+				concatenatedId = "'BU not set'";
 			}
-	
+
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("string");
 			xformExpressionField.setDEFAULTVALUE("");
 			xformExpressionField.setDESCRIPTION("");
-			xformExpressionField.setEXPRESSION( "IIF(ISNULL(:LKP.LKP_BU({{buid}})),{{buid}},:LKP.LKP_BU({{buid}}))".replace("{{buid}}", concatenatedId));
+			xformExpressionField.setEXPRESSION("IIF(ISNULL(:LKP.LKP_BU({{buid}})),{{buid}},:LKP.LKP_BU({{buid}}))"
+					.replace("{{buid}}", concatenatedId));
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
 			xformExpressionField.setNAME("BU");
 			xformExpressionField.setPICTURETEXT("");
@@ -357,7 +359,7 @@ public class ExpressionXformBuilder {
 					.filter(InfaSourceColumnDefinition::getPguidFlag)//
 					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
-			
+
 			if (concatenatedId.isEmpty()) {
 				concatenatedId = "'PGUID not set'";
 			}
@@ -413,17 +415,14 @@ public class ExpressionXformBuilder {
 
 			String colExpr = "";
 
-			switch (coldef.getColumnDataType()) {
-			case "date/time":
+			if (coldef.getColumnDataType().equals("date"))
 				colExpr = "TO_CHAR(" + coldef.getColumnName() + ",'YYYY-MM-DD HH24:MI:SS')";
-				break;
-			case "decimal":
+			else if (coldef.getColumnDataType().equals("number(p,s)"))
 				colExpr = "TO_CHAR(TO_INTEGER(" + coldef.getColumnName() + "))";
-				break;
-			default:
+			else
 				colExpr = coldef.getColumnName();
-				break;
-			}
+
+			colExpr = "IIF(ISNULL(" + colExpr + "),'-'," + colExpr + ")";
 
 			return colExpr;
 
