@@ -69,7 +69,6 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 				.sourceTableName(sourceTable)//
 				.columns(cols)//
 				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + source+ "_"+ sourceTable  + ".xml")
-//				.workflowType("PTP")
 				.workflowName("PTP_" + source+ "_"+ sourceTable  + "_Extract")
 				.build();
 				

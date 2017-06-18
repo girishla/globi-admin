@@ -211,7 +211,7 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 				.noMoreTargetLoadOrders()//
 				.mappingvariable(getEtlProcWidMappingVariable())//
 				.mappingvariable(getInitialExtractDateMappingVariable())//
-				.mappingvariable(getDataSourceNumIdMappingVariable())
+				.mappingvariable(getDataSourceNumIdMappingVariable(Integer.toString(source.get().getSourceNum())))//
 				.mappingvariable(getTablenameMappingVariable( dbName + "_" + tblName))//
 				.noMoreMappingVariables()//
 				.setdefaultConfigFromSeed("Seed_DefaultSessionConfig")//

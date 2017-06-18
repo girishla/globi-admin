@@ -57,6 +57,7 @@ public class FilterXformBuilder {
 
 	public interface AddFieldsStep {
 		AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns);
+		AddFieldsStep addHashLookupField();
 		AddFieldsStep addPGUIDField();
 		AddFilterCondition noMoreFields();
 		
@@ -159,7 +160,7 @@ public class FilterXformBuilder {
 
 		}
 		
-		private static TRANSFORMFIELD filterXformFieldFrom(String expression) {
+		private static TRANSFORMFIELD filterString100XformFieldFrom(String expression) {
 
 			TRANSFORMFIELD field = new TRANSFORMFIELD();
 			field.setDATATYPE("string");
@@ -174,6 +175,7 @@ public class FilterXformBuilder {
 			return field;
 
 		}
+		
 		
 
 		@Override
@@ -232,12 +234,21 @@ public class FilterXformBuilder {
 		public AddFieldsStep addPGUIDField() {
 			
 			this.filterXformDefn.getTRANSFORMFIELD()
-			.add(filterXformFieldFrom("BU_PGUID"));
+			.add(filterString100XformFieldFrom("BU_PGUID"));
 			
 			return this;
 		}
 		
-
+		@Override
+		public AddFieldsStep addHashLookupField() {
+			
+			this.filterXformDefn.getTRANSFORMFIELD()
+			.add(filterString100XformFieldFrom("HASH_RECORD_LKP"));
+			
+			return this;
+		}
+		
+		
 
 		@Override
 		public AddFilterCondition noMoreFields() {

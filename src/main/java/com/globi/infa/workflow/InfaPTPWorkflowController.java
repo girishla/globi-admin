@@ -1,5 +1,7 @@
 package com.globi.infa.workflow;
 
+import java.util.Optional;
+
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -26,11 +28,11 @@ public class InfaPTPWorkflowController {
 
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/ptp")
 	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow(@RequestBody @Valid PTPWorkflow ptpWorkflow,
-			@RequestParam("sync") Boolean sync) {
+			@RequestParam("sync") Optional<Boolean> sync) {
 
 		PTPWorkflow savedWorkflow = (PTPWorkflow) requestProcessor.saveInput(ptpWorkflow);
 
-		if (sync) {
+		if (sync.isPresent() && sync.get()) {
 			savedWorkflow = (PTPWorkflow) requestProcessor.process(savedWorkflow);
 		} else {
 			requestProcessor.processAsync(savedWorkflow);

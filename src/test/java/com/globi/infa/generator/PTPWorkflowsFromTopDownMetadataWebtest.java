@@ -40,7 +40,7 @@ public class PTPWorkflowsFromTopDownMetadataWebtest extends AbstractWebIntegrati
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))//
 				.andExpect(jsonPath("$[0].workflowName", notNullValue()))//
 				.andExpect(jsonPath("$[0].workflowUri", notNullValue()));
-		
+	
 		
 	}
 	

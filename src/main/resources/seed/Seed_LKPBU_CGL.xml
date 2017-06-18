@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <TRANSFORMATION DESCRIPTION ="" NAME ="LKP_BU" OBJECTVERSION ="1" REUSABLE ="NO" TYPE ="Lookup Procedure" VERSIONNUMBER ="1">
-            <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="BU_KEY_IN" PICTURETEXT ="" PORTTYPE ="INPUT/OUTPUT" PRECISION ="50" SCALE ="0"/>
+         <TRANSFORMATION DESCRIPTION ="" NAME ="LKP_BU" OBJECTVERSION ="1" REUSABLE ="NO" TYPE ="Lookup Procedure" VERSIONNUMBER ="1">
+            <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="BU_KEY_IN" PICTURETEXT ="" PORTTYPE ="INPUT" PRECISION ="50" SCALE ="0"/>
             <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="BU_KEY" PICTURETEXT ="" PORTTYPE ="LOOKUP" PRECISION ="50" SCALE ="0"/>
             <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="BU_VAL" PICTURETEXT ="" PORTTYPE ="LOOKUP/RETURN/OUTPUT" PRECISION ="100" SCALE ="0"/>
-            <TABLEATTRIBUTE NAME ="Lookup Sql Override" VALUE ="SELECT ROW_ID BU_KEY,NAME BU_VAL FROM SIEBEL.S_BU"/>
-            <TABLEATTRIBUTE NAME ="Lookup table name" VALUE =""/>
+            <TABLEATTRIBUTE NAME ="Lookup Sql Override" VALUE ="SELECT NAME BU_VAL,ROW_ID BU_KEY&#xD;&#xA;FROM SIEBEL.S_BU"/>
+            <TABLEATTRIBUTE NAME ="Lookup table name" VALUE ="SIEBEL.S_BU"/>
             <TABLEATTRIBUTE NAME ="Lookup Source Filter" VALUE =""/>
             <TABLEATTRIBUTE NAME ="Lookup caching enabled" VALUE ="YES"/>
             <TABLEATTRIBUTE NAME ="Lookup policy on multiple match" VALUE ="Use Any Value"/>
@@ -12,7 +12,7 @@
             <TABLEATTRIBUTE NAME ="Connection Information" VALUE ="$Source"/>
             <TABLEATTRIBUTE NAME ="Source Type" VALUE ="Database"/>
             <TABLEATTRIBUTE NAME ="Recache if Stale" VALUE ="NO"/>
-            <TABLEATTRIBUTE NAME ="Tracing Level" VALUE ="Normal"/>
+            <TABLEATTRIBUTE NAME ="Tracing Level" VALUE ="Verbose Data"/>
             <TABLEATTRIBUTE NAME ="Lookup cache directory name" VALUE ="$PMCacheDir"/>
             <TABLEATTRIBUTE NAME ="Lookup cache initialize" VALUE ="NO"/>
             <TABLEATTRIBUTE NAME ="Lookup cache persistent" VALUE ="NO"/>
@@ -32,7 +32,7 @@
             <TABLEATTRIBUTE NAME ="Case Sensitive String Comparison" VALUE ="NO"/>
             <TABLEATTRIBUTE NAME ="Null ordering" VALUE ="Null Is Highest Value"/>
             <TABLEATTRIBUTE NAME ="Sorted Input" VALUE ="NO"/>
-            <TABLEATTRIBUTE NAME ="Lookup source is static" VALUE ="YES"/>
+            <TABLEATTRIBUTE NAME ="Lookup source is static" VALUE ="NO"/>
             <TABLEATTRIBUTE NAME ="Pre-build lookup cache" VALUE ="Auto"/>
             <TABLEATTRIBUTE NAME ="Subsecond Precision" VALUE ="6"/>
         </TRANSFORMATION>

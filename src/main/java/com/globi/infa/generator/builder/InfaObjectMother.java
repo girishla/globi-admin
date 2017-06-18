@@ -163,11 +163,11 @@ public class InfaObjectMother {
 	}
 
 	
-	public static MAPPINGVARIABLE getDataSourceNumIdMappingVariable() {
+	public static MAPPINGVARIABLE getDataSourceNumIdMappingVariable(String defaultValue) {
 
 		MAPPINGVARIABLE mappingVariable = new MAPPINGVARIABLE();
 		mappingVariable.setDATATYPE("decimal");
-		mappingVariable.setDEFAULTVALUE("0");
+		mappingVariable.setDEFAULTVALUE(defaultValue);
 		mappingVariable.setDESCRIPTION("");
 		mappingVariable.setISEXPRESSIONVARIABLE("NO");
 		mappingVariable.setISPARAM("YES");

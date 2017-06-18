@@ -1,6 +1,7 @@
 package com.globi.infa.workflow;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
@@ -29,14 +30,14 @@ public class InfaPTPWorkflowFromMetadataController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/ptpFromMetadata")
-	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow(@RequestParam("sync") Boolean sync) {
+	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow(@RequestParam("sync") Optional<Boolean> sync) {
 
 		List<? extends AbstractInfaWorkflowEntity> inputDefinitions = requestProcessor.buildInput();
 
 		List<? extends AbstractInfaWorkflowEntity> savedWorkflows = requestProcessor.saveInput(inputDefinitions);
 		List<PTPWorkflow> responseWorkflows;
 
-		if (sync) {
+		if (sync.isPresent() && sync.get()) {
 			responseWorkflows = requestProcessor.process(savedWorkflows).stream()//
 					.map(wf -> (PTPWorkflow) wf)//
 					.collect(Collectors.toList());

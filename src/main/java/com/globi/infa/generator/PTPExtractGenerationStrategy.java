@@ -241,8 +241,9 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.filterFromPrototype("FilterFromPrototype")//
 						.filter("FIL_ChangesOnly")//
 						.addPGUIDField()//
+						.addHashLookupField()
 						.noMoreFields()//
-						.addCondition("ISNULL(HASH_RECORD)")//
+						.addCondition("ISNULL(HASH_RECORD_LKP)")//
 						.noMoreConditions()//
 						.nameAlreadySet()//
 						.build())
@@ -251,8 +252,9 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.autoConnectByName(tblName, "SQ_ExtractData")//
 				.autoConnectByName("FIL_ChangesOnly", dbName + "_" + tblName)//
 				.connector("SEQ_WID", "NEXTVAL", "EXP_Resolve", "ROW_WID")
-				.connector("EXP_Resolve", "HASH_RECORD", "LKP_RecordInstance", "HASH_RECORD_IN")
+				.connector("EXP_Resolve", "HASH_RECORD", "LKP_RecordInstance", "HASH_RECORD")
 				.connector("LKP_RecordInstance", "HASH_RECORD", "FIL_ChangesOnly", "HASH_RECORD")//
+				.connector("LKP_RecordInstance", "HASH_RECORD_LKP", "FIL_ChangesOnly", "HASH_RECORD_LKP")//
 				.connector("EXP_Resolve", "BU", "EXP_PrepBUDomLookup", "DL_01_SRC_VAL")//
 				.connector("EXP_PrepBUDomLookup", "DL_01_DEFAULT", "MPL_DomainLookup", "IN_01_DEFAULT")//
 				.connector("EXP_PrepBUDomLookup", "DL_01_DOMAIN_MAP", "MPL_DomainLookup", "IN_01_DOMAIN_MAP")//
@@ -262,7 +264,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.noMoreTargetLoadOrders()//
 				.mappingvariable(getEtlProcWidMappingVariable())//
 				.mappingvariable(getInitialExtractDateMappingVariable())//
-				.mappingvariable(getDataSourceNumIdMappingVariable())//
+				.mappingvariable(getDataSourceNumIdMappingVariable(Integer.toString(source.get().getSourceNum())))//
 				.noMoreMappingVariables()//
 				.setdefaultConfigFromSeed("Seed_DefaultSessionConfig")//
 				.workflow(WorkflowDefinitionBuilder.newBuilder()//
