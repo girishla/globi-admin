@@ -22,6 +22,7 @@ public class MetadataTableColumnRepository {
 			"       SRC_TBL, \r\n" + 
 			"       SRC_TBL_COL, \r\n" + 
 			"       MAX(INT_ID_INDICATOR) INT_ID_INDICATOR, \r\n" + 
+			"       MAX(BU_PGUID_INDICATOR) BU_PGUID_INDICATOR, \r\n" + 
 			"       MAX(PGUID_INDICATOR)  PGUID_INDICATOR \r\n" + 
 			"FROM   MDT_SOURCE_TBL_COLS \r\n" + 
 			"WHERE (SRC_TBL IS NOT NULL) AND (SRC_TBL_COL IS NOT NULL) AND SRC_NAME IN ('FBM','GEN','CUK','CGL')\r\n" + 
@@ -48,6 +49,7 @@ public class MetadataTableColumnRepository {
 					.integrationId(rs.getInt("INT_ID_INDICATOR")==1?true:false)//
 					.changeCaptureCol(false)
 					.pguidCol(rs.getInt("PGUID_INDICATOR")==1?true:false)//
+					.buidCol(rs.getInt("BU_PGUID_INDICATOR")==1?true:false)//
 					.build();
 
 					
