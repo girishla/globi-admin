@@ -12,7 +12,7 @@
             <TABLEATTRIBUTE NAME ="Connection Information" VALUE ="$Source"/>
             <TABLEATTRIBUTE NAME ="Source Type" VALUE ="Database"/>
             <TABLEATTRIBUTE NAME ="Recache if Stale" VALUE ="NO"/>
-            <TABLEATTRIBUTE NAME ="Tracing Level" VALUE ="Verbose Data"/>
+            <TABLEATTRIBUTE NAME ="Tracing Level" VALUE ="Normal"/>
             <TABLEATTRIBUTE NAME ="Lookup cache directory name" VALUE ="$PMCacheDir"/>
             <TABLEATTRIBUTE NAME ="Lookup cache initialize" VALUE ="NO"/>
             <TABLEATTRIBUTE NAME ="Lookup cache persistent" VALUE ="NO"/>

@@ -121,16 +121,21 @@ public class TargetDefinitionBuilder {
 		private static TARGETFIELD targetFieldFrom(InfaSourceColumnDefinition column) {
 
 			TARGETFIELD targetField = new TARGETFIELD();
+			
+			Integer fieldNumber=column.getColumnDataType().equals("long")?99:column.getColumnNumber();
 
+			
 			targetField.setBUSINESSNAME(DEFAULT_DESCRIPTION.getValue());
 			targetField.setDATATYPE(column.getColumnDataType());
-			targetField.setFIELDNUMBER(Integer.toString(column.getColumnNumber()));
+			targetField.setFIELDNUMBER(Integer.toString(fieldNumber));
 			targetField.setNULLABLE(column.getNullable());
 			targetField.setNAME(column.getColumnName());
 			targetField.setKEYTYPE("NOT A KEY");
 			targetField.setPICTURETEXT("");
 			targetField.setPRECISION(Integer.toString(column.getPrecision()));
 			targetField.setSCALE(Integer.toString(column.getScale()));
+			
+			
 
 			return targetField;
 

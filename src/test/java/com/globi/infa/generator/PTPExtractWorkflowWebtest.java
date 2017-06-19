@@ -29,7 +29,7 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 	@Autowired
 	InfaPTPWorkflowRepository wfRepository;
 	PTPWorkflow ptpWorkflow;
-	static final String sourceTable = "S_CONTACT";
+	static final String sourceTable = "S_NOTE_OPTY";
 	static final String source = "CUK";
 
 	@Before
@@ -42,9 +42,10 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 
 		List<PTPWorkflowSourceColumn> cols=new ArrayList<>();
 		cols.add(getIntegrationIdColumn("ROW_ID"));
-		cols.add(getCCColumn("LAST_UPD"));
-		cols.add(getNormalColumn("LAST_NAME"));
-		cols.add(getBuidColumn("BU_ID"));
+//		cols.add(getCCColumn("LAST_UPD"));
+		cols.add(getNormalColumn("NOTE"));
+		cols.add(getNormalColumn("NOTE_TYPE"));
+//		cols.add(getBuidColumn("BU_ID"));
 		
 
 		ptpWorkflow = PTPWorkflow.builder()//
