@@ -15,9 +15,9 @@ public class InfaTargetToOracleDataTypeMapper implements DataTypeMapper {
 		typeMap.put("char", "VARCHAR2");
 		typeMap.put("date", "DATE");
 		typeMap.put("varchar2", "VARCHAR2");
-		typeMap.put("blob", "BLOB ");
-		typeMap.put("clob", "CLOB ");
-		typeMap.put("long", "LONG ");
+		typeMap.put("blob", "BLOB");
+		typeMap.put("clob", "CLOB");
+		typeMap.put("long", "LONG");
 
 	}
 
