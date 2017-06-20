@@ -59,7 +59,7 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 			ProcessResult result = new ProcessExecutor()//
 					.command(pmrepDirectory + "pmrep", "ObjectImport", "-i",
 							gitDirectory + "\\" + generatedObject.pmObjectName + ".xml", "-c",
-							gitDirectory + "\\infagen\\infacontrolSingle.xml")
+							gitDirectory + "\\infagen\\infacontrol_" + generatedObject.folderName + ".xml")
 					.readOutput(true).execute();
 
 			String output = result.outputUTF8();
@@ -82,7 +82,7 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 		} catch (InvalidExitValueException | IOException | InterruptedException | TimeoutException e1) {
 
 			
-			//update wf to error
+			//update wf status column to error
 			
 			e1.printStackTrace();
 		}

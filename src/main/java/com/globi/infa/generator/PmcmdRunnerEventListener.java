@@ -56,13 +56,11 @@ public class PmcmdRunnerEventListener implements WorkflowCreatedEventListener {
 			log.info("*************************************");
 			log.info("*************************************");
 			log.info(output);
-			log.info("*************************************");			
-/*			if (!output.contains("0 Errors")) {
-				throw new InvalidExitValueException("Errors during upload. Please see logs for more info.",
+		
+			if (!output.contains("started successfully")) {
+				throw new InvalidExitValueException("Errors while attempting to start workflow. Please see logs for more info.",
 						result);
 			}
-
-			*/
 
 
 		} catch (InvalidExitValueException | IOException | InterruptedException | TimeoutException e1) {
