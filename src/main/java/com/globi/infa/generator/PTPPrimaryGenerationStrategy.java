@@ -206,7 +206,7 @@ public class PTPPrimaryGenerationStrategy extends AbstractGenerationStrategy imp
 				.autoConnectByName(tblName, "SQ_PrimaryData")//
 				.autoConnectByName("LKP_RecordKeys", targetTableDefnName)//
 				.autoConnectByName("EXP_Resolve", targetTableDefnName)//
-				.connector("EXP_Resolve", "INTEGRATION_ID", "LKP_RecordKeys", "INTEGRATION_ID_IN")//
+				.connector("EXP_Resolve", "SYS_INTEGRATION_ID", "LKP_RecordKeys", "SYS_INTEGRATION_ID_IN")//
 				.noMoreConnectors()//
 				.noMoreTargetLoadOrders()//
 				.mappingvariable(getEtlProcWidMappingVariable())//

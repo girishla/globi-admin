@@ -55,7 +55,7 @@ public class OracleTableColumnMetadataVisitor implements TableColumnMetadataVisi
 		public InfaSourceColumnDefinition mapRow(ResultSet rs, int rowNum) throws SQLException {
 
 			InfaSourceColumnDefinition colDefn = InfaSourceColumnDefinition.builder()//
-					.columnName(rs.getString("COLUMN_NAME").equals("INTEGRATION_ID") ? "SRC_INTEGRATION_ID" : rs.getString("COLUMN_NAME"))//
+					.columnName(rs.getString("COLUMN_NAME"))//
 					.columnLength(tryParse(rs.getString("COL_LENGTH")))//
 					.columnNumber(tryParse(rs.getString("COLUMN_NUMBER")))//
 					.columnDataType(mapper.mapType(rs.getString("DATA_TYPE").toUpperCase()))//

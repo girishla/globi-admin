@@ -37,7 +37,7 @@ public class TargetDefinitionRepositoryWriterTest extends AbstractIntegrationTes
 		InfaTargetObject tgtObj=new InfaTargetObject(TargetDefinitionBuilder.newBuilder().noMarshaller()//
 				.addTargetField(targetNumberField("ROW_WID"))//
 				.addTargetField(targetVarcharField("INTEGRATION_ID",100))//
-				.addTargetField(targetDateField("EFF_FROM_DT"))//
+				.addTargetField(targetDateField("SYS_EFF_FROM_DT"))//
 				.noMoreFields()//
 				.name(targetname)//
 				.build());

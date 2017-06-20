@@ -234,7 +234,7 @@ public class FilterXformBuilder {
 		public AddFieldsStep addPGUIDField() {
 			
 			this.filterXformDefn.getTRANSFORMFIELD()
-			.add(filterString100XformFieldFrom("BU_PGUID"));
+			.add(filterString100XformFieldFrom("SYS_BU_PGUID"));
 			
 			return this;
 		}
@@ -243,7 +243,7 @@ public class FilterXformBuilder {
 		public AddFieldsStep addHashLookupField() {
 			
 			this.filterXformDefn.getTRANSFORMFIELD()
-			.add(filterString100XformFieldFrom("HASH_RECORD_LKP"));
+			.add(filterString100XformFieldFrom("SYS_HASH_RECORD_LKP"));
 			
 			return this;
 		}

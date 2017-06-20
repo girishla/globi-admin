@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
         <TRANSFORMATION DESCRIPTION ="" NAME ="LKP_RecordInstance" OBJECTVERSION ="1" REUSABLE ="NO" TYPE ="Lookup Procedure" VERSIONNUMBER ="1">
-            <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="HASH_RECORD" PICTURETEXT ="" PORTTYPE ="INPUT/OUTPUT" PRECISION ="32" SCALE ="0"/>
-            <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="HASH_RECORD_LKP" PICTURETEXT ="" PORTTYPE ="LOOKUP/OUTPUT" PRECISION ="32" SCALE ="0"/>
-            <TABLEATTRIBUTE NAME ="Lookup Sql Override" VALUE ="SELECT {{targetTableName}}.HASH_RECORD as HASH_RECORD_LKP FROM {{targetTableName}} INNER JOIN {{targetTableName}}_P ON {{targetTableName}}.ROW_WID={{targetTableName}}_P.ROW_WID"/>
+            <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="SYS_HASH_RECORD" PICTURETEXT ="" PORTTYPE ="INPUT/OUTPUT" PRECISION ="32" SCALE ="0"/>
+            <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="SYS_HASH_RECORD_LKP" PICTURETEXT ="" PORTTYPE ="LOOKUP/OUTPUT" PRECISION ="32" SCALE ="0"/>
+            <TABLEATTRIBUTE NAME ="Lookup Sql Override" VALUE ="SELECT {{targetTableName}}.SYS_HASH_RECORD as SYS_HASH_RECORD_LKP FROM {{targetTableName}} INNER JOIN {{targetTableName}}_P ON {{targetTableName}}.SYS_ROW_WID={{targetTableName}}_P.SYS_ROW_WID"/>
             <TABLEATTRIBUTE NAME ="Lookup table name" VALUE ="{{targetTableName}}"/>
             <TABLEATTRIBUTE NAME ="Lookup Source Filter" VALUE =""/>
             <TABLEATTRIBUTE NAME ="Lookup caching enabled" VALUE ="YES"/>
             <TABLEATTRIBUTE NAME ="Lookup policy on multiple match" VALUE ="Use Any Value"/>
-            <TABLEATTRIBUTE NAME ="Lookup condition" VALUE ="HASH_RECORD_LKP = HASH_RECORD"/>
+            <TABLEATTRIBUTE NAME ="Lookup condition" VALUE ="SYS_HASH_RECORD_LKP = SYS_HASH_RECORD"/>
             <TABLEATTRIBUTE NAME ="Connection Information" VALUE ="$Target"/>
             <TABLEATTRIBUTE NAME ="Source Type" VALUE ="Database"/>
             <TABLEATTRIBUTE NAME ="Recache if Stale" VALUE ="NO"/>

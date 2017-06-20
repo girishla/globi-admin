@@ -9,7 +9,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,25 +19,31 @@ import org.springframework.stereotype.Component;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.workflow.GeneratedWorkflow;
 
+
+
+
 @Component
 public class GitWriterEventListener implements WorkflowCreatedEventListener {
 
+	@Autowired
+	private RepositoryLoaderEventListener repoLoader;
+	
 	@Value("${git.dir}")
 	private String gitDirectory;
 	@Autowired
 	private Jaxb2Marshaller marshaller;
 
 	private InfaPowermartObject generatedObject;
-	private GeneratedWorkflow wf;
+
 
 	@Override
 	public void notify(InfaPowermartObject generatedObject, GeneratedWorkflow wf) {
 
 		this.generatedObject = generatedObject;
-		this.wf = wf;
 
 		try {
 			this.writeToGit();
+			repoLoader.notify(generatedObject,wf);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

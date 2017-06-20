@@ -154,7 +154,7 @@ public class InfaObjectMother {
 		mappingVariable.setDESCRIPTION("");
 		mappingVariable.setISEXPRESSIONVARIABLE("NO");
 		mappingVariable.setISPARAM("YES");
-		mappingVariable.setNAME("$$ETL_PROC_WID");
+		mappingVariable.setNAME("$$SYS_ETL_PROC_WID");
 		mappingVariable.setPRECISION("10");
 		mappingVariable.setSCALE("0");
 		mappingVariable.setUSERDEFINED("YES");
@@ -171,7 +171,7 @@ public class InfaObjectMother {
 		mappingVariable.setDESCRIPTION("");
 		mappingVariable.setISEXPRESSIONVARIABLE("NO");
 		mappingVariable.setISPARAM("YES");
-		mappingVariable.setNAME("$$DATASOURCE_NUM_ID");
+		mappingVariable.setNAME("$$SYS_DATASOURCE_NUM_ID");
 		mappingVariable.setPRECISION("10");
 		mappingVariable.setSCALE("0");
 		mappingVariable.setUSERDEFINED("YES");

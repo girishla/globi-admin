@@ -221,9 +221,9 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setDATATYPE("decimal");
 			xformExpressionField.setDEFAULTVALUE("");
 			xformExpressionField.setDESCRIPTION("");
-			xformExpressionField.setEXPRESSION("ROW_WID");
+			xformExpressionField.setEXPRESSION("SYS_ROW_WID");
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
-			xformExpressionField.setNAME("ROW_WID");
+			xformExpressionField.setNAME("SYS_ROW_WID");
 			xformExpressionField.setPICTURETEXT("");
 			xformExpressionField.setPORTTYPE("INPUT/OUTPUT");
 			xformExpressionField.setPRECISION("10");
@@ -241,9 +241,9 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setDATATYPE("decimal");
 			xformExpressionField.setDEFAULTVALUE("");
 			xformExpressionField.setDESCRIPTION("");
-			xformExpressionField.setEXPRESSION("$$DATASOURCE_NUM_ID");
+			xformExpressionField.setEXPRESSION("$$SYS_DATASOURCE_NUM_ID");
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
-			xformExpressionField.setNAME("DATASOURCE_NUM_ID");
+			xformExpressionField.setNAME("SYS_DATASOURCE_NUM_ID");
 			xformExpressionField.setPICTURETEXT("");
 			xformExpressionField.setPORTTYPE("OUTPUT");
 			xformExpressionField.setPRECISION("10");
@@ -261,9 +261,9 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setDATATYPE("decimal");
 			xformExpressionField.setDEFAULTVALUE("");
 			xformExpressionField.setDESCRIPTION("");
-			xformExpressionField.setEXPRESSION("$$ETL_PROC_WID");
+			xformExpressionField.setEXPRESSION("$$SYS_ETL_PROC_WID");
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
-			xformExpressionField.setNAME("ETL_PROC_WID");
+			xformExpressionField.setNAME("SYS_ETL_PROC_WID");
 			xformExpressionField.setPICTURETEXT("");
 			xformExpressionField.setPORTTYPE("OUTPUT");
 			xformExpressionField.setPRECISION("10");
@@ -282,7 +282,7 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setDESCRIPTION("Every changed record will have a unique effective from timestamp");
 			xformExpressionField.setEXPRESSION("SESSSTARTTIME");
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
-			xformExpressionField.setNAME("EFF_FROM_DT");
+			xformExpressionField.setNAME("SYS_EFF_FROM_DT");
 			xformExpressionField.setPICTURETEXT("");
 			xformExpressionField.setPORTTYPE("OUTPUT");
 			xformExpressionField.setPRECISION("29");
@@ -311,7 +311,7 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setDESCRIPTION("");
 			xformExpressionField.setEXPRESSION(concatenatedId);
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
-			xformExpressionField.setNAME("INTEGRATION_ID");
+			xformExpressionField.setNAME("SYS_INTEGRATION_ID");
 			xformExpressionField.setPICTURETEXT("");
 			xformExpressionField.setPORTTYPE("OUTPUT");
 			xformExpressionField.setPRECISION("100");
@@ -370,7 +370,7 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setDESCRIPTION("");
 			xformExpressionField.setEXPRESSION("'" + sourceName + "'||':' ||" + concatenatedId);
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
-			xformExpressionField.setNAME("PGUID");
+			xformExpressionField.setNAME("SYS_PGUID");
 			xformExpressionField.setPICTURETEXT("");
 			xformExpressionField.setPORTTYPE("OUTPUT");
 			xformExpressionField.setPRECISION("100");
@@ -394,7 +394,7 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setDESCRIPTION("");
 			xformExpressionField.setEXPRESSION("MD5(" + MD5Value + ")");
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
-			xformExpressionField.setNAME("HASH_RECORD");
+			xformExpressionField.setNAME("SYS_HASH_RECORD");
 			xformExpressionField.setPICTURETEXT("");
 			xformExpressionField.setPORTTYPE("OUTPUT");
 			xformExpressionField.setPRECISION("32");

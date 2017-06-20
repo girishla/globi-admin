@@ -243,7 +243,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.addPGUIDField()//
 						.addHashLookupField()
 						.noMoreFields()//
-						.addCondition("ISNULL(HASH_RECORD_LKP)")//
+						.addCondition("ISNULL(SYS_HASH_RECORD_LKP)")//
 						.noMoreConditions()//
 						.nameAlreadySet()//
 						.build())
@@ -251,15 +251,15 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.noMoreTransformations()//
 				.autoConnectByName(tblName, "SQ_ExtractData")//
 				.autoConnectByName("FIL_ChangesOnly", dbName + "_" + tblName)//
-				.connector("SEQ_WID", "NEXTVAL", "EXP_Resolve", "ROW_WID")
-				.connector("EXP_Resolve", "HASH_RECORD", "LKP_RecordInstance", "HASH_RECORD")
-				.connector("LKP_RecordInstance", "HASH_RECORD", "FIL_ChangesOnly", "HASH_RECORD")//
-				.connector("LKP_RecordInstance", "HASH_RECORD_LKP", "FIL_ChangesOnly", "HASH_RECORD_LKP")//
+				.connector("SEQ_WID", "NEXTVAL", "EXP_Resolve", "SYS_ROW_WID")
+				.connector("EXP_Resolve", "SYS_HASH_RECORD", "LKP_RecordInstance", "SYS_HASH_RECORD")
+				.connector("LKP_RecordInstance", "SYS_HASH_RECORD", "FIL_ChangesOnly", "SYS_HASH_RECORD")//
+				.connector("LKP_RecordInstance", "SYS_HASH_RECORD_LKP", "FIL_ChangesOnly", "SYS_HASH_RECORD_LKP")//
 				.connector("EXP_Resolve", "BU", "EXP_PrepBUDomLookup", "DL_01_SRC_VAL")//
 				.connector("EXP_PrepBUDomLookup", "DL_01_DEFAULT", "MPL_DomainLookup", "IN_01_DEFAULT")//
 				.connector("EXP_PrepBUDomLookup", "DL_01_DOMAIN_MAP", "MPL_DomainLookup", "IN_01_DOMAIN_MAP")//
 				.connector("EXP_PrepBUDomLookup", "DL_01_SRC_VAL", "MPL_DomainLookup", "IN_01_SRC_VAL")//
-				.connector("MPL_DomainLookup", "OUT_01_TGT_VAL", "FIL_ChangesOnly", "BU_PGUID")//
+				.connector("MPL_DomainLookup", "OUT_01_TGT_VAL", "FIL_ChangesOnly", "SYS_BU_PGUID")//
 				.noMoreConnectors()//
 				.noMoreTargetLoadOrders()//
 				.mappingvariable(getEtlProcWidMappingVariable())//

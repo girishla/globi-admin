@@ -1,9 +1,7 @@
 package com.globi.infa.generator;
 
-import static com.globi.infa.generator.StaticObjectMother.getBuidColumn;
-import static com.globi.infa.generator.StaticObjectMother.getCCColumn;
-import static com.globi.infa.generator.StaticObjectMother.getIntegrationIdColumn;
-import static com.globi.infa.generator.StaticObjectMother.getNormalColumn;
+import static com.globi.infa.generator.StaticObjectMother.*;
+
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -29,8 +27,8 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 	@Autowired
 	InfaPTPWorkflowRepository wfRepository;
 	PTPWorkflow ptpWorkflow;
-	static final String sourceTable = "S_NOTE_OPTY";
-	static final String source = "CUK";
+	static final String sourceTable = "S_ORG_EXT";
+	static final String source = "CGL";
 
 	@Before
 	public void setup(){
@@ -42,10 +40,10 @@ public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
 
 		List<PTPWorkflowSourceColumn> cols=new ArrayList<>();
 		cols.add(getIntegrationIdColumn("ROW_ID"));
-//		cols.add(getCCColumn("LAST_UPD"));
-		cols.add(getNormalColumn("NOTE"));
-		cols.add(getNormalColumn("NOTE_TYPE"));
-//		cols.add(getBuidColumn("BU_ID"));
+		cols.add(getCCColumn("LAST_UPD"));
+		cols.add(getNormalColumn("NAME"));
+//		cols.add(getNormalColumn("NOTE_TYPE"));
+		cols.add(getBuidColumn("BU_ID"));
 		
 
 		ptpWorkflow = PTPWorkflow.builder()//

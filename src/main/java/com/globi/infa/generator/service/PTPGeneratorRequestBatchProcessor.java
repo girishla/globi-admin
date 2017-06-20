@@ -16,6 +16,7 @@ import com.globi.infa.AbstractInfaWorkflowEntity;
 import com.globi.infa.datasource.core.DataSourceTableColumnDTO;
 import com.globi.infa.datasource.core.MetadataTableColumnRepository;
 import com.globi.infa.generator.AggregateGitWriterEventListener;
+import com.globi.infa.generator.AggregatePTPPmcmdFileWriterEventListener;
 import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
@@ -42,6 +43,9 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 
 	@Autowired
 	AggregateGitWriterEventListener aggregateGitWriter;
+	
+	@Autowired
+	AggregatePTPPmcmdFileWriterEventListener aggregateCommandWriter;
 
 	@Autowired
 	private InfaPuddleDefinitionRepositoryWriter targetDefnWriter;
@@ -81,7 +85,6 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 
 	public PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator,
 			PTPPrimaryGenerationStrategy ptpPrimarygenerator) {
-		log.info(":::::::::::Processing " + wf.getWorkflow().getWorkflowName());
 
 		ptpExtractgenerator.setWfDefinition(wf);
 		ptpExtractgenerator.generate();
@@ -114,13 +117,17 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 
 		ptpExtractgenerator.addListener(gitWriter);
 		ptpExtractgenerator.addListener(aggregateGitWriter);
+		ptpExtractgenerator.addListener(aggregateCommandWriter);
 		ptpExtractgenerator.addListener(targetDefnWriter);
 
 		ptpPrimarygenerator.addListener(gitWriter);
 		ptpPrimarygenerator.addListener(aggregateGitWriter);
+		ptpPrimarygenerator.addListener(aggregateCommandWriter);
 		ptpPrimarygenerator.addListener(targetDefnWriter);
 
 		aggregateGitWriter.notifyBatchStart();
+		aggregateCommandWriter.notifyBatchStart();
+		
 
 		processedWorkflows = inputWorkflowDefinitions.stream()//
 				.map(wf -> (PTPWorkflow) wf)//
@@ -128,6 +135,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 				.collect(Collectors.toList());
 
 		aggregateGitWriter.notifyBatchComplete();
+		aggregateCommandWriter.notifyBatchComplete();
 
 		return processedWorkflows;
 
