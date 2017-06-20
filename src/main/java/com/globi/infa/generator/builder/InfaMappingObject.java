@@ -1,5 +1,7 @@
 package com.globi.infa.generator.builder;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 import xjc.MAPPING;
@@ -9,6 +11,8 @@ import xjc.MAPPING;
 @Setter
 public class InfaMappingObject extends InfaFolderObject {
 
+	private List<InfaFolderObject> folderObjects;
+	
 	public InfaMappingObject(MAPPING mapping){
 		this.mapping=mapping;	
 		this.folderObj=mapping;

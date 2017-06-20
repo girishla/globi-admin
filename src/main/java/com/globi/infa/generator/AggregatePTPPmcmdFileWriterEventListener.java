@@ -47,8 +47,7 @@ public class AggregatePTPPmcmdFileWriterEventListener
 	private final Map<String, GeneratedWorkflow> workflows = new HashMap<>();
 	private final String pmcmdPattern = "call {{pmcmdDirectory}}\\pmcmd   startworkflow -sv {{infaIntegrationService}} -d {{infaDomain}} -u {{infaUser}} -p {{infaPwd}} -f {{folder}} {{wfName}}";
 	private final Map<String, String> interpolationValues = new HashMap<>();
-	private String appendedExtractCommand="";
-	private String appendedPrimaryCommand="";
+	private String appendedCommand="";
 
 	@Override
 	public void notify(InfaPowermartObject generatedObject, GeneratedWorkflow wf) {
@@ -63,17 +62,9 @@ public class AggregatePTPPmcmdFileWriterEventListener
 		interpolationValues.put("folder", generatedObject.folderName);
 		interpolationValues.put("wfName", generatedObject.pmObjectName);
 
-		if (generatedObject.pmObjectName.endsWith("Extract")) {
-			appendedExtractCommand += "\n" + new StrSubstitutor(interpolationValues, "{{", "}}").replace(pmcmdPattern);
+		appendedCommand += "\n" + new StrSubstitutor(interpolationValues, "{{", "}}").replace(pmcmdPattern);
 
-		} else {
-			if (generatedObject.pmObjectName.endsWith("Primary")) {
-				appendedPrimaryCommand += "\n"
-						+ new StrSubstitutor(interpolationValues, "{{", "}}").replace(pmcmdPattern);
-
-			}
-
-		}
+		
 
 	}
 
@@ -106,8 +97,7 @@ public class AggregatePTPPmcmdFileWriterEventListener
 
 			try (Git git = Git.open(new File(gitDirectory + ".git"));) {
 
-				this.saveXML(appendedExtractCommand, fileNameExtract);
-				this.saveXML(appendedPrimaryCommand, fileNamePrimary);
+				this.saveXML(appendedCommand, fileNameExtract);
 				
 				git.add()//
 						.addFilepattern(fileNameExtract).call();

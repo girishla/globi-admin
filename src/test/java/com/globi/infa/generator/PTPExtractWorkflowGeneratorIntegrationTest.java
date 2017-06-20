@@ -44,8 +44,7 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 	@Autowired
 	GitWriterEventListener gitWriter;
 
-	@Autowired
-	private PTPPrimaryGenerationStrategy ptpPrimarygenerator;
+
 
 	@Autowired
 	private InfaPuddleDefinitionRepositoryWriter targetDefnWriter;
@@ -101,11 +100,6 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 
 		InfaPowermartObject pmObj = generator.generate();
 
-		ptpPrimarygenerator.setWfDefinition(ptpWorkflowInputToGenerator);
-		ptpPrimarygenerator.addListener(targetDefnWriter);
-		ptpPrimarygenerator.addListener(gitWriter);
-
-		ptpPrimarygenerator.generate();
 
 		Optional<PTPWorkflow> existingWorkflow = ptpRepository
 				.findByWorkflowName(ptpWorkflowInputToGenerator.getWorkflow().getWorkflowName());

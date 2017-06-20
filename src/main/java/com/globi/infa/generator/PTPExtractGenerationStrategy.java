@@ -6,6 +6,7 @@ import static com.globi.infa.generator.builder.InfaObjectMother.getFolderFor;
 import static com.globi.infa.generator.builder.InfaObjectMother.getInitialExtractDateMappingVariable;
 import static com.globi.infa.generator.builder.InfaObjectMother.getMappingFrom;
 import static com.globi.infa.generator.builder.InfaObjectMother.getRepository;
+import static com.globi.infa.generator.builder.InfaObjectMother.getTablenameMappingVariable;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,8 +28,10 @@ import org.xml.sax.SAXException;
 import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
 import com.globi.infa.generator.builder.FilterXformBuilder;
+import com.globi.infa.generator.builder.InfaMappingObject;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.generator.builder.LookupXformBuilder;
+import com.globi.infa.generator.builder.MappingBuilder;
 import com.globi.infa.generator.builder.MappletBuilder;
 import com.globi.infa.generator.builder.PowermartObjectBuilder;
 import com.globi.infa.generator.builder.SequenceXformBuilder;
@@ -126,10 +129,119 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		return combinedFilter == null ? "" : combinedFilter;
 	}
-
-	private InfaPowermartObject generateWorkflow() throws IOException, SAXException, JAXBException {
-
+	
+	
+	
+	
+	
+	
+	
+	private InfaMappingObject getPrimaryMapping() throws IOException, SAXException, JAXBException{
 		
+		InfaSourceDefinition sourceTableDef;
+
+		Map<String, String> commonValuesMap = new HashMap<>();
+
+		Optional<SourceSystem> source = setupSourceSystemDefn();
+
+		String tblName = wfDefinition.getSourceTableName();
+		String dbName = wfDefinition.getSourceName();
+		String sourceFilter = wfDefinition.getSourceFilter();
+
+		List<InfaSourceColumnDefinition> allTableColumns = colRepository.accept(columnQueryVisitor, tblName);
+
+		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
+
+		List<InfaSourceColumnDefinition> matchedColumns = this
+				.getFilteredSourceDefnColumns(colRepository.accept(columnQueryVisitor, tblName), inputSelectedColumns);
+
+		sourceTableDef = InfaSourceDefinition.builder()//
+				.sourceTableName(tblName)//
+				.ownerName(source.get().getOwnerName())//
+				.databaseName(source.get().getName())//
+				.databaseType(source.get().getDbType())//
+				.build();
+
+		String combinedFilter = getSourceFilterString(sourceFilter, inputSelectedColumns, tblName);
+
+		sourceTableDef.getColumns().addAll(matchedColumns);
+
+		commonValuesMap.put("targetTableName", dbName + "_" + tblName);
+		commonValuesMap.put("sourceName", dbName);
+
+		List<InfaSourceColumnDefinition> columnsList = sourceTableDef.getColumns()//
+				.stream()//
+				.filter(column -> column.getIntegrationIdFlag())//
+				.collect(Collectors.toList());
+
+		String targetTableDefnName = dbName + "_" + tblName + "_P";
+		
+		
+
+		InfaMappingObject mappingObjPrimary = MappingBuilder//
+				.newBuilder()//
+				.simpleTableSyncClass("simpleTableSyncClass")//
+				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
+						.sourceDefnFromPrototype("SourceFromPrototype")//
+						.sourceDefn(sourceTableDef)//
+						.addFields(allTableColumns)//
+						.name(tblName)//
+						.build())
+				.noMoreSources()//
+				.targetDefn(TargetDefinitionBuilder.newBuilder()//
+						.marshaller(marshaller)//
+						.loadTargetFromSeed("Seed_PTPPrimaryExtractTargetTable")//
+						.noMoreFields()//
+						.name(targetTableDefnName)//
+						.build())//
+				.noMoreTargets()//
+				.noMoreMapplets()//
+				.startMappingDefn("PTP_" + dbName + "_" + tblName + "_Primary")//
+				.transformation(SourceQualifierBuilder.newBuilder()//
+						.marshaller(marshaller)//
+						.setValue("sourceFilter", combinedFilter).noMoreValues()
+						.loadSourceQualifierFromSeed("Seed_SourceQualifier")//
+						.addFields(dataTypeMapper, columnsList)//
+						.name("SQ_PrimaryData")//
+						.build())//
+				.transformation(ExpressionXformBuilder.newBuilder()//
+						.expressionFromPrototype("ExpFromPrototype")//
+						.expression("EXP_Resolve")//
+						.addIntegrationIdField(columnsList)//
+						.addDatasourceNumIdField().noMoreFields()//
+						.nameAlreadySet()//
+						.build())//
+				.transformationCopyConnectAllFields("SQ_PrimaryData", "EXP_Resolve")//
+				.transformation(LookupXformBuilder.newBuilder()//
+						.marshaller(marshaller)//
+						.noInterpolationValues()//
+						.loadLookupXformFromSeed("Seed_LKPPTPPrimaryRecordKeys")//
+						.nameAlreadySet()//
+						.build())
+				.noMoreTransformations()//
+				.autoConnectByName(tblName, "SQ_PrimaryData")//
+				.autoConnectByName("LKP_RecordKeys", targetTableDefnName)//
+				.autoConnectByName("EXP_Resolve", targetTableDefnName)//
+				.connector("EXP_Resolve", "SYS_INTEGRATION_ID", "LKP_RecordKeys", "SYS_INTEGRATION_ID_IN")//
+				.noMoreConnectors()//
+				.noMoreTargetLoadOrders()//
+				.mappingvariable(getEtlProcWidMappingVariable())//
+				.mappingvariable(getInitialExtractDateMappingVariable())//
+				.mappingvariable(getDataSourceNumIdMappingVariable(Integer.toString(source.get().getSourceNum())))//
+				.mappingvariable(getTablenameMappingVariable( dbName + "_" + tblName))//
+				.noMoreMappingVariables()//
+				.build();
+		
+		
+		return mappingObjPrimary;
+				
+		
+	}
+	
+	
+	
+	
+	private InfaMappingObject getExtractMapping() throws IOException, SAXException, JAXBException{
 		
 		InfaSourceDefinition sourceTableDef;
 
@@ -164,19 +276,18 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		commonValuesMap.put("sourceName", dbName);
 
 		List<InfaSourceColumnDefinition> columnsList = sourceTableDef.getColumns();
-
-		InfaPowermartObject pmObj = PowermartObjectBuilder//
+		
+		
+		
+		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
-				.powermartObject().repository(getRepository())//
-				.folder(getFolderFor("LAW_PTP_" + dbName, "Pull to puddle folder"))//
-				.marshaller(marshaller)//
 				.simpleTableSyncClass("simpleTableSyncClass")//
 				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
 						.sourceDefnFromPrototype("SourceFromPrototype")//
 						.sourceDefn(sourceTableDef)//
 						.addFields(allTableColumns)//
 						.name(tblName)//
-						.build())
+						.build())//
 				.noMoreSources()//
 				.targetDefn(TargetDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
@@ -190,7 +301,8 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.loadMappletFromSeed("Seed_MPLDomainLookup")//
 						.nameAlreadySet()//
 						.build())//
-				.noMoreMapplets().mappingDefn(getMappingFrom("PTP_" + dbName + "_" + tblName + "_Extract"))//
+				.noMoreMapplets()//
+				.startMappingDefn("PTP_" + dbName + "_" + tblName + "_Extract")//
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setValue("sourceFilter", combinedFilter)//
@@ -266,25 +378,49 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.mappingvariable(getInitialExtractDateMappingVariable())//
 				.mappingvariable(getDataSourceNumIdMappingVariable(Integer.toString(source.get().getSourceNum())))//
 				.noMoreMappingVariables()//
+				.build();
+		
+		
+		return mappingObjExtract;
+		
+	}
+	
+	
+	
+
+	private InfaPowermartObject generateWorkflow() throws IOException, SAXException, JAXBException {
+
+	
+		String tblName = wfDefinition.getSourceTableName();
+		String dbName = wfDefinition.getSourceName();
+
+		InfaPowermartObject pmObj = PowermartObjectBuilder//
+				.newBuilder()//
+				.powermartObject().repository(getRepository())//
+				.folder(getFolderFor("LAW_PTP_" + dbName, "Pull to puddle folder"))//
+				.marshaller(marshaller)//
+				.mappingDefn(this.getExtractMapping())//
+				.mappingDefn(this.getPrimaryMapping())
+				.noMoreMappings()//
 				.setdefaultConfigFromSeed("Seed_DefaultSessionConfig")//
 				.workflow(WorkflowDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setValue("phasePrefix", "PTP")//
-						.setValue("primaryName", dbName + "_" + tblName)//
-						.setValue("suffix", "Extract")//
 						.setValue("sourceShortCode", dbName)//
 						.setValue("TargetShortCode", "PDL")//
 						.setValue("tableName", tblName)//
 						.noMoreValues()//
-						.loadWorkflowFromSeed("Seed_PTPExtractWorkflow")//
+						.loadWorkflowFromSeed("Seed_WFPTP")//
 						.nameAlreadySet()//
 						.build())//
 				.build();
 
-		pmObj.pmObjectName="PTP_" + dbName + "_" + tblName +"_Extract";
+		pmObj.pmObjectName="PTP_" + dbName + "_" + tblName;
 		
 		return pmObj;
 	}
+	
+	
 
 	@Override
 	public InfaPowermartObject generate() {

@@ -20,7 +20,6 @@ import com.globi.infa.generator.AggregatePTPPmcmdFileWriterEventListener;
 import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
-import com.globi.infa.generator.PTPPrimaryGenerationStrategy;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.MetadataToPTPWorkflowDefnConverter;
@@ -77,20 +76,12 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 						// generated subclass
 	}
 
-	@Lookup
-	public PTPPrimaryGenerationStrategy getPtpPrimarygenerator() {
-		return null; // This implementation will be overridden by dynamically
-						// generated subclass
-	}
 
-	public PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator,
-			PTPPrimaryGenerationStrategy ptpPrimarygenerator) {
+
+	public PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
 
 		ptpExtractgenerator.setWfDefinition(wf);
 		ptpExtractgenerator.generate();
-
-		ptpPrimarygenerator.setWfDefinition(wf);
-		ptpPrimarygenerator.generate();
 
 		wf.getWorkflow().setWorkflowStatus("Processed");
 		ptpRepository.save(wf);
@@ -113,17 +104,12 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 		List<PTPWorkflow> processedWorkflows;
 
 		PTPExtractGenerationStrategy ptpExtractgenerator = getPtpExtractgenerator();
-		PTPPrimaryGenerationStrategy ptpPrimarygenerator = getPtpPrimarygenerator();
 
 		ptpExtractgenerator.addListener(gitWriter);
 		ptpExtractgenerator.addListener(aggregateGitWriter);
 		ptpExtractgenerator.addListener(aggregateCommandWriter);
 		ptpExtractgenerator.addListener(targetDefnWriter);
 
-		ptpPrimarygenerator.addListener(gitWriter);
-		ptpPrimarygenerator.addListener(aggregateGitWriter);
-		ptpPrimarygenerator.addListener(aggregateCommandWriter);
-		ptpPrimarygenerator.addListener(targetDefnWriter);
 
 		aggregateGitWriter.notifyBatchStart();
 		aggregateCommandWriter.notifyBatchStart();
@@ -131,7 +117,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 
 		processedWorkflows = inputWorkflowDefinitions.stream()//
 				.map(wf -> (PTPWorkflow) wf)//
-				.map(wf -> this.processWorkflow(wf, ptpExtractgenerator, ptpPrimarygenerator))//
+				.map(wf -> this.processWorkflow(wf, ptpExtractgenerator))//
 				.collect(Collectors.toList());
 
 		aggregateGitWriter.notifyBatchComplete();
