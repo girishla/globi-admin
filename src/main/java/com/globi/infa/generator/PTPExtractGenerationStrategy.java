@@ -4,7 +4,6 @@ import static com.globi.infa.generator.builder.InfaObjectMother.getDataSourceNum
 import static com.globi.infa.generator.builder.InfaObjectMother.getEtlProcWidMappingVariable;
 import static com.globi.infa.generator.builder.InfaObjectMother.getFolderFor;
 import static com.globi.infa.generator.builder.InfaObjectMother.getInitialExtractDateMappingVariable;
-import static com.globi.infa.generator.builder.InfaObjectMother.getMappingFrom;
 import static com.globi.infa.generator.builder.InfaObjectMother.getRepository;
 import static com.globi.infa.generator.builder.InfaObjectMother.getTablenameMappingVariable;
 
@@ -21,7 +20,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
@@ -41,6 +39,7 @@ import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.InfaSourceDefinition;
+import com.globi.infa.metadata.src.InfaSourceDefinitionRepository;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
@@ -51,14 +50,16 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Scope("prototype")
-@Slf4j
 public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
 	private PTPWorkflow wfDefinition;
+	private InfaSourceDefinitionRepository sourceDefnRepo;
 
-	PTPExtractGenerationStrategy(Jaxb2Marshaller marshaller,SourceSystemRepository sourceSystemRepo, SourceMetadataFactoryMapper metadataFactoryMapper) {
+	PTPExtractGenerationStrategy(Jaxb2Marshaller marshaller, SourceSystemRepository sourceSystemRepo,
+			SourceMetadataFactoryMapper metadataFactoryMapper, InfaSourceDefinitionRepository sourceDefnRepo) {
 
-		super(marshaller,sourceSystemRepo,metadataFactoryMapper);
+		super(marshaller, sourceSystemRepo, metadataFactoryMapper);
+		this.sourceDefnRepo = sourceDefnRepo;
 
 	}
 
@@ -88,8 +89,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 	}
 
 	private Optional<SourceSystem> setupSourceSystemDefn() {
-		
-		
+
 		Optional<SourceSystem> source;
 
 		if (wfDefinition == null)
@@ -99,7 +99,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		if (!source.isPresent())
 			throw new IllegalArgumentException("Source System not recognised");
-		
+
 		return source;
 
 	}
@@ -114,7 +114,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		String ccFilter = "";
 		String combinedFilter = "";
-		sourceFilter=ObjectUtils.defaultIfNull(sourceFilter,"");
+		sourceFilter = ObjectUtils.defaultIfNull(sourceFilter, "");
 
 		if (sourceQualifierFilterClauseColumn.isPresent()) {
 			ccFilter = tableName + "." + sourceQualifierFilterClauseColumn.get().getSourceColumnName()
@@ -129,15 +129,9 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		return combinedFilter == null ? "" : combinedFilter;
 	}
-	
-	
-	
-	
-	
-	
-	
-	private InfaMappingObject getPrimaryMapping() throws IOException, SAXException, JAXBException{
-		
+
+	private InfaMappingObject getPrimaryMapping() throws IOException, SAXException, JAXBException {
+
 		InfaSourceDefinition sourceTableDef;
 
 		Map<String, String> commonValuesMap = new HashMap<>();
@@ -149,7 +143,6 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		String sourceFilter = wfDefinition.getSourceFilter();
 
 		List<InfaSourceColumnDefinition> allTableColumns = colRepository.accept(columnQueryVisitor, tblName);
-
 		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
 
 		List<InfaSourceColumnDefinition> matchedColumns = this
@@ -164,6 +157,12 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		String combinedFilter = getSourceFilterString(sourceFilter, inputSelectedColumns, tblName);
 
+		// Save all columns for reference and then add back matched columns for
+		// processing
+		sourceTableDef.getColumns().addAll(allTableColumns);
+		sourceDefnRepo.save(sourceTableDef);
+		sourceTableDef.getColumns().clear();
+
 		sourceTableDef.getColumns().addAll(matchedColumns);
 
 		commonValuesMap.put("targetTableName", dbName + "_" + tblName);
@@ -175,8 +174,6 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.collect(Collectors.toList());
 
 		String targetTableDefnName = dbName + "_" + tblName + "_P";
-		
-		
 
 		InfaMappingObject mappingObjPrimary = MappingBuilder//
 				.newBuilder()//
@@ -228,27 +225,22 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.mappingvariable(getEtlProcWidMappingVariable())//
 				.mappingvariable(getInitialExtractDateMappingVariable())//
 				.mappingvariable(getDataSourceNumIdMappingVariable(Integer.toString(source.get().getSourceNum())))//
-				.mappingvariable(getTablenameMappingVariable( dbName + "_" + tblName))//
+				.mappingvariable(getTablenameMappingVariable(dbName + "_" + tblName))//
 				.noMoreMappingVariables()//
 				.build();
-		
-		
+
 		return mappingObjPrimary;
-				
-		
+
 	}
-	
-	
-	
-	
-	private InfaMappingObject getExtractMapping() throws IOException, SAXException, JAXBException{
-		
+
+	private InfaMappingObject getExtractMapping() throws IOException, SAXException, JAXBException {
+
 		InfaSourceDefinition sourceTableDef;
 
 		Map<String, String> emptyValuesMap = new HashMap<>();
 		Map<String, String> commonValuesMap = new HashMap<>();
 
-		Optional<SourceSystem> source=this.setupSourceSystemDefn();
+		Optional<SourceSystem> source = this.setupSourceSystemDefn();
 
 		String tblName = wfDefinition.getSourceTableName();
 		String dbName = wfDefinition.getSourceName();
@@ -256,7 +248,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		List<InfaSourceColumnDefinition> allTableColumns = colRepository.accept(columnQueryVisitor, tblName);
 
-		List<PTPWorkflowSourceColumn> inputSelectedColumns =wfDefinition.getColumns();
+		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
 
 		List<InfaSourceColumnDefinition> matchedColumns = this
 				.getFilteredSourceDefnColumns(colRepository.accept(columnQueryVisitor, tblName), inputSelectedColumns);
@@ -276,9 +268,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		commonValuesMap.put("sourceName", dbName);
 
 		List<InfaSourceColumnDefinition> columnsList = sourceTableDef.getColumns();
-		
-		
-		
+
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
 				.simpleTableSyncClass("simpleTableSyncClass")//
@@ -353,8 +343,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.filterFromPrototype("FilterFromPrototype")//
 						.filter("FIL_ChangesOnly")//
 						.addPGUIDField()//
-						.addHashLookupField()
-						.noMoreFields()//
+						.addHashLookupField().noMoreFields()//
 						.addCondition("ISNULL(SYS_HASH_RECORD_LKP)")//
 						.noMoreConditions()//
 						.nameAlreadySet()//
@@ -379,18 +368,13 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.mappingvariable(getDataSourceNumIdMappingVariable(Integer.toString(source.get().getSourceNum())))//
 				.noMoreMappingVariables()//
 				.build();
-		
-		
+
 		return mappingObjExtract;
-		
+
 	}
-	
-	
-	
 
 	private InfaPowermartObject generateWorkflow() throws IOException, SAXException, JAXBException {
 
-	
 		String tblName = wfDefinition.getSourceTableName();
 		String dbName = wfDefinition.getSourceName();
 
@@ -400,8 +384,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.folder(getFolderFor("LAW_PTP_" + dbName, "Pull to puddle folder"))//
 				.marshaller(marshaller)//
 				.mappingDefn(this.getExtractMapping())//
-				.mappingDefn(this.getPrimaryMapping())
-				.noMoreMappings()//
+				.mappingDefn(this.getPrimaryMapping()).noMoreMappings()//
 				.setdefaultConfigFromSeed("Seed_DefaultSessionConfig")//
 				.workflow(WorkflowDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
@@ -415,12 +398,10 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.build())//
 				.build();
 
-		pmObj.pmObjectName="PTP_" + dbName + "_" + tblName;
-		
+		pmObj.pmObjectName = "PTP_" + dbName + "_" + tblName;
+
 		return pmObj;
 	}
-	
-	
 
 	@Override
 	public InfaPowermartObject generate() {
@@ -441,8 +422,8 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 	public void setWfDefinition(PTPWorkflow ptpWorkflow) {
 
-		this.wfDefinition=ptpWorkflow;
+		this.wfDefinition = ptpWorkflow;
 		this.setContext(ptpWorkflow.getSourceName());
-		
+
 	}
 }

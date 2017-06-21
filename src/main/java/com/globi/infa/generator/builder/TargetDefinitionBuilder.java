@@ -20,46 +20,43 @@ import xjc.TARGET;
 import xjc.TARGETFIELD;
 
 public class TargetDefinitionBuilder {
-	
 
 	public static SetMarshallerStep newBuilder() {
 		return new TargetDefinitionSteps();
 	}
-	
+
 	public interface SetMarshallerStep {
 		LoadFromSeedStep marshaller(Jaxb2Marshaller marshaller);
+
 		AddFieldsStep noMarshaller();
 	}
-	
+
 	public interface LoadFromSeedStep {
 		AddFieldsStep loadTargetFromSeed(String seedName) throws FileNotFoundException, IOException;
 	}
 
-
 	public interface AddFieldsStep {
 		AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns);
+
 		AddFieldsStep addTargetField(TARGETFIELD field);
+
 		NameStep noMoreFields();
 	}
 
-	
 	public interface NameStep {
 		BuildStep name(String name);
 	}
 
-	
 	public interface BuildStep {
 		TARGET build();
 	}
-	
-	
-	public static class TargetDefinitionSteps implements NameStep,SetMarshallerStep,LoadFromSeedStep,AddFieldsStep,BuildStep{
 
-		
-	 	private Jaxb2Marshaller marshaller;
-	 	private TARGET targetDefinition=new TARGET();
-		
-		
+	public static class TargetDefinitionSteps
+			implements NameStep, SetMarshallerStep, LoadFromSeedStep, AddFieldsStep, BuildStep {
+
+		private Jaxb2Marshaller marshaller;
+		private TARGET targetDefinition = new TARGET();
+
 		@Override
 		public TARGET build() {
 
@@ -69,22 +66,16 @@ public class TargetDefinitionBuilder {
 		@Override
 		public AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns) {
 
-		
 			columns.forEach(column -> {
 				this.targetDefinition.getTARGETFIELD().add(targetFieldFrom(column));
 			});
 
-			
 			return this;
 		}
-		
-		
 
 		@Override
 		public AddFieldsStep loadTargetFromSeed(String seedName) throws FileNotFoundException, IOException {
-			
-			
-			
+
 			FileInputStream is = null;
 
 			try {
@@ -96,35 +87,32 @@ public class TargetDefinitionBuilder {
 					is.close();
 				}
 			}
-			
+
 			return this;
 		}
 
-
 		@Override
 		public BuildStep name(String name) {
-			
+
 			this.targetDefinition.setNAME(name);
-			
+
 			return this;
 		}
 
 		@Override
 		public LoadFromSeedStep marshaller(Jaxb2Marshaller marshaller) {
-			
-			this.marshaller=marshaller;
-			
+
+			this.marshaller = marshaller;
+
 			return this;
 		}
-		
-		
+
 		private static TARGETFIELD targetFieldFrom(InfaSourceColumnDefinition column) {
 
 			TARGETFIELD targetField = new TARGETFIELD();
-			
-			Integer fieldNumber=column.getColumnDataType().equals("long")?99:column.getColumnNumber();
 
-			
+			Integer fieldNumber = column.getColumnDataType().equals("long") ? 99 : column.getColumnNumber();
+
 			targetField.setBUSINESSNAME(DEFAULT_DESCRIPTION.getValue());
 			targetField.setDATATYPE(column.getColumnDataType());
 			targetField.setFIELDNUMBER(Integer.toString(fieldNumber));
@@ -141,7 +129,8 @@ public class TargetDefinitionBuilder {
 
 		@Override
 		public NameStep noMoreFields() {
-			this.targetDefinition.getTARGETFIELD().sort(Comparator.comparing(TARGETFIELD::getFIELDNUMBER));
+			this.targetDefinition.getTARGETFIELD()//
+					.sort(Comparator.comparing(TARGETFIELD::getFIELDNUMBER));
 			return this;
 		}
 
@@ -155,12 +144,7 @@ public class TargetDefinitionBuilder {
 			this.targetDefinition.getTARGETFIELD().add(field);
 			return this;
 		}
-		
-		
-		
+
 	}
-	
-	
-	
-	
+
 }
