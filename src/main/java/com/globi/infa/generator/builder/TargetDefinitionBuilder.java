@@ -5,6 +5,7 @@ import static com.globi.infa.generator.InfaGeneratorDefaults.DEFAULT_DESCRIPTION
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.xml.transform.stream.StreamSource;
@@ -13,7 +14,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
-import com.globi.infa.generator.builder.TargetDefinitionBuilder.AddFieldsStep;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
 import xjc.TARGET;
@@ -134,8 +134,6 @@ public class TargetDefinitionBuilder {
 			targetField.setPICTURETEXT("");
 			targetField.setPRECISION(Integer.toString(column.getPrecision()));
 			targetField.setSCALE(Integer.toString(column.getScale()));
-			
-			
 
 			return targetField;
 
@@ -143,6 +141,7 @@ public class TargetDefinitionBuilder {
 
 		@Override
 		public NameStep noMoreFields() {
+			this.targetDefinition.getTARGETFIELD().sort(Comparator.comparing(TARGETFIELD::getFIELDNUMBER));
 			return this;
 		}
 
