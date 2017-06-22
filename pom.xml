@@ -155,7 +155,7 @@
 	</dependencies>
 
 	<build>
-
+	 <finalName>globi-admin</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
