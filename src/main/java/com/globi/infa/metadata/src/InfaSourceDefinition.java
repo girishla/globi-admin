@@ -49,6 +49,10 @@ public class InfaSourceDefinition extends AbstractEntity {
 
 	@NotBlank(message = "Owner name cannot be empty!")
 	private String ownerName;
+	
+	
+	private String sourceTableUniqueName;
+
 
 	@OrderColumn //
 	@Column(unique = true) //

@@ -32,6 +32,7 @@ public class InfaSourceColumnDefinition extends AbstractEntity {
 	@NonNull
 	private String columnDataType;
 	private int columnNumber;
+	
 
 	private String nullable;
 

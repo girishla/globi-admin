@@ -25,7 +25,7 @@ public class MetadataTableColumnRepository {
 			"       MAX(BU_PGUID_INDICATOR) BU_PGUID_INDICATOR, \r\n" + 
 			"       MAX(PGUID_INDICATOR)  PGUID_INDICATOR \r\n" + 
 			"FROM   MDT_SOURCE_TBL_COLS \r\n" + 
-			"WHERE (SRC_TBL IS NOT NULL) AND (SRC_TBL_COL IS NOT NULL) AND SRC_NAME IN ('FBM','GEN','CUK','CGL')\r\n" + 
+			"WHERE (SRC_TBL IS NOT NULL) AND (SRC_TBL_COL IS NOT NULL) AND SRC_NAME IN ('GEN','CUK','CGL')\r\n" + 
 			"GROUP BY SRC_NAME, \r\n" + 
 			"          SRC_TBL, \r\n" + 
 			"          SRC_TBL_COL";

@@ -92,7 +92,11 @@
                 <PARTITION DESCRIPTION ="" NAME ="Partition #1"/>
             </SESSTRANSFORMATIONINST>
             <SESSTRANSFORMATIONINST ISREPARTITIONPOINT ="NO" PIPELINE ="0" SINSTANCENAME ="{{tableName}}" STAGE ="0" TRANSFORMATIONNAME ="{{tableName}}" TRANSFORMATIONTYPE ="Source Definition"/>
-            <SESSTRANSFORMATIONINST ISREPARTITIONPOINT ="YES" PARTITIONTYPE ="PASS THROUGH" PIPELINE ="1" SINSTANCENAME ="{{sourceShortCode}}_{{tableName}}" STAGE ="2" TRANSFORMATIONNAME ="{{sourceShortCode}}_{{tableName}}" TRANSFORMATIONTYPE ="Target Definition"/>
+        
+            <SESSTRANSFORMATIONINST ISREPARTITIONPOINT ="YES" PARTITIONTYPE ="PASS THROUGH" PIPELINE ="1"  SINSTANCENAME ="{{sourceShortCode}}_{{tableName}}" STAGE ="2" TRANSFORMATIONNAME ="{{sourceShortCode}}_{{tableName}}" TRANSFORMATIONTYPE ="Target Definition">
+                <ATTRIBUTE NAME ="Pre SQL" VALUE ="TRUNCATE TABLE {{sourceShortCode}}_{{tableName}};&#xD;&#xA;TRUNCATE TABLE {{sourceShortCode}}_{{tableName}}_P;"/>
+            </SESSTRANSFORMATIONINST>
+
             <SESSTRANSFORMATIONINST ISREPARTITIONPOINT ="NO" PIPELINE ="1" SINSTANCENAME ="EXP_PrepBUDomLookup" STAGE ="1" TRANSFORMATIONNAME ="EXP_PrepBUDomLookup" TRANSFORMATIONTYPE ="Expression">
                 <PARTITION DESCRIPTION ="" NAME ="Partition #1"/>
             </SESSTRANSFORMATIONINST>
@@ -214,3 +218,4 @@
         <ATTRIBUTE NAME ="Maximum number of concurrent runs per Hub" VALUE ="1000"/>
         <ATTRIBUTE NAME ="Expected Service Time" VALUE ="1"/>
     </WORKFLOW>
+	

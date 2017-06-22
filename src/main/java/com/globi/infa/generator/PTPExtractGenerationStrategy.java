@@ -148,20 +148,36 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		List<InfaSourceColumnDefinition> matchedColumns = this
 				.getFilteredSourceDefnColumns(colRepository.accept(columnQueryVisitor, tblName), inputSelectedColumns);
 
+		
+		InfaSourceDefinition sourceTableDefAll = InfaSourceDefinition.builder()//
+				.sourceTableName(tblName)//
+				.ownerName(source.get().getOwnerName())//
+				.databaseName(source.get().getName())//
+				.databaseType(source.get().getDbType())//
+				.sourceTableUniqueName(source.get().getName() + "_" + tblName)
+				.build();
+
+		
 		sourceTableDef = InfaSourceDefinition.builder()//
 				.sourceTableName(tblName)//
 				.ownerName(source.get().getOwnerName())//
 				.databaseName(source.get().getName())//
 				.databaseType(source.get().getDbType())//
+				.sourceTableUniqueName(source.get().getName() + "_" + tblName)
 				.build();
 
 		String combinedFilter = getSourceFilterString(sourceFilter, inputSelectedColumns, tblName);
 
 		// Save all columns for reference and then add back matched columns for
 		// processing
-		sourceTableDef.getColumns().addAll(allTableColumns);
-		sourceDefnRepo.save(sourceTableDef);
-		sourceTableDef.getColumns().clear();
+/*		Optional<InfaSourceDefinition> existingSourceTable = sourceDefnRepo.findBySourceTableUniqueName(source.get().getName() + "_" + tblName);
+		if (existingSourceTable.isPresent()) {
+			existingSourceTable.get().getColumns().clear();
+			sourceDefnRepo.save(existingSourceTable.get());
+		}	
+		sourceTableDefAll.getColumns().addAll(allTableColumns);		
+		sourceDefnRepo.save(sourceTableDefAll);*/
+
 
 		sourceTableDef.getColumns().addAll(matchedColumns);
 
