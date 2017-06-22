@@ -18,11 +18,11 @@ public class SourceSystemWebTest extends AbstractWebIntegrationTest {
 	public void exposesSourceSystemResource() throws Exception {
 
 		
-		mvc.perform(get("/sourceSystems"))//
+		mvc.perform(get("/sourcesystems"))//
 				.andDo(MockMvcResultHandlers.print()).andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON))
-				.andExpect(jsonPath("$._embedded.sourceSystems[0].name", notNullValue()))
-				.andExpect(jsonPath("$._embedded.sourceSystems[0].dbType", notNullValue()));
+				.andExpect(jsonPath("$._embedded.sourcesystems[0].name", notNullValue()))
+				.andExpect(jsonPath("$._embedded.sourcesystems[0].dbType", notNullValue()));
 
 	}
 

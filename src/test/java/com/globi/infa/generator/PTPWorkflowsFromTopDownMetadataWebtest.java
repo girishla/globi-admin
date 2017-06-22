@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -28,7 +29,8 @@ public class PTPWorkflowsFromTopDownMetadataWebtest extends AbstractWebIntegrati
 
 	}
 	
-	@Test 
+	@Test  
+	@Ignore("don't run during build as it can take too long")
 	public void canCreateWorkflowFromExistingTopDownMetadata() throws Exception{
 		
 		mvc.perform(post("/infagen/workflows/ptpFromMetadata?sync=true")//

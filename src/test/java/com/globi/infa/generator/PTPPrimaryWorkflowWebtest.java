@@ -43,7 +43,7 @@ public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
 				.columns(cols)
 				.sourceTableName(sourceTable)//
 				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + source+ "_"+ sourceTable  + ".xml")
-				.workflowName("PTP_" + source+ "_"+ sourceTable  + "_Extract")
+				.workflowName("PTP_" + source+ "_"+ sourceTable)
 				.build();
 	}
 	

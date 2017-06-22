@@ -26,7 +26,7 @@ import com.globi.infa.workflow.GeneratedWorkflow;
 public class GitWriterEventListener implements WorkflowCreatedEventListener {
 
 	@Autowired
-	private RepositoryLoaderEventListener repoLoader;
+	private PmrepLoader repoLoader;
 	
 	@Value("${git.dir}")
 	private String gitDirectory;
@@ -43,7 +43,7 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 
 		try {
 			this.writeToGit();
-			repoLoader.notify(generatedObject,wf);
+			repoLoader.loadWorkflow(generatedObject.folderName,generatedObject.pmObjectName);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
