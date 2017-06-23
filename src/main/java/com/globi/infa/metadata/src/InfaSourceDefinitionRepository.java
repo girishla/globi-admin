@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 
-@RepositoryRestResource(collectionResourceRel = "sources",path = "sources")
+@RepositoryRestResource(collectionResourceRel = "sourcetables",path = "sourcetables")
 public interface InfaSourceDefinitionRepository extends CrudRepository<InfaSourceDefinition, Long>{
 	
 	Optional<InfaSourceDefinition> findBySourceTableUniqueName(@Param("sourcTableUniqueName") String sourceTableUniqueName);

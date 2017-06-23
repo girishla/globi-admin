@@ -21,6 +21,7 @@ public class MetadataToPTPWorkflowDefnConverter {
 
 	private Map<String, DataSourceTableDTO> getDistinctTableMapFrom(List<DataSourceTableColumnDTO> columns) {
 
+		
 		return columns.stream()//
 				.map(column -> {
 					return DataSourceTableDTO.builder()//

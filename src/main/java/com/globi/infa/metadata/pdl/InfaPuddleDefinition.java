@@ -37,6 +37,7 @@ public class InfaPuddleDefinition extends AbstractEntity {
 
 	@NonNull
 	@NotBlank(message = "Source name cannot be empty!")
+	@Column(unique=true)
 	private String pdlTableName;
 
 	@NotBlank(message = "Owner name cannot be empty!")
