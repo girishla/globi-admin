@@ -3,9 +3,9 @@ package com.globi.infa.generator.builder;
 import static com.globi.infa.generator.InfaGeneratorDefaults.DEFAULT_VERSION;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +19,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.FileCopyUtils;
 
-import com.globi.infa.generator.builder.ExpressionXformBuilder.AddFieldsStep;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
 import lombok.extern.slf4j.Slf4j;
@@ -109,11 +108,11 @@ public class ExpressionXformBuilder {
 		@Override
 		public AddFieldsStep loadExpressionXformFromSeed(String seedName) throws FileNotFoundException, IOException {
 
-			FileInputStream is = null;
+			InputStream is = null;
 
 			try {
 				Resource resource = new ClassPathResource("seed/" + seedName + ".xml");
-				is = new FileInputStream(resource.getFile());
+				is = resource.getInputStream();
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				FileCopyUtils.copy(is, baos);
 				StrSubstitutor sub = new StrSubstitutor(interpolationValues, "{{", "}}");

@@ -1,9 +1,9 @@
 package com.globi.infa.generator.builder;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
@@ -83,11 +83,11 @@ public class SourceQualifierBuilder {
 		@Override
 		public AddFieldsStep loadSourceQualifierFromSeed(String seedName) throws FileNotFoundException, IOException {
 
-			FileInputStream is = null;
+			InputStream is = null;
 
 			try {
 				Resource resource = new ClassPathResource("seed/" + seedName + ".xml");
-				is = new FileInputStream(resource.getFile());
+				is = resource.getInputStream();
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				FileCopyUtils.copy(is, baos);
 				StrSubstitutor sub = new StrSubstitutor(interpolationValues, "{{", "}}");

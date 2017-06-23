@@ -1,8 +1,8 @@
 package com.globi.infa.generator.builder;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.xml.transform.stream.StreamSource;
 
@@ -59,11 +59,11 @@ public class MappletBuilder {
 			
 			
 			
-			FileInputStream is = null;
+			InputStream is = null;
 
 			try {
 				Resource resource = new ClassPathResource("seed/" + seedName + ".xml");
-				is = new FileInputStream(resource.getFile());
+				is = resource.getInputStream();
 				this.mapplet = (MAPPLET) marshaller.unmarshal(new StreamSource(is));
 			} finally {
 				if (is != null) {

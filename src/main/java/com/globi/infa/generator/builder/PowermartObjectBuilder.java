@@ -1,8 +1,8 @@
 package com.globi.infa.generator.builder;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,15 +17,10 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import lombok.extern.slf4j.Slf4j;
 import xjc.CONFIG;
-import xjc.CONNECTOR;
 import xjc.FOLDER;
 import xjc.MAPPING;
-import xjc.MAPPLET;
 import xjc.POWERMART;
 import xjc.REPOSITORY;
-import xjc.SOURCE;
-import xjc.TARGET;
-import xjc.TRANSFORMATION;
 import xjc.WORKFLOW;
 
 @Slf4j
@@ -133,11 +128,11 @@ public class PowermartObjectBuilder {
 		@Override
 		public WorkflowStep setdefaultConfigFromSeed(String seedName) throws FileNotFoundException, IOException {
 
-			FileInputStream is = null;
+			InputStream is = null;
 
 			try {
 				Resource resource = new ClassPathResource("seed/" + seedName + ".xml");
-				is = new FileInputStream(resource.getFile());
+				is = resource.getInputStream();
 				CONFIG configObj = (CONFIG) this.marshaller.unmarshal(new StreamSource(is));
 				this.folderChildren.add(configObj);
 				this.folderObjects.add(new InfaConfigObject(configObj));

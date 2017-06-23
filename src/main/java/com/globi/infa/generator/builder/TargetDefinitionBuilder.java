@@ -2,9 +2,9 @@ package com.globi.infa.generator.builder;
 
 import static com.globi.infa.generator.InfaGeneratorDefaults.DEFAULT_DESCRIPTION;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 
@@ -76,11 +76,11 @@ public class TargetDefinitionBuilder {
 		@Override
 		public AddFieldsStep loadTargetFromSeed(String seedName) throws FileNotFoundException, IOException {
 
-			FileInputStream is = null;
+			InputStream is = null;
 
 			try {
 				Resource resource = new ClassPathResource("seed/" + seedName + ".xml");
-				is = new FileInputStream(resource.getFile());
+				is = resource.getInputStream();
 				this.targetDefinition = (TARGET) marshaller.unmarshal(new StreamSource(is));
 			} finally {
 				if (is != null) {
