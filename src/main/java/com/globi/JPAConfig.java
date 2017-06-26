@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,11 @@ public class JPAConfig {
 	@Autowired
 	@Qualifier("dsMDT")
 	private DataSource dsMDT;
+	
+	
+	@Value("${app.datasource.mdt.hibernate.hbm2ddl.auto}")
+	private String hbm2ddlMode;
+	
 
 	@Bean
 	PlatformTransactionManager coreTransactionManager() {
@@ -54,7 +60,7 @@ public class JPAConfig {
 	
 	   Properties additionalProperties() {
 		      Properties properties = new Properties();
-		      properties.setProperty("hibernate.hbm2ddl.auto", "none");
+		      properties.setProperty("hibernate.hbm2ddl.auto", hbm2ddlMode);
 		      properties.setProperty("hibernate.dialect", "org.hibernate.dialect.Oracle12cDialect");
 		      return properties;
 		   }
