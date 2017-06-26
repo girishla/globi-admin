@@ -71,7 +71,7 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 				throw new InvalidExitValueException("Errors during upload. Please see logs for more info.", result);
 			}
 
-			pmcmdRunner.run(folderName, objectName);
+//			pmcmdRunner.run(folderName, objectName);
 
 		} catch (InvalidExitValueException | IOException | InterruptedException | TimeoutException e1) {
 
