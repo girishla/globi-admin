@@ -2,6 +2,7 @@ package com.globi.infa.metadata.pdl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +77,13 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 		}
 
 		tgt.setColumns(targetCols);
-
+		
+		Optional<InfaPuddleDefinition> existingPuddleDefn = tgtRepo.findByPdlTableName(target.getName());
+		if (existingPuddleDefn.isPresent()) {
+			existingPuddleDefn.get().getColumns().clear();
+			tgt.setId(tgtRepo.save(existingPuddleDefn.get()).getId());
+		}	
+		
 		tgtRepo.save(tgt);
 
 	}
