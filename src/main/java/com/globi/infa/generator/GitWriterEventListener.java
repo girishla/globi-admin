@@ -43,7 +43,9 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 
 		try {
 			this.writeToGit();
-			repoLoader.loadWorkflow(generatedObject.folderName,generatedObject.pmObjectName);
+			
+			//repoLoader.loadWorkflow(generatedObject.folderName,generatedObject.pmObjectName);
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
