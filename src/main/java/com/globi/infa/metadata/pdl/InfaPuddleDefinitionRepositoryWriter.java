@@ -14,9 +14,11 @@ import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.generator.builder.InfaTargetObject;
 import com.globi.infa.workflow.GeneratedWorkflow;
 
+import lombok.extern.slf4j.Slf4j;
 import xjc.TARGETFIELD;
 
 @Component
+@Slf4j
 public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEventListener {
 
 	List<InfaTargetObject> targets;
@@ -43,7 +45,6 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 				.columnNumber(index)//
 				.nullable(field.getNULLABLE()).precision(Integer.parseInt(field.getPRECISION()))
 				.scale(Integer.parseInt(field.getSCALE())).build();
-
 		return col;
 
 	}
@@ -58,8 +59,6 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 		List<InfaPuddleColumnDefinition> targetCols = new ArrayList<>();
 		int[] idx = { 1 };
 
-
-		
 		// Do system columns first
 		for (TARGETFIELD field : target.getTarget().getTARGETFIELD().stream()
 				.filter(col -> col.getNAME().startsWith("SYS_")).collect(Collectors.toList())) {
@@ -77,13 +76,15 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 		}
 
 		tgt.setColumns(targetCols);
-		
+
 		Optional<InfaPuddleDefinition> existingPuddleDefn = tgtRepo.findByPdlTableName(target.getName());
 		if (existingPuddleDefn.isPresent()) {
 			existingPuddleDefn.get().getColumns().clear();
-			tgt.setId(tgtRepo.save(existingPuddleDefn.get()).getId());
-		}	
-		
+			InfaPuddleDefinition cleanedPuddle=tgtRepo.save(existingPuddleDefn.get());
+			tgt.setId(cleanedPuddle.getId());
+			tgt.setVersion(cleanedPuddle.getVersion());
+		}
+
 		tgtRepo.save(tgt);
 
 	}
