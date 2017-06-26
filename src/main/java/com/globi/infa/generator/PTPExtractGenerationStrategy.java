@@ -170,13 +170,15 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		// Save all columns for reference and then add back matched columns for
 		// processing
-/*		Optional<InfaSourceDefinition> existingSourceTable = sourceDefnRepo.findBySourceTableUniqueName(source.get().getName() + "_" + tblName);
+		Optional<InfaSourceDefinition> existingSourceTable = sourceDefnRepo.findBySourceTableUniqueName(source.get().getName() + "_" + tblName);
 		if (existingSourceTable.isPresent()) {
 			existingSourceTable.get().getColumns().clear();
-			sourceDefnRepo.save(existingSourceTable.get());
+			InfaSourceDefinition cleanedSourceDefn=sourceDefnRepo.save(existingSourceTable.get());
+			sourceTableDefAll.setId(cleanedSourceDefn.getId());
+			sourceTableDefAll.setVersion(cleanedSourceDefn.getVersion());
 		}	
 		sourceTableDefAll.getColumns().addAll(allTableColumns);		
-		sourceDefnRepo.save(sourceTableDefAll);*/
+		sourceDefnRepo.save(sourceTableDefAll);
 
 
 		sourceTableDef.getColumns().addAll(matchedColumns);
