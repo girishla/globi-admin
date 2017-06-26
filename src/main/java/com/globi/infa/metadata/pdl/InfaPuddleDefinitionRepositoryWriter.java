@@ -34,6 +34,19 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 
 	}
 
+	private InfaPuddleColumnDefinition getTargetCol(TARGETFIELD field, int index) {
+
+		InfaPuddleColumnDefinition col = InfaPuddleColumnDefinition.builder()//
+				.columnDataType(mapper.mapType(field.getDATATYPE()))//
+				.columnName(field.getNAME())//
+				.columnNumber(index)//
+				.nullable(field.getNULLABLE()).precision(Integer.parseInt(field.getPRECISION()))
+				.scale(Integer.parseInt(field.getSCALE())).build();
+
+		return col;
+
+	}
+
 	private void writeTarget(InfaTargetObject target) {
 
 		InfaPuddleDefinition tgt = InfaPuddleDefinition.builder()//
@@ -44,16 +57,21 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 		List<InfaPuddleColumnDefinition> targetCols = new ArrayList<>();
 		int[] idx = { 1 };
 
-		for (TARGETFIELD field : target.getTarget().getTARGETFIELD()) {
 
-			InfaPuddleColumnDefinition col = InfaPuddleColumnDefinition.builder()//
-					.columnDataType(mapper.mapType(field.getDATATYPE()))//
-					.columnName(field.getNAME())//
-					.columnNumber(idx[0]++)//
-					.nullable(field.getNULLABLE()).precision(Integer.parseInt(field.getPRECISION()))
-					.scale(Integer.parseInt(field.getSCALE())).build();
+		
+		// Do system columns first
+		for (TARGETFIELD field : target.getTarget().getTARGETFIELD().stream()
+				.filter(col -> col.getNAME().startsWith("SYS_")).collect(Collectors.toList())) {
 
-			targetCols.add(col);
+			targetCols.add(getTargetCol(field, idx[0]++));
+
+		}
+
+		// Do everything else
+		for (TARGETFIELD field : target.getTarget().getTARGETFIELD().stream()
+				.filter(col -> !(col.getNAME().startsWith("SYS_"))).collect(Collectors.toList())) {
+
+			targetCols.add(getTargetCol(field, idx[0]++));
 
 		}
 
