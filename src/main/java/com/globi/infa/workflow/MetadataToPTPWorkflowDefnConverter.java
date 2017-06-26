@@ -49,9 +49,6 @@ public class MetadataToPTPWorkflowDefnConverter {
 		if (colName.equals("ROW_ID")) {
 			column.setIntegrationId(true);
 		}
-		if (colName.equals("LAST_UPD")) {
-			column.setChangeCaptureCol(true);
-		}
 
 		return (PTPWorkflowSourceColumn.builder()//
 				.changeCaptureColumn(column.isChangeCaptureCol())//
