@@ -3,7 +3,7 @@ package com.globi.infa.workflow;
 
 import java.util.Optional;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
@@ -13,7 +13,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
  * @author Girish lakshmanan
  */
 @RepositoryRestResource(collectionResourceRel = "workflows",path = "workflows")
-public interface InfaWorkflowRepository extends CrudRepository<InfaWorkflow, Long> {
+public interface InfaWorkflowRepository extends PagingAndSortingRepository<InfaWorkflow, Long> {
 	
 	/**
 	 * Returns all {@link InfaWorkflow}s with the given {@link workflowName}.
