@@ -61,7 +61,6 @@ public class MetadataToPTPWorkflowDefnConverter {
 	}
 	
 
-
 	private PTPWorkflow getExtractWorkflowDefinitionFor(DataSourceTableDTO table) {
 
 		String generatedWFName = "PTP_" + table.getSourceName() + "_" + table.getTableName();
