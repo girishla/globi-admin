@@ -1,11 +1,7 @@
 package com.globi.infa.generator;
 
-import static com.globi.infa.generator.StaticObjectMother.getCCColumn;
-import static com.globi.infa.generator.StaticObjectMother.getIntegrationIdColumn;
-import static org.hamcrest.Matchers.notNullValue;
+import static com.globi.infa.generator.StaticObjectMother.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
@@ -16,13 +12,14 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import com.globi.AbstractWebIntegrationTest;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
-public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
+public class PTPWorkflowVaidationWebtest extends AbstractWebIntegrationTest {
 
 	@Autowired
 	InfaPTPWorkflowRepository wfRepository;
@@ -34,7 +31,8 @@ public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
 	public void setup(){ 
 
 		List<PTPWorkflowSourceColumn> cols=new ArrayList<>();
-		cols.add(getIntegrationIdColumn("ROW_ID"));
+//		cols.add(getIntegrationIdColumn("ROW_ID"));
+		cols.add(getNormalColumn("ROW_ID"));
 		cols.add(getCCColumn("LAST_UPD"));
 
 		
@@ -48,17 +46,14 @@ public class PTPPrimaryWorkflowWebtest extends AbstractWebIntegrationTest {
 	}
 	
 	@Test
-	public void createsWorkflowResourceFromWorkflowDefinition() throws Exception {
+	public void rejectsWorkflowIfNoIntegrationKeyIsSpecified() throws Exception {
 
 		mvc.perform(post("/infagen/workflows/ptp?sync=true")//
 				.content(asJsonString(ptpWorkflow))//
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//
 				.andDo(MockMvcResultHandlers.print())//
-				.andExpect(status().isCreated())//
-				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))//
-				.andExpect(jsonPath("$.workflowName", notNullValue()))//
-				.andExpect(jsonPath("$.workflowUri", notNullValue()));
+				.andExpect(status().isBadRequest());
 
 	}
 

@@ -22,28 +22,23 @@ import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
-public class PTPExtractWorkflowWebtest extends AbstractWebIntegrationTest {
+public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 
 	@Autowired
 	InfaPTPWorkflowRepository wfRepository;
 	PTPWorkflow ptpWorkflow;
-	static final String sourceTable = "S_ORG_EXT";
+	static final String sourceTable = "S_BU";
 	static final String source = "CGL";
 
 	@Before
 	public void setup(){
 		
-/*		List<PTPWorkflowSourceColumn> cols=new ArrayList<>();
-		cols.add(getIntegrationIdColumn("INVOICE_NUMBER"));
-		cols.add(getCCColumn("INPUT_DATE"));*/
-		
-
 		List<PTPWorkflowSourceColumn> cols=new ArrayList<>();
 		cols.add(getIntegrationIdColumn("ROW_ID"));
 		cols.add(getCCColumn("LAST_UPD"));
 		cols.add(getNormalColumn("NAME"));
 //		cols.add(getNormalColumn("NOTE_TYPE"));
-		cols.add(getBuidColumn("BU_ID"));
+		cols.add(getBuidColumn("ROW_ID"));
 		
 
 		ptpWorkflow = PTPWorkflow.builder()//
