@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +25,7 @@ public class InfaPTPWorkflowController {
 	private final GeneratorRequestAsyncProcessor requestProcessor;
 
 	private PTPWorkflowValidator validator;
+	
 
 	InfaPTPWorkflowController(GeneratorRequestAsyncProcessor requestProcessor, PTPWorkflowValidator validator) {
 		this.requestProcessor = requestProcessor;
@@ -42,9 +42,9 @@ public class InfaPTPWorkflowController {
 	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow(@RequestBody @Valid PTPWorkflow ptpWorkflow,
 			@RequestParam("sync") Optional<Boolean> sync, BindingResult result) throws Exception {
 
-		if (result.hasErrors()) {
-			throw new MethodArgumentNotValidException(null, result);
-		}
+//		if (result.hasErrors()) {
+//			throw new MethodArgumentNotValidException(null, result);
+//		}
 
 		PTPWorkflow savedWorkflow = (PTPWorkflow) requestProcessor.saveInput(ptpWorkflow);
 

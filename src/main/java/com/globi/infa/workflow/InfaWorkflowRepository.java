@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.stereotype.Repository;
 
 /**
  * Repository to access {@link InfaWorkflow} instances.
@@ -13,6 +14,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
  * @author Girish lakshmanan
  */
 @RepositoryRestResource(collectionResourceRel = "workflows",path = "workflows")
+@Repository
 public interface InfaWorkflowRepository extends PagingAndSortingRepository<InfaWorkflow, Long> {
 	
 	/**
