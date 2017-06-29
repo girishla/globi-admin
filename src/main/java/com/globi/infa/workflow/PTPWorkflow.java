@@ -13,6 +13,7 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
+import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -45,6 +46,7 @@ public class PTPWorkflow extends InfaWorkflow{
 	@NonNull
 	@NotBlank(message = "PTP Workflow source table name cannot be empty!")
 	@Column(name="src_table_name")
+	@Size(max = 26)
 	private String sourceTableName;
 	
 	@Column(name="src_filter")
