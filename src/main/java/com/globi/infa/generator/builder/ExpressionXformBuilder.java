@@ -19,6 +19,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.FileCopyUtils;
 
+import com.globi.infa.metadata.core.SourceTableAbbreviationMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +72,7 @@ public class ExpressionXformBuilder {
 
 		AddFieldsStep addDatasourceNumIdField();
 
-		AddFieldsStep addPGUIDField(String sourceName, List<InfaSourceColumnDefinition> columns);
+		AddFieldsStep addPGUIDField(String sourceName,String tableName, SourceTableAbbreviationMap sourceTableAbbr, List<InfaSourceColumnDefinition> columns);
 
 		AddFieldsStep addMD5HashField(List<InfaSourceColumnDefinition> columns);
 
@@ -352,7 +353,7 @@ public class ExpressionXformBuilder {
 		}
 
 		@Override
-		public AddFieldsStep addPGUIDField(String sourceName, List<InfaSourceColumnDefinition> columns) {
+		public AddFieldsStep addPGUIDField(String sourceName, String tableName, SourceTableAbbreviationMap sourceTableAbbr,List<InfaSourceColumnDefinition> columns) {
 
 			String concatenatedId = columns.stream()//
 					.filter(InfaSourceColumnDefinition::getPguidFlag)//
@@ -360,14 +361,18 @@ public class ExpressionXformBuilder {
 					.collect(Collectors.joining("|| ':' ||"));
 
 			if (concatenatedId.isEmpty()) {
-				concatenatedId = "'PGUID not set'";
+				concatenatedId="'OBI:" + sourceName + ":" + sourceTableAbbr.map(tableName) + ":'";
+				concatenatedId += "||" + columns.stream()//
+						.filter(InfaSourceColumnDefinition::getIntegrationIdFlag)//
+						.map(ExpressionXformSteps::getInfaCastToStringExpression)//
+						.collect(Collectors.joining("|| ':' ||"));
 			}
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("string");
 			xformExpressionField.setDEFAULTVALUE("");
 			xformExpressionField.setDESCRIPTION("");
-			xformExpressionField.setEXPRESSION("'" + sourceName + "'||':' ||" + concatenatedId);
+			xformExpressionField.setEXPRESSION(concatenatedId);
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
 			xformExpressionField.setNAME("SYS_PGUID");
 			xformExpressionField.setPICTURETEXT("");

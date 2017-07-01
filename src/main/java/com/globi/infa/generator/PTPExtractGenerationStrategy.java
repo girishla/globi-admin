@@ -37,6 +37,7 @@ import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
+import com.globi.infa.metadata.core.SourceTableAbbreviationMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.InfaSourceDefinition;
 import com.globi.infa.metadata.src.InfaSourceDefinitionRepository;
@@ -54,12 +55,14 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 	private PTPWorkflow wfDefinition;
 	private InfaSourceDefinitionRepository sourceDefnRepo;
+	private SourceTableAbbreviationMap sourceTableAbbreviation;
 
 	PTPExtractGenerationStrategy(Jaxb2Marshaller marshaller, SourceSystemRepository sourceSystemRepo,
-			SourceMetadataFactoryMapper metadataFactoryMapper, InfaSourceDefinitionRepository sourceDefnRepo) {
+			SourceMetadataFactoryMapper metadataFactoryMapper, InfaSourceDefinitionRepository sourceDefnRepo,SourceTableAbbreviationMap sourceTableAbbreviation) {
 
 		super(marshaller, sourceSystemRepo, metadataFactoryMapper);
 		this.sourceDefnRepo = sourceDefnRepo;
+		this.sourceTableAbbreviation=sourceTableAbbreviation;
 
 	}
 
@@ -223,7 +226,8 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.expressionFromPrototype("ExpFromPrototype")//
 						.expression("EXP_Resolve")//
 						.addIntegrationIdField(columnsList)//
-						.addDatasourceNumIdField().noMoreFields()//
+						.addDatasourceNumIdField()//
+						.noMoreFields()//
 						.nameAlreadySet()//
 						.build())//
 				.transformationCopyConnectAllFields("SQ_PrimaryData", "EXP_Resolve")//
@@ -314,7 +318,8 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setValue("sourceFilter", combinedFilter)//
-						.noMoreValues().loadSourceQualifierFromSeed("Seed_SourceQualifier")//
+						.noMoreValues()//
+						.loadSourceQualifierFromSeed("Seed_SourceQualifier")//
 						.addFields(dataTypeMapper, columnsList)//
 						.name("SQ_ExtractData")//
 						.build())//
@@ -325,7 +330,9 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.addEtlProcWidField()//
 						.addDatasourceNumIdField()//
 						.addIntegrationIdField(columnsList)//
-						.addBUIDField(columnsList).addPGUIDField(dbName, columnsList).addMD5HashField(columnsList)//
+						.addBUIDField(columnsList)//
+						.addPGUIDField(dbName,tblName, sourceTableAbbreviation, columnsList)//
+						.addMD5HashField(columnsList)//
 						.addRowWidField()//
 						.noMoreFields()//
 						.nameAlreadySet()//

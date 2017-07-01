@@ -1,15 +1,10 @@
 package com.globi.infa.generator;
 
-import static com.globi.infa.generator.StaticObjectMother.*;
-
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,36 +13,46 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import com.globi.AbstractWebIntegrationTest;
+import com.globi.infa.datasource.core.OracleTableColumnMetadataVisitor;
+import com.globi.infa.datasource.gcrm.GCRMTableColumnRepository;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
 public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 
 	@Autowired
 	InfaPTPWorkflowRepository wfRepository;
+	
+	@Autowired
+	private GCRMTableColumnRepository colRepo;
+	
+	@Autowired
+	private OracleTableColumnMetadataVisitor queryVisitor; 
+	
+	
 	PTPWorkflow ptpWorkflow;
-	static final String sourceTable = "S_BU";
-	static final String source = "CGL";
 
+	private PTPGeneratorInputBuilder inputBuilder;
+	
+	
+	
 	@Before
 	public void setup(){
 		
-		List<PTPWorkflowSourceColumn> cols=new ArrayList<>();
-		cols.add(getIntegrationIdColumn("ROW_ID"));
-		cols.add(getCCColumn("LAST_UPD"));
-		cols.add(getNormalColumn("NAME"));
-//		cols.add(getNormalColumn("NOTE_TYPE"));
-		cols.add(getBuidColumn("ROW_ID"));
 		
+		inputBuilder= new PTPGeneratorInputBuilder(colRepo,queryVisitor);
+		
+		ptpWorkflow= inputBuilder.start()//
+		.sourceName("CGL")//
+		.tableName("S_PROD_INT")//
+		.setIntegrationCol("ROW_ID")//
+		.setBuidCol("BU_ID")//
+		.setPguidCol("INTEGRATION_ID")//
+		.setNormalCol("NAME")
+		.sourceFilter("")
+		.build();
+	
 
-		ptpWorkflow = PTPWorkflow.builder()//
-				.sourceName(source)//
-				.columns(cols)
-				.sourceTableName(sourceTable)//
-				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + source+ "_"+ sourceTable + ".xml")
-				.workflowName("PTP_" + source+ "_"+ sourceTable  + "_Extract")
-				.build();
 		
 	}
 

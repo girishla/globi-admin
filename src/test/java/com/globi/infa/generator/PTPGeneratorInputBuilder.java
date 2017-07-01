@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.globi.infa.datasource.core.OracleTableColumnMetadataVisitor;
+import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
+import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.infa.datasource.fbm.FBMTableColumnRepository;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.workflow.InfaWorkflow;
@@ -18,16 +20,12 @@ import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-@Component
-@Scope("prototype")
 @Accessors(fluent = true)
 public class PTPGeneratorInputBuilder {
 
-	@Autowired
-	private FBMTableColumnRepository fbmColrepository;
+	private TableColumnRepository colRepo;
 
-	@Autowired
-	private OracleTableColumnMetadataVisitor oraColumnQueryVisitor;
+	private TableColumnMetadataVisitor queryVisitor;
 
 	private PTPWorkflow ptpWorkflowGeneratorInput;
 
@@ -43,22 +41,52 @@ public class PTPGeneratorInputBuilder {
 	List<String> integrationIdCols = new ArrayList<>();
 	List<String> pguidCols = new ArrayList<>();
 	List<String> buidCols = new ArrayList<>();
+	List<String> allCols = new ArrayList<>();
+	
+	
+	PTPGeneratorInputBuilder(TableColumnRepository colRepo,TableColumnMetadataVisitor queryVisitor){
+		
+		this.colRepo=colRepo;
+		this.queryVisitor=queryVisitor;
+		
+		
+	}
+	
+	
 
 	public PTPGeneratorInputBuilder setIntegrationCol(String columnName) {
 		integrationIdCols.add(columnName);
+		allCols.add(columnName);
 		return this;
 	}
 
 	public PTPGeneratorInputBuilder setBuidCol(String columnName) {
 		buidCols.add(columnName);
+		allCols.add(columnName);
 		return this;
 	}
 
 	public PTPGeneratorInputBuilder setPguidCol(String columnName) {
 		pguidCols.add(columnName);
+		allCols.add(columnName);
 		return this;
 	}
 
+	
+	public PTPGeneratorInputBuilder setNormalCol(String columnName) {
+		allCols.add(columnName);
+		return this;
+	}
+
+	public PTPGeneratorInputBuilder setChangeCaptureCol(String columnName) {
+		this.changeCaptureCol=columnName;
+		allCols.add(columnName);
+		return this;
+	}
+	
+	
+	
+	
 	public PTPGeneratorInputBuilder start() {
 		sourceName="";
 		tableName="";
@@ -72,9 +100,10 @@ public class PTPGeneratorInputBuilder {
 
 	public PTPWorkflow build() {
 
-		List<InfaSourceColumnDefinition> columns = fbmColrepository.accept(oraColumnQueryVisitor, tableName);
+		List<InfaSourceColumnDefinition> columns = colRepo.accept(queryVisitor, tableName);
 		// Build workflow columns DTO from source columns
 		List<PTPWorkflowSourceColumn> workflowSourceColumnList = columns.stream()//
+				.filter(col->allCols.stream().anyMatch(allColsColumn->allColsColumn.equals(col.getColumnName())))
 				.map(column -> {
 
 					if (integrationIdCols.stream().anyMatch(col -> column.getColumnName().equals(col))) {
