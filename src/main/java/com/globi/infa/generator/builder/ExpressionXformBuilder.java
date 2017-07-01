@@ -426,7 +426,7 @@ public class ExpressionXformBuilder {
 			else
 				colExpr = coldef.getColumnName();
 
-			colExpr = "IIF(ISNULL(" + colExpr + "),'-'," + colExpr + ")";
+			colExpr = "IIF(ISNULL(" + colExpr + "),'NOVAL'," + colExpr + ")";
 
 			return colExpr;
 
