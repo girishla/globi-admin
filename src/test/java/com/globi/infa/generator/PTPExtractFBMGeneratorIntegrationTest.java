@@ -12,6 +12,9 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.test.annotation.Rollback;
 
 import com.globi.AbstractIntegrationTest;
+import com.globi.infa.datasource.core.OracleTableColumnMetadataVisitor;
+import com.globi.infa.datasource.fbm.FBMTableColumnRepository;
+import com.globi.infa.datasource.gcrm.GCRMTableColumnRepository;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
@@ -38,6 +41,15 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 
 	@Autowired
 	private PTPGeneratorInputBuilder inputBuilder;
+	
+	
+	@Autowired
+	private FBMTableColumnRepository colRepo;
+	
+	@Autowired
+	private OracleTableColumnMetadataVisitor queryVisitor; 
+	
+	
 
 	PTPWorkflow ptpWorkflowGeneratorInvoiceHDInput;
 
@@ -48,9 +60,14 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 	PTPWorkflow ptpWorkflowGeneratorASMDTLInput;
 
 	
+	
+	
 	@Before
 	public void setup() {
 
+		
+		inputBuilder=new PTPGeneratorInputBuilder(colRepo,queryVisitor);
+		
 		ptpWorkflowGeneratorInvoiceHDInput = inputBuilder.start()//
 				.sourceName("FBM")//
 				.tableName("PS_LN_BI_INV_HD_VW")//
