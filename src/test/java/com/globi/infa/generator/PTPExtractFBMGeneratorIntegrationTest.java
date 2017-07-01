@@ -39,7 +39,6 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 	@Autowired
 	GitWriterEventListener gitWriter;
 
-	@Autowired
 	private PTPGeneratorInputBuilder inputBuilder;
 	
 	
