@@ -76,12 +76,15 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 			if (allColsMap.containsKey(inputColumn.getSourceColumnName())) {
 				allColsMap.get(inputColumn.getSourceColumnName())
 						.setIntegrationIdFlag(inputColumn.isIntegrationIdColumn());
+				allColsMap.get(inputColumn.getSourceColumnName()).setColumnSequence(inputColumn.getColumnSequence());
 				allColsMap.get(inputColumn.getSourceColumnName()).setBuidFlag(inputColumn.isBuidColumn());
 				allColsMap.get(inputColumn.getSourceColumnName()).setCcFlag(inputColumn.isChangeCaptureColumn());
 				allColsMap.get(inputColumn.getSourceColumnName()).setPguidFlag(inputColumn.isPguidColumn());
 				allColsMap.get(inputColumn.getSourceColumnName()).setSelected(true);
 			}
 		});
+		
+		
 
 		List<InfaSourceColumnDefinition> matchedColumns = allColsMap.values()//
 				.stream()//
@@ -171,7 +174,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		String combinedFilter = getSourceFilterString(sourceFilter, inputSelectedColumns, tblName);
 
-		// Save all columns for reference and then add back matched columns for
+/*		// Save all columns for reference and then add back matched columns for
 		// processing
 		Optional<InfaSourceDefinition> existingSourceTable = sourceDefnRepo.findBySourceTableUniqueName(source.get().getName() + "_" + tblName);
 		if (existingSourceTable.isPresent()) {
@@ -182,7 +185,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		}	
 		sourceTableDefAll.getColumns().addAll(allTableColumns);		
 		sourceDefnRepo.save(sourceTableDefAll);
-
+*/
 
 		sourceTableDef.getColumns().addAll(matchedColumns);
 

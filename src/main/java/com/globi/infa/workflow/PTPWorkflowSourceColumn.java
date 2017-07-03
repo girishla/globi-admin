@@ -43,5 +43,8 @@ public class PTPWorkflowSourceColumn extends AbstractEntity {
 	@Builder.Default
 	@Column(name="buid_indicator")
 	private boolean buidColumn = false;
+	
+	@Column(name="COLUMNSEQUENCE")
+	private int columnSequence;
 
 }

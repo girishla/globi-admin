@@ -39,6 +39,10 @@ public class DataSourceTableColumnDTO  {
 	@NonNull
 	private String dataType;
 
+	private int colOrder;
+	
+	
+
 	private boolean integrationId;
 
 	private boolean changeCaptureCol;

@@ -43,6 +43,8 @@ public class InfaSourceColumnDefinition extends AbstractEntity {
 	private int precision;
 	private int scale;
 	
+	private int columnSequence;
+	
 	@Builder.Default
 	private Boolean integrationIdFlag=false;
 	@Builder.Default

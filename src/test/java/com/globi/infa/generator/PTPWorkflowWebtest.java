@@ -48,7 +48,8 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 		.setIntegrationCol("ROW_ID")//
 		.setBuidCol("BU_ID")//
 		.setPguidCol("INTEGRATION_ID")//
-		.setNormalCol("NAME")
+		.setPguidCol("BU_ID")
+		.setPguidCol("NAME")
 		.sourceFilter("")
 		.build();
 	

@@ -55,6 +55,7 @@ public class MetadataToPTPWorkflowDefnConverter {
 				.integrationIdColumn(column.isIntegrationId())//
 				.pguidColumn(column.isPguidCol())//
 				.buidColumn(column.isBuidCol())
+				.columnSequence(column.getColOrder())
 				.sourceColumnName(colName)//
 				.build());
 
