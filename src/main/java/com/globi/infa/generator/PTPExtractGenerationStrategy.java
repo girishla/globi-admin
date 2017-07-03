@@ -41,7 +41,9 @@ import com.globi.infa.metadata.core.SourceTableAbbreviationMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.InfaSourceDefinition;
 import com.globi.infa.metadata.src.InfaSourceDefinitionRepository;
+import com.globi.infa.notification.messages.PuddleMessageNotifier;
 import com.globi.infa.workflow.GeneratedWorkflow;
+import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
@@ -56,16 +58,20 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 	private PTPWorkflow wfDefinition;
 	private InfaSourceDefinitionRepository sourceDefnRepo;
 	private SourceTableAbbreviationMap sourceTableAbbreviation;
+	InfaPTPWorkflowRepository wfRepo;
 
 	PTPExtractGenerationStrategy(Jaxb2Marshaller marshaller, SourceSystemRepository sourceSystemRepo,
-			SourceMetadataFactoryMapper metadataFactoryMapper, InfaSourceDefinitionRepository sourceDefnRepo,SourceTableAbbreviationMap sourceTableAbbreviation) {
+			SourceMetadataFactoryMapper metadataFactoryMapper, InfaSourceDefinitionRepository sourceDefnRepo,SourceTableAbbreviationMap sourceTableAbbreviation,PuddleMessageNotifier socketNotifier,InfaPTPWorkflowRepository wfRepo) {
 
-		super(marshaller, sourceSystemRepo, metadataFactoryMapper);
+		super(marshaller, sourceSystemRepo, metadataFactoryMapper,socketNotifier);
 		this.sourceDefnRepo = sourceDefnRepo;
 		this.sourceTableAbbreviation=sourceTableAbbreviation;
-
+		this.wfRepo=wfRepo;
+		
 	}
 
+	
+	
 	private List<InfaSourceColumnDefinition> getFilteredSourceDefnColumns(
 			List<InfaSourceColumnDefinition> allTableColumns, List<PTPWorkflowSourceColumn> inputSelectedColumns) {
 
@@ -108,6 +114,15 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		return source;
 
+	}
+	
+	
+	private PTPWorkflow setWorkflowStatus(PTPWorkflow wf, String status){
+		
+		
+		
+		return null;
+		
 	}
 
 	private String getSourceFilterString(String sourceFilter, List<PTPWorkflowSourceColumn> inputSelectedColumns,
@@ -187,6 +202,9 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		sourceDefnRepo.save(sourceTableDefAll);
 
 
+		
+		
+		
 		sourceTableDef.getColumns().addAll(matchedColumns);
 
 		commonValuesMap.put("targetTableName", dbName + "_" + tblName);
@@ -435,6 +453,10 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 	public InfaPowermartObject generate() {
 		InfaPowermartObject pmObj = null;
 
+		
+
+		
+		
 		try {
 			pmObj = this.generateWorkflow();
 			this.notifyListeners(pmObj, wfDefinition);

@@ -20,6 +20,7 @@ import com.globi.infa.generator.PTPExtractGenerationStrategy;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 import com.globi.infa.notification.messages.PuddleMessageNotifier;
 import com.globi.infa.notification.messages.PuddleNotificationContentMessage;
+import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
 
@@ -58,22 +59,35 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		// do nothing
 
 	}
+	
+	
+	private void notifyClients(String endpoint, GeneratedWorkflow wf, String message){
+		
+		notifier.notify("/topic/" + endpoint,
+				PuddleNotificationContentMessage.builder()//
+						.messageId(UUID.randomUUID())//
+						.messageStr(message)//
+						.puddleId(wf.getWorkflow().getId())//
+						.puddleStatus(wf.getWorkflow().getWorkflowStatus())//
+						.build());
+		
+	}
+	
 
 	private PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
 
 		ptpExtractgenerator.setWfDefinition(wf);
+		
+		wf.setWorkflowStatus("Processing");
+		wf=ptpRepository.save(wf);
+		this.notifyClients("puddles", wf, "Starting workflow generation.");
+		
 		ptpExtractgenerator.generate();
 
 		wf.getWorkflow().setWorkflowStatus("Processed");
 		ptpRepository.save(wf);
-
-		notifier.notify("/topic/puddles",
-				PuddleNotificationContentMessage.builder()//
-						.messageId(UUID.randomUUID())//
-						.messageStr("Finished processing puddle workflow.")//
-						.puddleId(wf.getId())//
-						.puddleStatus("Processed")//
-						.build());
+		
+		this.notifyClients("puddles", wf, "Finished processing puddle workflow");
 
 		return wf;
 	}
