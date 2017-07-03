@@ -21,7 +21,7 @@ public class MetadataTableColumnRepository {
 	protected String columnSQL = "SELECT SRC_NAME, \r\n" + 
 			"       SRC_TBL, \r\n" + 
 			"       SRC_TBL_COL, \r\n" + 
-			"       MAX(COL_ORDER) COL_ORDER, \r\n" + 
+			"       MAX(SRC_COL_ORDER) SRC_COL_ORDER, \r\n" + 
 			"       MAX(INT_ID_INDICATOR) INT_ID_INDICATOR, \r\n" + 
 			"       MAX(BU_PGUID_INDICATOR) BU_PGUID_INDICATOR, \r\n" + 
 			"       MAX(PGUID_INDICATOR)  PGUID_INDICATOR \r\n" + 
@@ -51,7 +51,7 @@ public class MetadataTableColumnRepository {
 					.changeCaptureCol(false)
 					.pguidCol(rs.getInt("PGUID_INDICATOR")==1?true:false)//
 					.buidCol(rs.getInt("BU_PGUID_INDICATOR")==1?true:false)//
-					.colOrder(rs.getInt("COL_ORDER"))
+					.colOrder(rs.getInt("SRC_COL_ORDER"))
 					.build();
 
 					

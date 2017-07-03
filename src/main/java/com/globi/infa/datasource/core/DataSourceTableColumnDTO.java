@@ -39,8 +39,8 @@ public class DataSourceTableColumnDTO  {
 	@NonNull
 	private String dataType;
 
-	private int colOrder;
-	
+	@Builder.Default
+	private int colOrder=0;
 	
 
 	private boolean integrationId;
