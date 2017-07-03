@@ -299,7 +299,7 @@ public class ExpressionXformBuilder {
 
 			String concatenatedId = columns.stream()//
 					.filter(InfaSourceColumnDefinition::getIntegrationIdFlag)//
-					.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e1.getColumnSequence()))
+					.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e2.getColumnSequence()))
 					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
 
@@ -329,7 +329,7 @@ public class ExpressionXformBuilder {
 
 			String concatenatedId = columns.stream()//
 					.filter(InfaSourceColumnDefinition::getBuidFlag)//
-					.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e1.getColumnSequence()))
+					.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e2.getColumnSequence()))
 					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
 
@@ -362,7 +362,7 @@ public class ExpressionXformBuilder {
 			String concatenatedId = "'OBI:" + sourceName + ":" + sourceTableAbbr.map(tableName) + ":'";
 			concatenatedId += "||" + columns.stream()//
 					.filter(InfaSourceColumnDefinition::getPguidFlag)//
-					.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e1.getColumnSequence()))
+					.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e2.getColumnSequence()))
 					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
 
@@ -370,7 +370,7 @@ public class ExpressionXformBuilder {
 				concatenatedId = "'OBI:" + sourceName + ":" + sourceTableAbbr.map(tableName) + ":'";
 				concatenatedId += "||" + columns.stream()//
 						.filter(InfaSourceColumnDefinition::getIntegrationIdFlag)//
-						.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e1.getColumnSequence()))
+						.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e2.getColumnSequence()))
 						.map(ExpressionXformSteps::getInfaCastToStringExpression)//
 						.collect(Collectors.joining("|| ':' ||"));
 			}
