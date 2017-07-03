@@ -3,6 +3,7 @@ package com.globi.infa.generator.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -21,6 +22,8 @@ import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
+import com.globi.infa.notification.messages.PuddleMessageNotifier;
+import com.globi.infa.notification.messages.PuddleNotificationContentMessage;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.MetadataToPTPWorkflowDefnConverter;
 import com.globi.infa.workflow.PTPWorkflow;
@@ -42,7 +45,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 
 	@Autowired
 	AggregateGitWriterEventListener aggregateGitWriter;
-	
+
 	@Autowired
 	AggregatePTPPmcmdFileWriterEventListener aggregateCommandWriter;
 
@@ -51,6 +54,9 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 
 	@Autowired
 	MetadataTableColumnRepository metadataColumnRepository;
+
+	@Autowired
+	private PuddleMessageNotifier notifier;
 
 	@Override
 	public List<PTPWorkflow> buildInput() {
@@ -76,8 +82,6 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 						// generated subclass
 	}
 
-
-
 	public PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
 
 		ptpExtractgenerator.setWfDefinition(wf);
@@ -86,6 +90,13 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 		wf.getWorkflow().setWorkflowStatus("Processed");
 		ptpRepository.save(wf);
 
+		notifier.notify("/topic/puddles",
+				PuddleNotificationContentMessage.builder()//
+						.messageId(UUID.randomUUID())//
+						.messageStr("Finished processing puddle workflow.")//
+						.puddleId(wf.getId())//
+						.puddleStatus("Processed")//
+						.build());
 		return wf;
 	}
 
@@ -110,10 +121,8 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 		ptpExtractgenerator.addListener(aggregateCommandWriter);
 		ptpExtractgenerator.addListener(targetDefnWriter);
 
-
 		aggregateGitWriter.notifyBatchStart();
 		aggregateCommandWriter.notifyBatchStart();
-		
 
 		processedWorkflows = inputWorkflowDefinitions.stream()//
 				.map(wf -> (PTPWorkflow) wf)//

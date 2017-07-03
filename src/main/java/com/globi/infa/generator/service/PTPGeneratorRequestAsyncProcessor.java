@@ -1,6 +1,7 @@
 package com.globi.infa.generator.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.transaction.Transactional;
 
@@ -17,6 +18,8 @@ import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
+import com.globi.infa.notification.messages.PuddleMessageNotifier;
+import com.globi.infa.notification.messages.PuddleNotificationContentMessage;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
 
@@ -37,7 +40,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 
 	@Autowired
 	AggregateGitWriterEventListener aggregateGitWriter;
-	
+
 	@Autowired
 	AggregatePTPPmcmdFileWriterEventListener aggregateCommandWriter;
 
@@ -47,66 +50,71 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	@Autowired
 	MetadataTableColumnRepository metadataColumnRepository;
 
+	@Autowired
+	private PuddleMessageNotifier notifier;
 
 	@Override
 	public void postProcess() {
 		// do nothing
 
 	}
-	
-	
-	
-    private PTPWorkflow processWorkflow(PTPWorkflow wf,PTPExtractGenerationStrategy ptpExtractgenerator){
+
+	private PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
 
 		ptpExtractgenerator.setWfDefinition(wf);
 		ptpExtractgenerator.generate();
 
 		wf.getWorkflow().setWorkflowStatus("Processed");
 		ptpRepository.save(wf);
-        
-        return wf;
-    }
 
-    
+		notifier.notify("/topic/puddles",
+				PuddleNotificationContentMessage.builder()//
+						.messageId(UUID.randomUUID())//
+						.messageStr("Finished processing puddle workflow.")//
+						.puddleId(wf.getId())//
+						.puddleStatus("Processed")//
+						.build());
 
-    @Lookup
-    public PTPExtractGenerationStrategy getPtpExtractgenerator(){
-      return null; // This implementation will be overridden by dynamically generated subclass
-    }
-    
+		return wf;
+	}
+
+	@Lookup
+	public PTPExtractGenerationStrategy getPtpExtractgenerator() {
+		return null; // This implementation will be overridden by dynamically
+						// generated subclass
+	}
+
 	@Override
 	public AbstractInfaWorkflowEntity saveInput(AbstractInfaWorkflowEntity inputWorkflowDefinition) {
-		
-		PTPWorkflow wf=(PTPWorkflow)inputWorkflowDefinition;
-		
-		Optional<PTPWorkflow> existingWorkflow = ptpRepository
-				.findByWorkflowName(wf.getWorkflow().getWorkflowName());
+
+		PTPWorkflow wf = (PTPWorkflow) inputWorkflowDefinition;
+
+		Optional<PTPWorkflow> existingWorkflow = ptpRepository.findByWorkflowName(wf.getWorkflow().getWorkflowName());
 		if (existingWorkflow.isPresent()) {
 			existingWorkflow.get().getColumns().clear();
-			PTPWorkflow cleanedWf= ptpRepository.save(existingWorkflow.get());
+			PTPWorkflow cleanedWf = ptpRepository.save(existingWorkflow.get());
 			wf.setId(cleanedWf.getId());
 			wf.getWorkflow().setId((cleanedWf.getWorkflow().getId()));
 			wf.setVersion(cleanedWf.getVersion());
 			wf.getWorkflow().setVersion(cleanedWf.getWorkflow().getVersion());
 		}
 		wf.getWorkflow().setWorkflowStatus("Queued");
-		
+
 		return ptpRepository.save(wf);
 	}
 
 	@Override
 	public AbstractInfaWorkflowEntity process(AbstractInfaWorkflowEntity inputWorkflowDefinition) {
-		
-		PTPExtractGenerationStrategy ptpExtractgenerator=getPtpExtractgenerator();
-		
+
+		PTPExtractGenerationStrategy ptpExtractgenerator = getPtpExtractgenerator();
+
 		ptpExtractgenerator.addListener(gitWriter);
 		ptpExtractgenerator.addListener(aggregateGitWriter);
 		ptpExtractgenerator.addListener(aggregateCommandWriter);
 		ptpExtractgenerator.addListener(targetDefnWriter);
 
-		return this.processWorkflow((PTPWorkflow)inputWorkflowDefinition,ptpExtractgenerator);
-		
-		
+		return this.processWorkflow((PTPWorkflow) inputWorkflowDefinition, ptpExtractgenerator);
+
 	}
 
 	@Override
@@ -114,7 +122,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	@Transactional
 	public void processAsync(AbstractInfaWorkflowEntity inputWorkflowDefinition) {
 		this.process(inputWorkflowDefinition);
-		
+
 	}
 
 }

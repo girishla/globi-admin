@@ -3,6 +3,7 @@ package com.globi.infa.generator;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 import javax.xml.transform.stream.StreamResult;
 
@@ -17,24 +18,25 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
 
 import com.globi.infa.generator.builder.InfaPowermartObject;
+import com.globi.infa.notification.messages.PuddleMessageNotifier;
+import com.globi.infa.notification.messages.PuddleNotificationContentMessage;
 import com.globi.infa.workflow.GeneratedWorkflow;
-
-
-
 
 @Component
 public class GitWriterEventListener implements WorkflowCreatedEventListener {
 
 	@Autowired
 	private PmrepLoader repoLoader;
-	
+
+	@Autowired
+	private PuddleMessageNotifier notifier;
+
 	@Value("${git.dir}")
 	private String gitDirectory;
 	@Autowired
 	private Jaxb2Marshaller marshaller;
 
 	private InfaPowermartObject generatedObject;
-
 
 	@Override
 	public void notify(InfaPowermartObject generatedObject, GeneratedWorkflow wf) {
@@ -43,9 +45,11 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 
 		try {
 			this.writeToGit();
-			
-		repoLoader.loadWorkflow(generatedObject.folderName,generatedObject.pmObjectName);
-			
+			notifier.notify("/topic/puddles", PuddleNotificationContentMessage.builder().messageId(UUID.randomUUID())
+					.messageStr("Successfully commited Workflow XML to Git").puddleId(wf.getWorkflow().getId()).build());
+
+			repoLoader.loadWorkflow(generatedObject.folderName, generatedObject.pmObjectName);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -77,7 +81,7 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 				this.saveXML(this.generatedObject.pmObject, this.generatedObject.pmObjectName);
 
 				git.add()//
-						.addFilepattern(this.generatedObject.pmObjectName+ ".xml").call();
+						.addFilepattern(this.generatedObject.pmObjectName + ".xml").call();
 
 				git.commit().setMessage("Added " + this.generatedObject.pmObjectName).call();
 
