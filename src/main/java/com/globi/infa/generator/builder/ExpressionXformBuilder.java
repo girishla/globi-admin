@@ -359,7 +359,8 @@ public class ExpressionXformBuilder {
 		public AddFieldsStep addPGUIDField(String sourceName, String tableName,
 				SourceTableAbbreviationMap sourceTableAbbr, List<InfaSourceColumnDefinition> columns) {
 
-			String concatenatedId = columns.stream()//
+			String concatenatedId = "'OBI:" + sourceName + ":" + sourceTableAbbr.map(tableName) + ":'";
+			concatenatedId +=columns.stream()//
 					.filter(InfaSourceColumnDefinition::getPguidFlag)//
 					.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e1.getColumnSequence()))
 					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
