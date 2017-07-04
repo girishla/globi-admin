@@ -67,6 +67,8 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 
 	public void setStatusMessage(String msg) {
 
+		msg=msg.substring(0, msg.length()>3999?3999:msg.length());
+
 		this.setMessageObject(InfaWorkflowStatusMessage.builder().statusMessage(msg).build());
 
 	}
