@@ -59,10 +59,9 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		// do nothing
 
 	}
-	
-	
-	private void notifyClients(String endpoint, GeneratedWorkflow wf, String message){
-		
+
+	private void notifyClients(String endpoint, GeneratedWorkflow wf, String message) {
+
 		notifier.notify("/topic/" + endpoint,
 				PuddleNotificationContentMessage.builder()//
 						.messageId(UUID.randomUUID())//
@@ -70,23 +69,18 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 						.puddleId(wf.getWorkflow().getId())//
 						.puddleStatus(wf.getWorkflow().getWorkflowStatus())//
 						.build());
-		
+
 	}
-	
 
 	private PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
 
 		ptpExtractgenerator.setWfDefinition(wf);
-		
-		wf.setWorkflowStatus("Processing");
-		wf=ptpRepository.save(wf);
-		this.notifyClients("puddles", wf, "Starting workflow generation.");
-		
+
 		ptpExtractgenerator.generate();
 
 		wf.getWorkflow().setWorkflowStatus("Processed");
 		ptpRepository.save(wf);
-		
+
 		this.notifyClients("puddles", wf, "Finished processing puddle workflow");
 
 		return wf;
@@ -112,9 +106,12 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 			wf.setVersion(cleanedWf.getVersion());
 			wf.getWorkflow().setVersion(cleanedWf.getWorkflow().getVersion());
 		}
-		wf.getWorkflow().setWorkflowStatus("Queued");
+		wf.getWorkflow().setWorkflowStatus("Processing");
+		wf = ptpRepository.save(wf);
+		this.notifyClients("puddles", wf, "Starting workflow generation.");
 
-		return ptpRepository.save(wf);
+		return wf;
+
 	}
 
 	@Override
