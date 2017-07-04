@@ -8,14 +8,13 @@ import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
-import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.WhereJoinTable;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.globi.infa.AbstractInfaWorkflowEntity;
 
 import lombok.AllArgsConstructor;
@@ -56,6 +55,7 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 	@OneToOne(targetEntity = InfaWorkflowStatusMessage.class, fetch = FetchType.LAZY, optional = true, cascade = {
 			CascadeType.ALL })
 	@JoinColumn(name = "MESSAGE_ID", referencedColumnName = "ID")
+	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	private InfaWorkflowStatusMessage messageObject;
 
 	@Override
