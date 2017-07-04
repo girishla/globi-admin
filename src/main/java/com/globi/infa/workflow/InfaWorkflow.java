@@ -55,7 +55,7 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 	@OneToOne(targetEntity = InfaWorkflowStatusMessage.class, fetch = FetchType.LAZY, optional = true, cascade = {
 			CascadeType.ALL })
 	@JoinColumn(name = "MESSAGE_ID", referencedColumnName = "ID")
-	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+
 	private InfaWorkflowStatusMessage messageObject;
 
 	@Override
