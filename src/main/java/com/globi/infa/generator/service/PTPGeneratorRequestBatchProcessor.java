@@ -6,12 +6,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 
 import com.globi.infa.AbstractInfaWorkflowEntity;
 import com.globi.infa.datasource.core.DataSourceTableColumnDTO;
@@ -81,7 +82,8 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 		return null; // This implementation will be overridden by dynamically
 						// generated subclass
 	}
-
+	
+	@Transactional(propagation = Propagation.NESTED)
 	public PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
 
 		ptpExtractgenerator.setWfDefinition(wf);
@@ -101,7 +103,6 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 	}
 
 	@Async
-	@Transactional
 	public void processAsync(List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions) {
 
 		process(inputWorkflowDefinitions);

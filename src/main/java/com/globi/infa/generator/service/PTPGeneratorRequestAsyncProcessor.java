@@ -3,12 +3,13 @@ package com.globi.infa.generator.service;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 
 import com.globi.infa.AbstractInfaWorkflowEntity;
 import com.globi.infa.datasource.core.MetadataTableColumnRepository;
@@ -58,6 +59,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	public void postProcess() {
 		// do nothing
 
+		
 	}
 
 	private void notifyClients(String endpoint, GeneratedWorkflow wf, String message) {
@@ -72,6 +74,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 
 	}
 
+	@Transactional(propagation = Propagation.NESTED)
 	private PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
 
 		ptpExtractgenerator.setWfDefinition(wf);
