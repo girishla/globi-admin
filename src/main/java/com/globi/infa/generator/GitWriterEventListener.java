@@ -26,7 +26,7 @@ import com.globi.infa.workflow.GeneratedWorkflow;
 public class GitWriterEventListener implements WorkflowCreatedEventListener {
 
 	@Autowired
-	private PmrepLoader repoLoader;
+	private RepositoryLoader repoLoader;
 
 	@Autowired
 	private PuddleMessageNotifier notifier;
@@ -48,7 +48,7 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 			notifier.notify("/topic/puddles", PuddleNotificationContentMessage.builder().messageId(UUID.randomUUID())
 					.messageStr("Successfully commited Workflow XML to Git").puddleId(wf.getWorkflow().getId()).build());
 
-			repoLoader.loadWorkflow(generatedObject.folderName, generatedObject.pmObjectName);
+			repoLoader.loadWorkflow(generatedObject, wf);
 
 		} catch (IOException e) {
 			e.printStackTrace();

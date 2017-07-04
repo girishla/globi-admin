@@ -15,16 +15,21 @@ import org.zeroturnaround.exec.ProcessResult;
 
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.workflow.GeneratedWorkflow;
+import com.globi.infa.workflow.InfaPTPWorkflowRepository;
+import com.globi.infa.workflow.InfaWorkflowRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
 @Profile("prod")
-public class RepositoryLoaderEventListener implements WorkflowCreatedEventListener, PmrepLoader {
+public class RepositoryLoaderEventListener implements WorkflowCreatedEventListener, RepositoryLoader {
 
 	@Autowired
-	PmcmdRunner pmcmdRunner;
+	WorkflowRunner pmcmdRunner;
+	@Autowired
+	InfaWorkflowRepository wfRepo;
+
 
 	@Value("${git.dir}")
 	private String gitDirectory;
@@ -47,7 +52,7 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 	private final Map<String, GeneratedWorkflow> workflows = new HashMap<>();
 
 	@Override
-	public void loadWorkflow(String folderName, String objectName) {
+	public void loadWorkflow(InfaPowermartObject generatedObject, GeneratedWorkflow wf) {
 		try {
 			String outputConnect = new ProcessExecutor()//
 					.command(pmrepDirectory + "pmrep", "connect", "-r", infaRepositoryService, "-d", infaDomain, "-n",
@@ -55,8 +60,8 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 					.readOutput(true).execute().outputUTF8();
 
 			ProcessResult result = new ProcessExecutor()//
-					.command(pmrepDirectory + "pmrep", "ObjectImport", "-i", gitDirectory + "\\" + objectName + ".xml",
-							"-c", gitDirectory + "\\infagen\\infacontrol_" + folderName + ".xml")
+					.command(pmrepDirectory + "pmrep", "ObjectImport", "-i", gitDirectory + "\\" + generatedObject.pmObjectName + ".xml",
+							"-c", gitDirectory + "\\infagen\\infacontrol_" + generatedObject.folderName + ".xml")
 					.readOutput(true).execute();
 
 			String output = result.outputUTF8();
@@ -71,13 +76,18 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 				throw new InvalidExitValueException("Errors during upload. Please see logs for more info.", result);
 			}
 
-			pmcmdRunner.run(folderName, objectName);
+			pmcmdRunner.run(generatedObject, wf);
+			
+			
 
 		} catch (InvalidExitValueException | IOException | InterruptedException | TimeoutException e1) {
 
 			// update wf status column to error
 
 			e1.printStackTrace();
+			
+			wf.getWorkflow().setWorkflowRunStatus("Error");
+			wf=wfRepo.save(wf.getWorkflow());
 		}
 
 	}
@@ -86,6 +96,7 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 	public void notify(InfaPowermartObject generatedObject, GeneratedWorkflow wf) {
 
 		this.workflows.put(generatedObject.pmObjectName, wf);
+		
 
 	}
 

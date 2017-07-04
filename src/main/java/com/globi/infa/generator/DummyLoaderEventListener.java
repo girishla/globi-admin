@@ -12,20 +12,20 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 @Profile("test")
-public class DummyLoaderEventListener implements WorkflowCreatedEventListener, PmrepLoader {
+public class DummyLoaderEventListener implements WorkflowCreatedEventListener, RepositoryLoader {
 
 	@Autowired
-	PmcmdRunner pmcmdRunner;
+	WorkflowRunner pmcmdRunner;
 
 
 	@Override
-	public void loadWorkflow(String folderName, String objectName) {
+	public void loadWorkflow(InfaPowermartObject generatedObject, GeneratedWorkflow wf){
 
 		log.info("*************************************");
 		log.info("I promise to load the workflow when it is the correct profile");
 		log.info("*************************************");
 
-		pmcmdRunner.run(folderName, objectName);
+		pmcmdRunner.run(generatedObject, wf);
 
 	}
 

@@ -45,8 +45,9 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 	@Column(name="TYPE",insertable = false, updatable = false)
 	private String workflowType="";
 
-	
 	private String workflowStatus;
+	
+	private String workflowRunStatus;
 
 	@Override
 	@JsonIgnore
