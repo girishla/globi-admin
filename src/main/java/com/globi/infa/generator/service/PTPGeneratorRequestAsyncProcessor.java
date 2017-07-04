@@ -3,13 +3,12 @@ package com.globi.infa.generator.service;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.globi.infa.AbstractInfaWorkflowEntity;
 import com.globi.infa.datasource.core.MetadataTableColumnRepository;
@@ -23,6 +22,7 @@ import com.globi.infa.notification.messages.PuddleMessageNotifier;
 import com.globi.infa.notification.messages.PuddleNotificationContentMessage;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
+import com.globi.infa.workflow.InfaWorkflowStatusMessage;
 import com.globi.infa.workflow.PTPWorkflow;
 
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +59,6 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	public void postProcess() {
 		// do nothing
 
-		
 	}
 
 	private void notifyClients(String endpoint, GeneratedWorkflow wf, String message) {
@@ -78,13 +77,23 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	private PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
 
 		ptpExtractgenerator.setWfDefinition(wf);
+		
+		
 
-		ptpExtractgenerator.generate();
+		try {
 
-		wf.getWorkflow().setWorkflowStatus("Processed");
+			ptpExtractgenerator.generate();
+			wf.setWorkflowStatus("Processed");
+			this.notifyClients("puddles", wf, "Finished processing puddle workflow");
+			wf.setStatusMessage("Processed Successfully");
+
+		} catch (Exception e) {
+			wf.setWorkflowStatus("Error");
+			wf.setStatusMessage(e.getMessage().substring(0, 3999));
+			this.notifyClients("puddles", wf, "Error processing puddle workflow");
+		}
+
 		ptpRepository.save(wf);
-
-		this.notifyClients("puddles", wf, "Finished processing puddle workflow");
 
 		return wf;
 	}

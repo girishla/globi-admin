@@ -54,10 +54,18 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 	@Override
 	public void loadWorkflow(InfaPowermartObject generatedObject, GeneratedWorkflow wf) {
 		try {
-			String outputConnect = new ProcessExecutor()//
+			ProcessResult outputConnectResult = new ProcessExecutor()//
 					.command(pmrepDirectory + "pmrep", "connect", "-r", infaRepositoryService, "-d", infaDomain, "-n",
 							infaUser, "-x", infaPwd)
-					.readOutput(true).execute().outputUTF8();
+					.readOutput(true).execute();
+			
+			String outputConnect=outputConnectResult.outputUTF8();
+			
+			
+			if (!outputConnect.contains("Connected")) {
+				throw new InvalidExitValueException("Could not connect to Powercenter Repository." + "\n" + outputConnect, outputConnectResult);
+			}
+
 
 			ProcessResult result = new ProcessExecutor()//
 					.command(pmrepDirectory + "pmrep", "ObjectImport", "-i", gitDirectory + "\\" + generatedObject.pmObjectName + ".xml",
@@ -72,8 +80,8 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 			log.info("*************************************");
 			log.info(output);
 			log.info("*************************************");
-			if (!output.contains("0 Errors")) {
-				throw new InvalidExitValueException("Errors during upload. Please see logs for more info.", result);
+			if ((!output.contains("0 Errors")) || output.contains("Failed to execute ObjectImport")) {
+				throw new InvalidExitValueException("Errors during upload." + "\n" + output, result);
 			}
 
 			pmcmdRunner.run(generatedObject, wf);
@@ -85,9 +93,7 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 			// update wf status column to error
 
 			e1.printStackTrace();
-			
-			wf.getWorkflow().setWorkflowRunStatus("Error");
-			wf=wfRepo.save(wf.getWorkflow());
+			throw new WorkflowGenerationException(wf,"Unable to upload Workflow!" + "\n" + e1.getMessage());
 		}
 
 	}

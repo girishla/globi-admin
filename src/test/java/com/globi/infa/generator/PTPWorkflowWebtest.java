@@ -44,9 +44,9 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 		
 		ptpWorkflow= inputBuilder.start()//
 		.sourceName("CGL")//
-		.tableName("S_POSTN")//
+		.tableName("S_BU")//
 		.setIntegrationCol("ROW_ID")//
-		.setBuidCol("BU_ID")//
+//		.setBuidCol("BU_ID")//
 		.setNormalCol("NAME")
 		.sourceFilter("")
 		.build();

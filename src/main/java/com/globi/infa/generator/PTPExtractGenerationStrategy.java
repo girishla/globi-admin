@@ -460,9 +460,10 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		try {
 			pmObj = this.generateWorkflow();
 			this.notifyListeners(pmObj, wfDefinition);
-		} catch (IOException | SAXException | JAXBException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			throw new WorkflowGenerationException((GeneratedWorkflow) this.wfDefinition, e.getMessage());
+			
+		throw new WorkflowGenerationException((GeneratedWorkflow) this.wfDefinition, e.getMessage());
 
 		}
 
