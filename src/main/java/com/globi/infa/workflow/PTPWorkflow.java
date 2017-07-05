@@ -9,6 +9,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
@@ -63,13 +64,13 @@ public class PTPWorkflow extends InfaWorkflow {
 	@Valid
 	private List<PTPWorkflowSourceColumn> columns = new ArrayList<>();
 
-	@OneToOne(fetch = FetchType.EAGER, cascade = { CascadeType.ALL })
-	@PrimaryKeyJoinColumn
-	private InfaWorkflowStatusMessage messageObject;
+	@Column(name = "message", length = 4000)
+	private String statusMessage;
 
 	@Builder
 	public PTPWorkflow(String workflowName, String workflowUri, String workflowStatus, String sourceName,
 			String sourceTableName, String sourceFilter, List<PTPWorkflowSourceColumn> columns) {
+
 		super(workflowName, workflowUri, workflowStatus);
 		this.sourceFilter = sourceFilter;
 		this.sourceTableName = sourceTableName;
@@ -82,13 +83,11 @@ public class PTPWorkflow extends InfaWorkflow {
 
 		msg = msg.substring(0, msg.length() > 3999 ? 3999 : msg.length());
 
-		if (this.messageObject != null) {
-			this.messageObject.setStatusMessage(this.messageObject.getStatusMessage() + "\n" + msg);
+		if (this.statusMessage != null) {
+			this.statusMessage += "\n" + msg;
 		} else {
-			this.setMessageObject(InfaWorkflowStatusMessage.builder().statusMessage(msg).build());
+			this.statusMessage=msg;
 		}
-
-		
 
 	}
 

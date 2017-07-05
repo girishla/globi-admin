@@ -1,16 +1,9 @@
 package com.globi.infa.workflow;
 
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.MapsId;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.WhereJoinTable;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.globi.infa.AbstractInfaWorkflowEntity;
@@ -28,7 +21,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "M_INFA_WF_MSG")
+@Table(name = "M_INFA_PTP_WF_MSG")
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -38,6 +31,25 @@ public class InfaWorkflowStatusMessage extends AbstractInfaWorkflowEntity{
 	@Column(name="message",length=4000)
 	private String statusMessage;
 	
+	
+	public void setStatusMessage(String msg) {
+
+		msg = msg.substring(0, msg.length() > 3999 ? 3999 : msg.length());
+		
+		if (this.statusMessage != null) {
+			this.setStatusMessage(this.getStatusMessage() + "\n" + msg);
+		} else {
+			this.setStatusMessage(msg);
+		}
+
+		
+
+	}
+	
+	
+//    @OneToOne(mappedBy = "messageObject")
+//    private PTPWorkflow workflow;
+//	
 
 }
 
