@@ -1,7 +1,6 @@
 package com.globi.infa.generator.service;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
@@ -18,11 +17,8 @@ import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
-import com.globi.infa.notification.messages.PuddleMessageNotifier;
-import com.globi.infa.notification.messages.PuddleNotificationContentMessage;
-import com.globi.infa.workflow.GeneratedWorkflow;
+import com.globi.infa.notification.messages.WorkflowMessageNotifier;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
-import com.globi.infa.workflow.InfaWorkflowStatusMessage;
 import com.globi.infa.workflow.PTPWorkflow;
 
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +49,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	MetadataTableColumnRepository metadataColumnRepository;
 
 	@Autowired
-	private PuddleMessageNotifier notifier;
+	private WorkflowMessageNotifier notifier;
 
 	@Override
 	public void postProcess() {
@@ -61,17 +57,6 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 
 	}
 
-	private void notifyClients(String endpoint, GeneratedWorkflow wf, String message) {
-
-		notifier.notify("/topic/" + endpoint,
-				PuddleNotificationContentMessage.builder()//
-						.messageId(UUID.randomUUID())//
-						.messageStr(message)//
-						.puddleId(wf.getWorkflow().getId())//
-						.puddleStatus(wf.getWorkflow().getWorkflowStatus())//
-						.build());
-
-	}
 
 	@Transactional(propagation = Propagation.NESTED)
 	private PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
@@ -85,14 +70,14 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 
 			ptpExtractgenerator.generate();
 			wf.setWorkflowStatus("Processed");
-			this.notifyClients("puddles", wf, "Finished processing puddle workflow");
+			this.notifier.notifyClients(wf, "Finished processing puddle workflow");
 			wf.setStatusMessage("Processed Successfully");
 
 		} catch (Exception e) {
 			wf.setWorkflowStatus("Error");
 			wf.setStatusMessage(e.getMessage());
 
-			this.notifyClients("puddles", wf, "Error processing puddle workflow");
+			this.notifier.notifyClients(wf, "Error processing puddle workflow");
 		}
 
 		ptpRepository.save(wf);
@@ -114,6 +99,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		Optional<PTPWorkflow> existingWorkflow = ptpRepository.findByWorkflowName(wf.getWorkflow().getWorkflowName());
 		if (existingWorkflow.isPresent()) {
 			existingWorkflow.get().getColumns().clear();
+			existingWorkflow.get().setMessageObject(null);
 			PTPWorkflow cleanedWf = ptpRepository.save(existingWorkflow.get());
 			wf.setId(cleanedWf.getId());
 			wf.getWorkflow().setId((cleanedWf.getWorkflow().getId()));
@@ -121,8 +107,9 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 			wf.getWorkflow().setVersion(cleanedWf.getWorkflow().getVersion());
 		}
 		wf.getWorkflow().setWorkflowStatus("Processing");
+		wf.setStatusMessage("Starting workflow generation.");
 		wf = ptpRepository.save(wf);
-		this.notifyClients("puddles", wf, "Starting workflow generation.");
+		this.notifier.notifyClients(wf, "Starting workflow generation.");
 
 		return wf;
 

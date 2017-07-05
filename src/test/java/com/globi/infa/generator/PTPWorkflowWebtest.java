@@ -50,8 +50,6 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 		.setNormalCol("NAME")
 		.sourceFilter("")
 		.build();
-	
-
 		
 	}
 

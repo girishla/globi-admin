@@ -7,9 +7,12 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
@@ -26,50 +29,67 @@ import lombok.Setter;
 import lombok.Singular;
 import lombok.ToString;
 
-
 @Entity
 @ToString(callSuper = true)
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "M_INFA_PTP_WF",uniqueConstraints={@UniqueConstraint(columnNames = {"src_name" , "src_table_name"})})
+@Table(name = "M_INFA_PTP_WF", uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "src_name", "src_table_name" }) })
 @AllArgsConstructor
 @DiscriminatorValue("PTP")
-//@Builder
-public class PTPWorkflow extends InfaWorkflow{
-	
+// @Builder
+public class PTPWorkflow extends InfaWorkflow {
+
 	@NonNull
 	@NotBlank(message = "PTP Workflow source name cannot be empty!")
-	@Column(name="src_name")
+	@Column(name = "src_name")
 	private String sourceName;
-	
+
 	@NonNull
 	@NotBlank(message = "PTP Workflow source table name cannot be empty!")
-	@Column(name="src_table_name")
+	@Column(name = "src_table_name")
 	@Size(max = 26)
 	private String sourceTableName;
-	
-	@Column(name="src_filter")
-	private String sourceFilter="";
-	
+
+	@Column(name = "src_filter")
+	private String sourceFilter = "";
+
 	@OrderColumn //
 	@Column(unique = true) //
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true) //
-	@JoinColumn(name="workflow_id",referencedColumnName="id")
+	@JoinColumn(name = "workflow_id", referencedColumnName = "id")
 	@Singular
 	@Valid
 	private List<PTPWorkflowSourceColumn> columns = new ArrayList<>();
 
-	 @Builder
-	  public PTPWorkflow(String workflowName,String workflowUri,String workflowStatus,String sourceName, String sourceTableName,String sourceFilter, List<PTPWorkflowSourceColumn> columns){
-	    super(workflowName,workflowUri,workflowStatus);
-	    this.sourceFilter=sourceFilter;
-	    this.sourceTableName=sourceTableName;
-	    this.sourceName=sourceName;
-	    this.columns=columns;
-	    
-	  }
-	
-	
-	
+	@OneToOne(fetch = FetchType.EAGER, cascade = { CascadeType.ALL })
+	@PrimaryKeyJoinColumn
+	private InfaWorkflowStatusMessage messageObject;
+
+	@Builder
+	public PTPWorkflow(String workflowName, String workflowUri, String workflowStatus, String sourceName,
+			String sourceTableName, String sourceFilter, List<PTPWorkflowSourceColumn> columns) {
+		super(workflowName, workflowUri, workflowStatus);
+		this.sourceFilter = sourceFilter;
+		this.sourceTableName = sourceTableName;
+		this.sourceName = sourceName;
+		this.columns = columns;
+
+	}
+
+	public void setStatusMessage(String msg) {
+
+		msg = msg.substring(0, msg.length() > 3999 ? 3999 : msg.length());
+
+		if (this.messageObject != null) {
+			this.messageObject.setStatusMessage(this.messageObject.getStatusMessage() + "\n" + msg);
+		} else {
+			this.setMessageObject(InfaWorkflowStatusMessage.builder().statusMessage(msg).build());
+		}
+
+		
+
+	}
+
 }

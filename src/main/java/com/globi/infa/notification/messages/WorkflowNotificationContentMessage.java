@@ -7,12 +7,13 @@ import lombok.Data;
 
 @Data
 @Builder
-public class PuddleNotificationContentMessage implements NotificationMessage{
+public class WorkflowNotificationContentMessage implements NotificationMessage{
 	
 	private UUID messageId;
-	private Long puddleId;
-	private String puddleStatus;
+	private Long workflowId;
+	private String workflowType;
+	private String workflowStatus;
 	private String messageStr;
 	
-
+	
 }

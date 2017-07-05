@@ -1,9 +1,16 @@
 package com.globi.infa.workflow;
 
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.MapsId;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.WhereJoinTable;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.globi.infa.AbstractInfaWorkflowEntity;
@@ -32,7 +39,6 @@ public class InfaWorkflowStatusMessage extends AbstractInfaWorkflowEntity{
 	private String statusMessage;
 	
 
-	
 }
 
 

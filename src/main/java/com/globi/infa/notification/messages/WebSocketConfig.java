@@ -59,7 +59,7 @@ public class WebSocketConfig extends WebSocketMessageBrokerConfigurationSupport 
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/puddles").setAllowedOrigins("*").withSockJS();
+        registry.addEndpoint("/workflows").setAllowedOrigins("*").withSockJS();
         registry.addEndpoint("/goodbye").setAllowedOrigins("*").withSockJS();
 	}
 	@Bean

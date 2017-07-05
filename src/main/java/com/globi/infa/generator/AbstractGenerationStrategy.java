@@ -13,8 +13,8 @@ import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
 import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.infa.generator.builder.InfaPowermartObject;
-import com.globi.infa.notification.messages.PuddleMessageNotifier;
-import com.globi.infa.notification.messages.PuddleNotificationContentMessage;
+import com.globi.infa.notification.messages.WorkflowMessageNotifier;
+import com.globi.infa.notification.messages.WorkflowNotificationContentMessage;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;
 
@@ -25,7 +25,7 @@ public abstract class AbstractGenerationStrategy {
 	protected final Jaxb2Marshaller marshaller;
 	protected final SourceSystemRepository sourceSystemRepo;
 	protected final SourceMetadataFactoryMapper metadataFactoryMapper;
-	protected PuddleMessageNotifier socketNotifier;
+	protected WorkflowMessageNotifier socketNotifier;
 	
 	protected SourceMetadataFactory sourceMetadataFactory;
 
@@ -40,7 +40,7 @@ public abstract class AbstractGenerationStrategy {
 	protected final List<WorkflowCreatedEventListener> createdEventListeners = new ArrayList<>();;
 	
 	
-	AbstractGenerationStrategy(Jaxb2Marshaller marshaller, SourceSystemRepository sourceSystemRepo,SourceMetadataFactoryMapper metadataFactoryMapper,PuddleMessageNotifier socketNotifier){
+	AbstractGenerationStrategy(Jaxb2Marshaller marshaller, SourceSystemRepository sourceSystemRepo,SourceMetadataFactoryMapper metadataFactoryMapper,WorkflowMessageNotifier socketNotifier){
 	
 		this.marshaller=marshaller;
 		this.sourceSystemRepo=sourceSystemRepo;
@@ -67,17 +67,7 @@ public abstract class AbstractGenerationStrategy {
 		}
 	}
 	
-	protected void notifyClients(String endpoint, GeneratedWorkflow wf, String message){
-		
-		socketNotifier.notify("/topic/" + endpoint,
-				PuddleNotificationContentMessage.builder()//
-						.messageId(UUID.randomUUID())//
-						.messageStr(message)//
-						.puddleId(wf.getWorkflow().getId())//
-						.puddleStatus(wf.getWorkflow().getWorkflowStatus())//
-						.build());
-		
-	}
+
 	
 	
 	

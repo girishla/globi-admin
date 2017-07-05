@@ -7,14 +7,13 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.globi.infa.AbstractInfaWorkflowEntity;
 
 import lombok.AllArgsConstructor;
@@ -52,11 +51,6 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 
 	private String workflowRunStatus;
 
-	@OneToOne(targetEntity = InfaWorkflowStatusMessage.class, fetch = FetchType.LAZY, optional = true, cascade = {
-			CascadeType.ALL })
-	@JoinColumn(name = "MESSAGE_ID", referencedColumnName = "ID")
-
-	private InfaWorkflowStatusMessage messageObject;
 
 	@Override
 	@JsonIgnore
@@ -65,13 +59,6 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 		return this;
 	}
 
-	public void setStatusMessage(String msg) {
-
-		msg=msg.substring(0, msg.length()>3999?3999:msg.length());
-
-		this.setMessageObject(InfaWorkflowStatusMessage.builder().statusMessage(msg).build());
-
-	}
 
 	public InfaWorkflow(String workflowName, String workflowUri, String workflowStatus) {
 		this.workflowName = workflowName;

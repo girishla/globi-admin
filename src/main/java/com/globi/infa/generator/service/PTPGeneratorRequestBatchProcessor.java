@@ -3,16 +3,14 @@ package com.globi.infa.generator.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
-
-import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.globi.infa.AbstractInfaWorkflowEntity;
 import com.globi.infa.datasource.core.DataSourceTableColumnDTO;
@@ -23,8 +21,7 @@ import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPExtractGenerationStrategy;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
-import com.globi.infa.notification.messages.PuddleMessageNotifier;
-import com.globi.infa.notification.messages.PuddleNotificationContentMessage;
+import com.globi.infa.notification.messages.WorkflowMessageNotifier;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.MetadataToPTPWorkflowDefnConverter;
 import com.globi.infa.workflow.PTPWorkflow;
@@ -57,7 +54,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 	MetadataTableColumnRepository metadataColumnRepository;
 
 	@Autowired
-	private PuddleMessageNotifier notifier;
+	private WorkflowMessageNotifier notifier;
 
 	@Override
 	public List<PTPWorkflow> buildInput() {
@@ -91,14 +88,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 
 		wf.getWorkflow().setWorkflowStatus("Processed");
 		ptpRepository.save(wf);
-
-		notifier.notify("/topic/puddles",
-				PuddleNotificationContentMessage.builder()//
-						.messageId(UUID.randomUUID())//
-						.messageStr("Finished processing puddle workflow.")//
-						.puddleId(wf.getId())//
-						.puddleStatus("Processed")//
-						.build());
+		this.notifier.notifyClients(wf, "Finished processing puddle workflow.");
 		return wf;
 	}
 
@@ -147,6 +137,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 					Optional<PTPWorkflow> existingWorkflow = ptpRepository.findByWorkflowName(wf.getWorkflowName());
 					if (existingWorkflow.isPresent()) {
 						existingWorkflow.get().getColumns().clear();
+						existingWorkflow.get().setMessageObject(null);
 						ptpRepository.save(existingWorkflow.get());
 						wf.setId(existingWorkflow.get().getId());
 						wf.getWorkflow().setId((existingWorkflow.get().getWorkflow().getId()));

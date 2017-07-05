@@ -18,8 +18,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
 
 import com.globi.infa.generator.builder.InfaPowermartObject;
-import com.globi.infa.notification.messages.PuddleMessageNotifier;
-import com.globi.infa.notification.messages.PuddleNotificationContentMessage;
+import com.globi.infa.notification.messages.WorkflowMessageNotifier;
 import com.globi.infa.workflow.GeneratedWorkflow;
 
 @Component
@@ -29,7 +28,7 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 	private RepositoryLoader repoLoader;
 
 	@Autowired
-	private PuddleMessageNotifier notifier;
+	private WorkflowMessageNotifier notifier;
 
 	@Value("${git.dir}")
 	private String gitDirectory;
@@ -37,17 +36,19 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 	private Jaxb2Marshaller marshaller;
 
 	private InfaPowermartObject generatedObject;
+	private GeneratedWorkflow wf;
 
 	@Override
 	public void notify(InfaPowermartObject generatedObject, GeneratedWorkflow wf) {
 
 		this.generatedObject = generatedObject;
-
+		this.wf=wf;
+		
+		
 		try {
 			this.writeToGit();
-			notifier.notify("/topic/puddles", PuddleNotificationContentMessage.builder().messageId(UUID.randomUUID())
-					.messageStr("Successfully commited Workflow XML to Git").puddleId(wf.getWorkflow().getId()).build());
-
+			
+			notifier.notifyClients(wf, "Requesting loader to start loading into informatica repository..");
 			repoLoader.loadWorkflow(generatedObject, wf);
 
 		} catch (IOException e) {
@@ -61,6 +62,8 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 		try {
 			os = new FileOutputStream(gitDirectory + fileName + ".xml");
 			this.marshaller.marshal(jaxbObject, new StreamResult(os));
+			
+			notifier.notifyClients(wf, "Successfully saved workflow to Git working directiory");
 		} finally {
 			if (os != null) {
 				os.close();
@@ -85,6 +88,8 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 
 				git.commit().setMessage("Added " + this.generatedObject.pmObjectName).call();
 
+				notifier.notifyClients(wf, "Git Commit done.");
+				
 			} catch (NoFilepatternException e) {
 				e.printStackTrace();
 			} catch (GitAPIException e) {

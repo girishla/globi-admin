@@ -41,15 +41,13 @@ import com.globi.infa.metadata.core.SourceTableAbbreviationMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.InfaSourceDefinition;
 import com.globi.infa.metadata.src.InfaSourceDefinitionRepository;
-import com.globi.infa.notification.messages.PuddleMessageNotifier;
+import com.globi.infa.notification.messages.WorkflowMessageNotifier;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Scope("prototype")
@@ -61,7 +59,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 	InfaPTPWorkflowRepository wfRepo;
 
 	PTPExtractGenerationStrategy(Jaxb2Marshaller marshaller, SourceSystemRepository sourceSystemRepo,
-			SourceMetadataFactoryMapper metadataFactoryMapper, InfaSourceDefinitionRepository sourceDefnRepo,SourceTableAbbreviationMap sourceTableAbbreviation,PuddleMessageNotifier socketNotifier,InfaPTPWorkflowRepository wfRepo) {
+			SourceMetadataFactoryMapper metadataFactoryMapper, InfaSourceDefinitionRepository sourceDefnRepo,SourceTableAbbreviationMap sourceTableAbbreviation,WorkflowMessageNotifier socketNotifier,InfaPTPWorkflowRepository wfRepo) {
 
 		super(marshaller, sourceSystemRepo, metadataFactoryMapper,socketNotifier);
 		this.sourceDefnRepo = sourceDefnRepo;
