@@ -40,6 +40,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @DiscriminatorValue("PTP")
 // @Builder
+
+
 public class PTPWorkflow extends InfaWorkflow {
 
 	@NonNull
@@ -56,6 +58,7 @@ public class PTPWorkflow extends InfaWorkflow {
 	@Column(name = "src_filter")
 	private String sourceFilter = "";
 
+	
 	@OrderColumn //
 	@Column(unique = true) //
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true) //
@@ -64,8 +67,7 @@ public class PTPWorkflow extends InfaWorkflow {
 	@Valid
 	private List<PTPWorkflowSourceColumn> columns = new ArrayList<>();
 
-	@Column(name = "message", length = 4000)
-	private String statusMessage;
+
 
 	@Builder
 	public PTPWorkflow(String workflowName, String workflowUri, String workflowStatus, String sourceName,
@@ -79,16 +81,6 @@ public class PTPWorkflow extends InfaWorkflow {
 
 	}
 
-	public void setStatusMessage(String msg) {
 
-		msg = msg.substring(0, msg.length() > 3999 ? 3999 : msg.length());
-
-		if (this.statusMessage != null) {
-			this.statusMessage += "\n" + msg;
-		} else {
-			this.statusMessage=msg;
-		}
-
-	}
 
 }

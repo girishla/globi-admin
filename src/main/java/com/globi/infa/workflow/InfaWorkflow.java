@@ -1,14 +1,10 @@
 package com.globi.infa.workflow;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -51,6 +47,8 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 
 	private String workflowRunStatus;
 
+	@Column(name = "message", length = 4000)
+	private String message;
 
 	@Override
 	@JsonIgnore
@@ -64,6 +62,18 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 		this.workflowName = workflowName;
 		this.workflowStatus = workflowStatus;
 		this.workflowUri = workflowUri;
+
+	}
+	
+	public void setStatusMessage(String msg) {
+
+		msg = msg.substring(0, msg.length() > 3999 ? 3999 : msg.length());
+
+		if (this.message != null) {
+			this.message += "\n" + msg;
+		} else {
+			this.message=msg;
+		}
 
 	}
 
