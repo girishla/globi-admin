@@ -14,6 +14,7 @@ import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.ProcessResult;
 
 import com.globi.infa.generator.builder.InfaPowermartObject;
+import com.globi.infa.notification.messages.WorkflowMessageNotifier;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.InfaWorkflowRepository;
 
@@ -26,6 +27,9 @@ public class PmcmdRunnerEventListener implements WorkflowCreatedEventListener, W
 
 	@Autowired
 	InfaWorkflowRepository wfRepo;
+	
+	@Autowired
+	private WorkflowMessageNotifier notifier;
 	
 	@Value("${git.dir}")
 	private String gitDirectory;
@@ -60,10 +64,15 @@ public class PmcmdRunnerEventListener implements WorkflowCreatedEventListener, W
 					.readOutput(true).execute();
 
 			String output = result.outputUTF8();
+			
+			
+			notifier.message(wf, output);
 
 			log.info("*************************************");
 			log.info("*************************************");
 			log.info(output);
+			
+			
 
 			if (!output.contains("started successfully")) {
 				throw new InvalidExitValueException(
@@ -76,11 +85,12 @@ public class PmcmdRunnerEventListener implements WorkflowCreatedEventListener, W
 
 		} catch (InvalidExitValueException | IOException | InterruptedException | TimeoutException e1) {
 
-			// update wf to error
 			e1.printStackTrace();
-			
-			wf.getWorkflow().setWorkflowRunStatus("Error");
-			wf=wfRepo.save(wf.getWorkflow());
+			notifier.message(wf, e1.getMessage());
+		
+			throw new WorkflowGenerationException(wf,"Unable to upload Workflow!" + "\n" + e1.getMessage());
+//			wf.getWorkflow().setWorkflowRunStatus("Error");
+//			wf=wfRepo.save(wf.getWorkflow());
 		}
 
 	}

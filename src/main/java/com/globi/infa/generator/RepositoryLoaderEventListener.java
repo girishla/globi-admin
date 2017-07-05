@@ -14,6 +14,7 @@ import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.ProcessResult;
 
 import com.globi.infa.generator.builder.InfaPowermartObject;
+import com.globi.infa.notification.messages.WorkflowMessageNotifier;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.InfaWorkflowRepository;
@@ -30,6 +31,8 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 	@Autowired
 	InfaWorkflowRepository wfRepo;
 
+	@Autowired
+	private WorkflowMessageNotifier notifier;
 
 	@Value("${git.dir}")
 	private String gitDirectory;
@@ -62,6 +65,8 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 			String outputConnect=outputConnectResult.outputUTF8();
 			
 			
+			notifier.message(wf, outputConnect);
+			
 			if (!outputConnect.contains("Connected")) {
 				throw new InvalidExitValueException("Could not connect to Powercenter Repository." + "\n" + outputConnect, outputConnectResult);
 			}
@@ -73,6 +78,9 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 					.readOutput(true).execute();
 
 			String output = result.outputUTF8();
+			
+			
+			notifier.message(wf, output);
 
 			log.info("*************************************");
 			log.info("*************************************");
@@ -80,6 +88,10 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 			log.info("*************************************");
 			log.info(output);
 			log.info("*************************************");
+			
+			
+			
+			
 			if ((!output.contains("0 Errors")) || output.contains("Failed to execute ObjectImport")) {
 				throw new InvalidExitValueException("Errors during upload." + "\n" + output, result);
 			}
@@ -93,6 +105,9 @@ public class RepositoryLoaderEventListener implements WorkflowCreatedEventListen
 			// update wf status column to error
 
 			e1.printStackTrace();
+			
+			notifier.message(wf, e1.getMessage());
+			
 			throw new WorkflowGenerationException(wf,"Unable to upload Workflow!" + "\n" + e1.getMessage());
 		}
 
