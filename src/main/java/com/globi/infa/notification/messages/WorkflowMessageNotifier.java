@@ -1,5 +1,7 @@
 package com.globi.infa.notification.messages;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +37,12 @@ public class WorkflowMessageNotifier {
 	
 	
 	public void notifyClients(GeneratedWorkflow wf,String msg) {
+		
+		String timeStamp = new SimpleDateFormat("dd/MM/yyyy HH.mm.ss").format(new Date());
+		
 		this.notify("/topic/workflows", WorkflowNotificationContentMessage.builder()//
 				.messageId(UUID.randomUUID())
-				.messageStr(msg)//
+				.messageStr(timeStamp + "  " + msg)//
 				.workflowId((wf.getWorkflow().getId()))//
 				.workflowType(wf.getWorkflow().getWorkflowType())
 				.workflowStatus(wf.getWorkflow().getWorkflowStatus())

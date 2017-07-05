@@ -99,13 +99,13 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		Optional<PTPWorkflow> existingWorkflow = ptpRepository.findByWorkflowName(wf.getWorkflow().getWorkflowName());
 		if (existingWorkflow.isPresent()) {
 			existingWorkflow.get().getColumns().clear();
-			existingWorkflow.get().setMessage(".");
 			PTPWorkflow cleanedWf = ptpRepository.save(existingWorkflow.get());
 			wf.setId(cleanedWf.getId());
 			wf.getWorkflow().setId((cleanedWf.getWorkflow().getId()));
 			wf.setVersion(cleanedWf.getVersion());
 			wf.getWorkflow().setVersion(cleanedWf.getWorkflow().getVersion());
 		}
+		wf.setMessage("");
 		wf.getWorkflow().setWorkflowStatus("Processing");
 		wf.setStatusMessage("Starting workflow generation.");
 		wf = ptpRepository.save(wf);
