@@ -15,10 +15,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WorkflowMessageNotifier {
 
+	SimpMessagingTemplate template;
+	
+	
+	
 	WorkflowMessageNotifier(SimpMessagingTemplate template) {
 
 		this.template=template;
 	}
+	
+	
+	
 	
 	public void notifyClients(GeneratedWorkflow wf,String msg) {
 		this.notify("/topic/workflows", WorkflowNotificationContentMessage.builder()//
@@ -28,11 +35,10 @@ public class WorkflowMessageNotifier {
 				.workflowType(wf.getWorkflow().getWorkflowType())
 				.workflowStatus(wf.getWorkflow().getWorkflowStatus())
 				.build());
+	
 
 	}
 	
-	
-	SimpMessagingTemplate template;
 	
 	
 

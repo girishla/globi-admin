@@ -72,7 +72,7 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 		String timeStamp = new SimpleDateFormat("dd/MM/yyyy HH.mm.ss").format(new Date());
 
 		if (this.message != null) {
-			this.message += "\n " + timeStamp + "  " + msg;
+			this.message += "\n" + timeStamp + "  " + msg;
 		} else {
 			this.message = timeStamp + "  " + msg;
 		}
