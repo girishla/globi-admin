@@ -88,7 +88,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 
 		wf.getWorkflow().setWorkflowStatus("Processed");
 		ptpRepository.save(wf);
-		this.notifier.notifyClients(wf, "Finished processing puddle workflow.");
+		this.notifier.message(wf, "Finished processing puddle workflow.");
 		return wf;
 	}
 

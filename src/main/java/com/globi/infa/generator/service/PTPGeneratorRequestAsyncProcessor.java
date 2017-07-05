@@ -70,14 +70,14 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 
 			ptpExtractgenerator.generate();
 			wf.setWorkflowStatus("Processed");
-			this.notifier.notifyClients(wf, "Finished processing puddle workflow");
+			this.notifier.message(wf, "Finished processing puddle workflow");
 			wf.setStatusMessage("Processed Successfully");
 
 		} catch (Exception e) {
 			wf.setWorkflowStatus("Error");
 			wf.setStatusMessage(e.getMessage());
 
-			this.notifier.notifyClients(wf, "Error processing puddle workflow");
+			this.notifier.message(wf, "Error processing puddle workflow");
 		}
 
 		ptpRepository.save(wf);
@@ -109,7 +109,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		wf.getWorkflow().setWorkflowStatus("Processing");
 		wf.setStatusMessage("Starting workflow generation.");
 		wf = ptpRepository.save(wf);
-		this.notifier.notifyClients(wf, "Starting workflow generation.");
+		this.notifier.message(wf, "Starting workflow generation.");
 
 		return wf;
 

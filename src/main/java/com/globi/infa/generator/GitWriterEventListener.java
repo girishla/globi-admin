@@ -48,7 +48,7 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 		try {
 			this.writeToGit();
 			
-			notifier.notifyClients(wf, "Requesting loader to start loading into informatica repository..");
+			notifier.message(wf, "Requesting loader to start loading into informatica repository..");
 			repoLoader.loadWorkflow(generatedObject, wf);
 
 		} catch (IOException e) {
@@ -63,7 +63,7 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 			os = new FileOutputStream(gitDirectory + fileName + ".xml");
 			this.marshaller.marshal(jaxbObject, new StreamResult(os));
 			
-			notifier.notifyClients(wf, "Successfully saved workflow to Git working directiory");
+			notifier.message(wf, "Successfully saved workflow to Git working directiory");
 		} finally {
 			if (os != null) {
 				os.close();
@@ -88,7 +88,7 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 
 				git.commit().setMessage("Added " + this.generatedObject.pmObjectName).call();
 
-				notifier.notifyClients(wf, "Git Commit done.");
+				notifier.message(wf, "Git Commit done.");
 				
 			} catch (NoFilepatternException e) {
 				e.printStackTrace();

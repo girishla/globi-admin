@@ -25,6 +25,13 @@ public class WorkflowMessageNotifier {
 	}
 	
 	
+	public void message(GeneratedWorkflow wf,String msg){
+		
+		this.notifyClients(wf, msg);
+		wf.getWorkflow().setStatusMessage(msg);
+		
+	}
+	
 	
 	
 	public void notifyClients(GeneratedWorkflow wf,String msg) {
