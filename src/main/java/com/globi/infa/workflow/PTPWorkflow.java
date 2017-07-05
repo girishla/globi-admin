@@ -36,7 +36,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @Table(name = "M_INFA_PTP_WF", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "src_name", "src_table_name" }) })
+@UniqueConstraint(columnNames = { "src_name", "src_table_name" }) })
 @AllArgsConstructor
 @DiscriminatorValue("PTP")
 // @Builder

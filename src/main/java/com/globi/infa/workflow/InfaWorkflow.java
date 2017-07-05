@@ -1,5 +1,8 @@
 package com.globi.infa.workflow;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
@@ -57,22 +60,21 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 		return this;
 	}
 
-
 	public InfaWorkflow(String workflowName, String workflowUri, String workflowStatus) {
 		this.workflowName = workflowName;
 		this.workflowStatus = workflowStatus;
 		this.workflowUri = workflowUri;
-
 	}
-	
+
 	public void setStatusMessage(String msg) {
 
 		msg = msg.substring(0, msg.length() > 3999 ? 3999 : msg.length());
+		String timeStamp = new SimpleDateFormat("dd/MM/yyyy HH.mm.ss").format(new Date());
 
 		if (this.message != null) {
-			this.message += "\n" + msg;
+			this.message += "\n" + timeStamp + "  " + msg;
 		} else {
-			this.message=msg;
+			this.message = timeStamp + "  " + msg;
 		}
 
 	}
