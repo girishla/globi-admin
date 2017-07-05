@@ -50,7 +50,7 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 
 	private String workflowRunStatus;
 
-	@Column(name = "message", length = 4000)
+	@Column(name = "message", length = Integer.MAX_VALUE)
 	private String message;
 
 	@Override
@@ -76,6 +76,8 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 		} else {
 			this.message = timeStamp + "  " + msg;
 		}
+		
+		this.message  = this.message .substring(0, this.message .length() > 3999 ? 3999 : this.message .length());
 
 	}
 

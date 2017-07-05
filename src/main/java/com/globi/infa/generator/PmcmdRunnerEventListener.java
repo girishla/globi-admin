@@ -88,7 +88,7 @@ public class PmcmdRunnerEventListener implements WorkflowCreatedEventListener, W
 			e1.printStackTrace();
 			notifier.message(wf, e1.getMessage());
 		
-			throw new WorkflowGenerationException(wf,"Unable to upload Workflow!" + "\n" + e1.getMessage());
+			throw new WorkflowGenerationException(wf,"Unable to Run Workflow!" + "\n" + e1.getMessage());
 //			wf.getWorkflow().setWorkflowRunStatus("Error");
 //			wf=wfRepo.save(wf.getWorkflow());
 		}
