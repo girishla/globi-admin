@@ -8,6 +8,7 @@ import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -50,7 +51,8 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 
 	private String workflowRunStatus;
 
-	@Column(name = "message", length = Integer.MAX_VALUE)
+	@Lob
+	@Column(name = "message")
 	private String message;
 
 	@Override
