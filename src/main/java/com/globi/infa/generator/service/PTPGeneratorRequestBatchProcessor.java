@@ -83,6 +83,9 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 	@Transactional(propagation = Propagation.NESTED)
 	public PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
 
+		//Refresh in case someone has modified the wf meanwhile
+		wf=ptpRepository.findOne(wf.getId());
+
 		ptpExtractgenerator.setWfDefinition(wf);
 		ptpExtractgenerator.generate();
 

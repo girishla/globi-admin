@@ -70,7 +70,6 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 
 	public void setStatusMessage(String msg) {
 
-//		msg = msg.substring(0, msg.length() > 3999 ? 3999 : msg.length());
 		String timeStamp = new SimpleDateFormat("dd/MM/yyyy HH.mm.ss").format(new Date());
 
 		if (this.message != null) {
@@ -78,8 +77,8 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 		} else {
 			this.message = timeStamp + "  " + msg;
 		}
-		
-//	this.message  = this.message .substring(0, this.message .length() > 3999 ? 3999 : this.message .length());
+
+
 
 	}
 
