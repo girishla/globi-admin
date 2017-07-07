@@ -158,7 +158,9 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 						wf.getWorkflow().setVersion(existingWorkflow.get().getWorkflow().getVersion());
 					}
 					wf.setMessage("");
-					wf.getWorkflow().setWorkflowStatus("Queued");
+					this.notifier.message(wf, "Waiting for a new generator thread...");
+					wf.setWorkflowStatus("Processing");
+					this.notifier.message(wf, "Starting workflow generation.");
 					savedWorkflows.add(ptpRepository.save(wf));
 
 				});
