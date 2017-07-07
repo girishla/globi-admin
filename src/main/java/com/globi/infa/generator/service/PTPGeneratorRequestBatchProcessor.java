@@ -79,19 +79,30 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 		return null; // This implementation will be overridden by dynamically
 						// generated subclass
 	}
-	
+
 	@Transactional(propagation = Propagation.NESTED)
 	public PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
 
-		//Refresh in case someone has modified the wf meanwhile
-		wf=ptpRepository.findOne(wf.getId());
+		try {
 
-		ptpExtractgenerator.setWfDefinition(wf);
-		ptpExtractgenerator.generate();
+			// Refresh in case someone has modified the wf meanwhile
+			wf = ptpRepository.findOne(wf.getId());
 
-		wf.getWorkflow().setWorkflowStatus("Processed");
+			ptpExtractgenerator.setWfDefinition(wf);
+			ptpExtractgenerator.generate();
+			wf.setWorkflowStatus("Processed");
+			this.notifier.message(wf, "Finished processing puddle workflow.");
+			
+			
+		} catch (Exception e) {
+			wf.setWorkflowStatus("Error");
+			wf.setStatusMessage(e.getMessage());
+
+			this.notifier.message(wf, "Error processing puddle workflow");
+		}
+
 		ptpRepository.save(wf);
-		this.notifier.message(wf, "Finished processing puddle workflow.");
+
 		return wf;
 	}
 
