@@ -18,6 +18,7 @@ public class ApiErrorCodes {
 	public final static UUID BAD_SERVER_URL             = UUID.fromString("253f6647-f9d4-4ae0-929a-a5ea1607c908");
 	public final static UUID SESSION_EXPIRED            = UUID.fromString("cdbfa4c6-9ae6-46da-aef7-fa167f689afe");
 	public final static UUID API_LOGIN_FAILURE          = UUID.fromString("ea069af4-ff3e-4c26-86b5-7b3165a81afc");
+	public final static UUID UNAUTHORIZED          =      UUID.fromString("11169af4-ff3e-4c26-86b5-7b3165a81afc");
 	//@formatter:on
 
 	public static void main(String[] args) {

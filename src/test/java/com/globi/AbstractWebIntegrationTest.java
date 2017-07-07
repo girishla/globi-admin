@@ -39,7 +39,7 @@ public abstract class AbstractWebIntegrationTest {
 	protected MockMvc mvc;
 
 	@Before
-	public void setUp() {
+	public void setUpBase() {
 
 		mvc = MockMvcBuilders.webAppContextSetup(context).//
 				defaultRequest(MockMvcRequestBuilders.get("/").locale(Locale.US)).//
