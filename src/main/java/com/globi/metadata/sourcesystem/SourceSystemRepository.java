@@ -15,7 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 @RepositoryRestResource(collectionResourceRel = "sourcesystems",path = "sourcesystems")
 //@PreAuthorize("@securityService.hasProtectedAccess()")
 
-@PreAuthorize("hasAuthority('USER')")
+//@PreAuthorize("hasAuthority('USER')")
 public interface SourceSystemRepository extends CrudRepository<SourceSystem, Long> {
 
 	
