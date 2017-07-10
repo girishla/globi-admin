@@ -61,7 +61,7 @@ public class PTPWorkflow extends InfaWorkflow {
 	
 	@OrderColumn //
 	@Column(unique = true) //
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true) //
+	@OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL, orphanRemoval = true) //
 	@JoinColumn(name = "workflow_id", referencedColumnName = "id")
 	@Singular
 	@Valid
