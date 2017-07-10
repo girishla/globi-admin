@@ -73,6 +73,8 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 			this.notifier.message(wf, "Finished processing puddle workflow");
 
 		} catch (Exception e) {
+			
+			log.error(e.getStackTrace().toString());
 			wf.setWorkflowStatus("Error");
 			wf.setStatusMessage(e.getMessage());
 

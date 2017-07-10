@@ -95,6 +95,9 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 			
 			
 		} catch (Exception e) {
+			
+			log.error(e.getStackTrace().toString());
+			
 			wf.setWorkflowStatus("Error");
 			wf.setStatusMessage(e.getMessage());
 
