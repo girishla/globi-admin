@@ -32,7 +32,7 @@ public class UserObjectMother {
 
 		return User.builder().username(username)//
 				.password(passwordEncoder.encode(password))//
-				.authorities("ADMIN, ROOT")
+				.authorities("USER, ADMIN, ROOT")
 				.email(username +"@domain.com")//
 				.build();
 

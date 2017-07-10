@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Locale;
+
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -21,10 +23,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.globi.AbstractWebIntegrationTest;
 import com.globi.security.auth.AuthenticationRequest;
 import com.globi.security.auth.AuthenticationResponse;
@@ -62,6 +68,7 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 		userRepo.save(UserObjectMother.getAdminUserFor("admin", "admin"));
 		userRepo.save(UserObjectMother.getExpiredUserFor("expired", "expired"));
 
+		
 		setUpIsDone = true;
 
 	}
@@ -94,25 +101,42 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 				.accept(MediaType.APPLICATION_JSON_VALUE))//
 				.andDo(MockMvcResultHandlers.print())//
 				.andExpect(status().isUnauthorized());//
+		
 
 	}
 
 	@Test
-	public void requestingProtectedWithValidCredentialsReturnsExpected() throws Exception {
+	public void requestingProtectedResourceWithValidCredentialsReturnsOK() throws Exception {
 
-		mvc.perform(post("/auth")//
+		MvcResult result=	mvc.perform(post("/auth")//
 				.content(asJsonString(SecurityTestApiConfig.USER_AUTHENTICATION_REQUEST))
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//
 				.andDo(MockMvcResultHandlers.print())//
 				.andExpect(status().isOk())//
-				.andExpect(jsonPath("$.token", userNameFromToken(is("username"))));
+				.andExpect(jsonPath("$.token", userNameFromToken(is("username"))))//
+				.andReturn();
+		
+		
+		ObjectMapper mapper = new ObjectMapper();
+		AuthenticationResponse authResp = mapper.readValue(result.getResponse().getContentAsString(), AuthenticationResponse.class);
+		
+		
+		
+		mvc.perform(get("/sourcesystems")//
+//				.header("X-Auth-Token", authResp.getToken())
+				.contentType(MediaType.APPLICATION_JSON_VALUE)//
+				.accept(MediaType.APPLICATION_JSON_VALUE))//
+				.andDo(MockMvcResultHandlers.print())//
+				.andExpect(status().isOk());//
+		
 
 	}
 
 	@Test
 	public void requestingAuthenticationRefreshWithNoAuthorizationTokenReturnsUnauthorized() throws Exception {
 
+		
 		mvc.perform(get("/auth/refresh")//
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//
@@ -136,6 +160,18 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 	 * is(HttpStatus.BAD_REQUEST)); } catch (Exception e) {
 	 * fail("Should have returned an HTTP 400: Bad Request status code"); } }
 	 */
+	
+	
+	
+	@Test
+	public void requestingAuthWithExpiredTokenReturnsUnauthorized() throws Exception{
+		
+
+		String token=tokenUtils.getExpiredTokenForWebUser("expired");
+		
+		
+		
+	}
 
 	@Test
 	@Ignore

@@ -33,7 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @ActiveProfiles("test")
 public abstract class AbstractWebIntegrationTest {
 
-	@Autowired WebApplicationContext context;
+	@Autowired protected WebApplicationContext context;
 	@Autowired LinkDiscoverers links;
 
 	protected MockMvc mvc;
