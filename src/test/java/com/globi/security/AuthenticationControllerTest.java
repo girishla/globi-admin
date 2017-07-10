@@ -3,6 +3,7 @@ package com.globi.security;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -75,8 +76,7 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 
 		// this.initializeStateForMakingValidAuthenticationRequest();
 
-		mvc.perform(post(SecurityTestApiConfig.getAbsolutePath(authenticationRoute))//
-				.header("Content-Type", "application/json")//
+		mvc.perform(post("/auth")//
 				.content("")//
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//
@@ -88,8 +88,7 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 	@Test
 	public void requestingAuthenticationWithInvalidCredentialsReturnsUnauthorized() throws Exception {
 
-		mvc.perform(post(SecurityTestApiConfig.getAbsolutePath(authenticationRoute))//
-				.header("Content-Type", "application/json")
+		mvc.perform(post("/auth")//
 				.content(asJsonString(SecurityTestApiConfig.INVALID_AUTHENTICATION_REQUEST))
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//
@@ -101,8 +100,7 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 	@Test
 	public void requestingProtectedWithValidCredentialsReturnsExpected() throws Exception {
 
-		mvc.perform(post(SecurityTestApiConfig.getAbsolutePath(authenticationRoute))//
-				.header("Content-Type", "application/json")
+		mvc.perform(post("/auth")//
 				.content(asJsonString(SecurityTestApiConfig.USER_AUTHENTICATION_REQUEST))
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//
@@ -113,18 +111,13 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 	}
 
 	@Test
-	@Ignore
 	public void requestingAuthenticationRefreshWithNoAuthorizationTokenReturnsUnauthorized() throws Exception {
-		this.initializeStateForMakingValidAuthenticationRefreshRequest();
 
-		mvc.perform(
-				post(SecurityTestApiConfig.getAbsolutePath(String.format("%s/%s", authenticationRoute, refreshRoute)))//
-						.header("Content-Type", "application/json").content("")
-						.contentType(MediaType.APPLICATION_JSON_VALUE)//
-						.accept(MediaType.APPLICATION_JSON_VALUE))//
-						.andDo(MockMvcResultHandlers.print())//
-						.andExpect(status().isOk())//
-						.andExpect(jsonPath("$.token", userNameFromToken(is("username"))));
+		mvc.perform(get("/auth/refresh")//
+				.contentType(MediaType.APPLICATION_JSON_VALUE)//
+				.accept(MediaType.APPLICATION_JSON_VALUE))//
+				.andDo(MockMvcResultHandlers.print())//
+				.andExpect(status().isUnauthorized());
 
 	}
 

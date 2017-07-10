@@ -2,6 +2,7 @@ package com.globi.infa.generator.service;
 
 import java.util.Optional;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.scheduling.annotation.Async;
@@ -74,7 +75,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 
 		} catch (Exception e) {
 			
-			log.error(e.getStackTrace().toString());
+			log.error(ExceptionUtils.getStackTrace(e));
 			wf.setWorkflowStatus("Error");
 			wf.setStatusMessage(e.getMessage());
 

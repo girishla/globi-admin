@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.scheduling.annotation.Async;
@@ -96,7 +97,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 			
 		} catch (Exception e) {
 			
-			log.error(e.getStackTrace().toString());
+			log.error(ExceptionUtils.getStackTrace(e));
 			
 			wf.setWorkflowStatus("Error");
 			wf.setStatusMessage(e.getMessage());

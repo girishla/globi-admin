@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -69,6 +70,18 @@ public class RestControllerAdvice
 		return createResponseEntity(restApiError);
 	}
 
+	@ExceptionHandler(UsernameNotFoundException.class)
+	public ResponseEntity<RestApiError> handleException(UsernameNotFoundException e)
+	{
+		log.error("Api Error caused by exception", e);
+		RestApiError restApiError = new RestApiError(RestApiHttpStatus.UNAUTHORIZED);
+		restApiError.setApiCode(ApiErrorCodes.UNAUTHORIZED);
+		restApiError.setUserMessage("Invalid Credentials. Please enter a valid username and password.");
+		restApiError.setDeveloperMessage("org.springframework.security.core.userdetails.UsernameNotFoundException");
+		return createResponseEntity(restApiError);
+	}
+	
+	
 	/**
 	 * According to the SpringMVC documentation. A @PathVariable argument can be of any simple type such as int, long, Date, etc. Spring
 	 * automatically converts to the appropriate type or throws a TypeMismatchException if it fails to do so
@@ -116,6 +129,10 @@ public class RestControllerAdvice
 		return restApiErrorFromBindingResult(bindingResult, ApiErrorCodes.INVALID_REQUEST_BODY);
 	}
 
+	
+	
+	
+	
 	@ExceptionHandler(BindException.class)
 	public ResponseEntity<RestApiError> handleBindException(BindException e)
 	{
