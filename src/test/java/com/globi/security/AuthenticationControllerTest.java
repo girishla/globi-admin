@@ -1,6 +1,5 @@
 package com.globi.security;
 
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -21,8 +20,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -30,10 +27,11 @@ import org.springframework.web.client.RestTemplate;
 import com.globi.AbstractWebIntegrationTest;
 import com.globi.security.auth.AuthenticationRequest;
 import com.globi.security.auth.AuthenticationResponse;
-import com.globi.security.user.User;
 import com.globi.security.user.UserRepository;
 
 public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
+
+	private static boolean setUpIsDone = false;
 
 	private RestTemplate client;
 	private AuthenticationRequest authenticationRequest;
@@ -49,14 +47,22 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 	private TokenUtils tokenUtils;
 
 	@Autowired
-	PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-	
-	@Autowired
 	private UserRepository userRepo;
 
 	@Before
 	public void setUp() throws Exception {
 		client = new RestTemplate();
+
+		if (setUpIsDone) {
+			return;
+		}
+
+		userRepo.save(UserObjectMother.getNormalUserFor("username", "password"));
+		userRepo.save(UserObjectMother.getAdminUserFor("admin", "admin"));
+		userRepo.save(UserObjectMother.getExpiredUserFor("expired", "expired"));
+
+		setUpIsDone = true;
+
 	}
 
 	@After
@@ -67,7 +73,7 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 	@Test
 	public void requestingAuthenticationWithNoCredentialsReturnsBadRequest() throws Exception {
 
-		this.initializeStateForMakingValidAuthenticationRequest();
+		// this.initializeStateForMakingValidAuthenticationRequest();
 
 		mvc.perform(post(SecurityTestApiConfig.getAbsolutePath(authenticationRoute))//
 				.header("Content-Type", "application/json")//
@@ -93,11 +99,7 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 	}
 
 	@Test
-
 	public void requestingProtectedWithValidCredentialsReturnsExpected() throws Exception {
-		
-		this.createNormalUserAccount();
-		
 
 		mvc.perform(post(SecurityTestApiConfig.getAbsolutePath(authenticationRoute))//
 				.header("Content-Type", "application/json")
@@ -106,10 +108,8 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 				.accept(MediaType.APPLICATION_JSON_VALUE))//
 				.andDo(MockMvcResultHandlers.print())//
 				.andExpect(status().isOk())//
-				.andExpect(jsonPath("$.token",userNameFromToken(is("username"))));
-		
-		
-		
+				.andExpect(jsonPath("$.token", userNameFromToken(is("username"))));
+
 	}
 
 	@Test
@@ -117,16 +117,15 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 	public void requestingAuthenticationRefreshWithNoAuthorizationTokenReturnsUnauthorized() throws Exception {
 		this.initializeStateForMakingValidAuthenticationRefreshRequest();
 
-		try {
-			client.exchange(
-					SecurityTestApiConfig.getAbsolutePath(String.format("%s/%s", authenticationRoute, refreshRoute)),
-					HttpMethod.GET, buildAuthenticationRefreshRequestEntityWithoutAuthorizationToken(), Void.class);
-			fail("Should have returned an HTTP 401: Unauthorized status code");
-		} catch (HttpClientErrorException e) {
-			assertThat(e.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
-		} catch (Exception e) {
-			fail("Should have returned an HTTP 401: Unauthorized status code");
-		}
+		mvc.perform(
+				post(SecurityTestApiConfig.getAbsolutePath(String.format("%s/%s", authenticationRoute, refreshRoute)))//
+						.header("Content-Type", "application/json").content("")
+						.contentType(MediaType.APPLICATION_JSON_VALUE)//
+						.accept(MediaType.APPLICATION_JSON_VALUE))//
+						.andDo(MockMvcResultHandlers.print())//
+						.andExpect(status().isOk())//
+						.andExpect(jsonPath("$.token", userNameFromToken(is("username"))));
+
 	}
 
 	/*
@@ -163,27 +162,14 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 		}
 	}
 
-	private void createNormalUserAccount() {
-
-		userRepo.save(
-				User.builder().username("username")//
-				.password(passwordEncoder.encode("password"))//
-				.email("user.password@domain.com")//
-				.build());
-
-	}
-	
-	
-	
 	private FeatureMatcher<String, String> userNameFromToken(Matcher<String> matcher) {
-	    return new FeatureMatcher<String, String>(matcher, "User Name Parsed from Token", "userNameFromToken") {
-	        @Override
-	        protected String featureValueOf(String actual) {
-	            return tokenUtils.getUsernameFromToken(actual);
-	        }
-	    };
+		return new FeatureMatcher<String, String>(matcher, "User Name Parsed from Token", "userNameFromToken") {
+			@Override
+			protected String featureValueOf(String actual) {
+				return tokenUtils.getUsernameFromToken(actual);
+			}
+		};
 	}
-	
 
 	private void initializeStateForMakingValidAuthenticationRequest() {
 		authenticationRequest = SecurityTestApiConfig.USER_AUTHENTICATION_REQUEST;
