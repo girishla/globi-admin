@@ -111,6 +111,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 	}
 
 	@Async
+	@Transactional
 	public void processAsync(List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions) {
 
 		process(inputWorkflowDefinitions);
