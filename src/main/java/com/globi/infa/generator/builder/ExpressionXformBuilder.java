@@ -359,22 +359,23 @@ public class ExpressionXformBuilder {
 		public AddFieldsStep addPGUIDField(String sourceName, String tableName,
 				SourceTableAbbreviationMap sourceTableAbbr, List<InfaSourceColumnDefinition> columns) {
 
-			String concatenatedId = "'OBI:" + sourceName + ":" + sourceTableAbbr.map(tableName) + ":'";
-			concatenatedId += "||" + columns.stream()//
+			String concatenatedId = columns.stream()//
 					.filter(InfaSourceColumnDefinition::getPguidFlag)//
 					.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e2.getColumnSequence()))
 					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
 
 			if (concatenatedId.isEmpty()) {
-				concatenatedId = "'OBI:" + sourceName + ":" + sourceTableAbbr.map(tableName) + ":'";
-				concatenatedId += "||" + columns.stream()//
+				concatenatedId =  columns.stream()//
 						.filter(InfaSourceColumnDefinition::getIntegrationIdFlag)//
 						.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e2.getColumnSequence()))
 						.map(ExpressionXformSteps::getInfaCastToStringExpression)//
 						.collect(Collectors.joining("|| ':' ||"));
 			}
 
+			
+			concatenatedId = "'OBI:" + sourceName + ":" + sourceTableAbbr.map(tableName) + ":'" + " || " + concatenatedId ;
+			
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("string");
 			xformExpressionField.setDEFAULTVALUE("");
