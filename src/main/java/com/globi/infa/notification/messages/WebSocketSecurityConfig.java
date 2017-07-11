@@ -8,8 +8,13 @@ import org.springframework.security.config.annotation.web.socket.AbstractSecurit
 public class WebSocketSecurityConfig
       extends AbstractSecurityWebSocketMessageBrokerConfigurer { 
 
-    protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-        messages
-                .simpDestMatchers("/**").permitAll();
-    }
+	 @Override
+	    protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+	        messages
+	                .nullDestMatcher().authenticated() 
+	                .simpSubscribeDestMatchers("/workflows").permitAll() 
+	                .simpDestMatchers("/workflows/**").permitAll() 
+	                .anyMessage().denyAll(); 
+
+	    }
 }
