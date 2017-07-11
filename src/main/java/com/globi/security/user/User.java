@@ -36,6 +36,8 @@ public class User extends AbstractEntity {
 	private String password;
 	
 	private String email;
+	
+	
 	private Date lastPasswordReset;
 	private String authorities;
 

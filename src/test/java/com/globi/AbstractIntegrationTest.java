@@ -10,8 +10,12 @@ import javax.xml.bind.Marshaller;
 
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.Assert;
 
 /**
  * Base class to implement transactional integration tests using the root application configuration.
@@ -37,5 +41,16 @@ public abstract class AbstractIntegrationTest {
 		return sw.toString();
 	}
 
+	
+
+	protected static void runAs(String username, String password, String... roles) {
+
+		Assert.notNull(username, "Username must not be null!");
+		Assert.notNull(password, "Password must not be null!");
+
+		SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken(username, password, AuthorityUtils.createAuthorityList(roles)));
+	}
+	
 	
 }

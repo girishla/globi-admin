@@ -57,7 +57,7 @@ public class AuthenticationController {
     String token = this.tokenUtils.generateToken(userDetails, device);
 
     // Return the token
-    return ResponseEntity.ok(new AuthenticationResponse(token));
+    return ResponseEntity.ok(new AuthenticationResponse(token,(GlobiUser) userDetails));
   }
 
   @RequestMapping(value = "${security.route.authentication.refresh}", method = RequestMethod.GET)
@@ -67,7 +67,7 @@ public class AuthenticationController {
     GlobiUser user = (GlobiUser) this.userDetailsService.loadUserByUsername(username);
     if (this.tokenUtils.canTokenBeRefreshed(token, user.getLastPasswordReset())) {
       String refreshedToken = this.tokenUtils.refreshToken(token);
-      return ResponseEntity.ok(new AuthenticationResponse(refreshedToken));
+      return ResponseEntity.ok(new AuthenticationResponse(refreshedToken,user));
     } else {
       return ResponseEntity.badRequest().body(null);
     }

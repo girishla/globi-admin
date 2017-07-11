@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.Test;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import com.globi.AbstractWebIntegrationTest;
@@ -13,6 +14,7 @@ import com.globi.AbstractWebIntegrationTest;
 public class GENTableColumnWebTest extends AbstractWebIntegrationTest {
 
 	@Test
+	@WithMockUser
 	public void exposesGenesisInvoiceMasterColumnsResource() throws Exception {
 
 		mvc.perform(get("/infagen/datasources/gen/tables/R_INVOICE_MASTER/columns"))//
@@ -24,6 +26,7 @@ public class GENTableColumnWebTest extends AbstractWebIntegrationTest {
 
 	
 	@Test
+	@WithMockUser
 	public void exposesGenesisInvoiceMasterTableColumnsWhenPassedTableInLowerCase() throws Exception {
 
 		mvc.perform(get("/infagen/datasources/gen/tables/r_invoice_master/columns"))//

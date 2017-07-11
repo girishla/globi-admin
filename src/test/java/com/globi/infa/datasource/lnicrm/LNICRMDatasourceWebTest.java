@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.junit.Test;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import com.globi.AbstractWebIntegrationTest;
@@ -13,6 +14,7 @@ import com.globi.AbstractWebIntegrationTest;
 public class LNICRMDatasourceWebTest extends AbstractWebIntegrationTest {
 
 	@Test
+	@WithMockUser
 	public void exposesLNICRMTableResource() throws Exception {
 
 		mvc.perform(get("/infagen/datasources/cuk/tables"))//

@@ -67,7 +67,7 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 		userRepo.save(UserObjectMother.getNormalUserFor("username", "password"));
 		userRepo.save(UserObjectMother.getAdminUserFor("admin", "admin"));
 		userRepo.save(UserObjectMother.getExpiredUserFor("expired", "expired"));
-
+		userRepo.save(UserObjectMother.getAdminUserFor("Administrator", "Administrator"));
 		
 		setUpIsDone = true;
 
@@ -124,7 +124,7 @@ public class AuthenticationControllerTest extends AbstractWebIntegrationTest {
 		
 		
 		mvc.perform(get("/sourcesystems")//
-//				.header("X-Auth-Token", authResp.getToken())
+				.header("x-auth-token", authResp.getToken())
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//
 				.andDo(MockMvcResultHandlers.print())//
