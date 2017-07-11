@@ -14,7 +14,8 @@ public class WebSocketSecurityConfig
 	                .nullDestMatcher().authenticated() 
 	                .simpSubscribeDestMatchers("/workflows").permitAll() 
 	                .simpDestMatchers("/workflows/**").permitAll() 
-	                .anyMessage().denyAll(); 
+	                .simpMessageDestMatchers("/**").permitAll()
+	                .anyMessage().permitAll();
 
 	    }
 }
