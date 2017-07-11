@@ -5,13 +5,14 @@ import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public class GlobiUserFactory {
 
   public static GlobiUser create(User user) {
     Collection<? extends GrantedAuthority> authorities;
     try {
-      authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(user.getAuthorities());
+      authorities =  AuthorityUtils.commaSeparatedStringToAuthorityList(user.getAuthorities());
     } catch (Exception e) {
       authorities = null;
     }
@@ -21,7 +22,7 @@ public class GlobiUserFactory {
       user.getPassword(),
       user.getEmail(),
       user.getLastPasswordReset(),
-      authorities
+      (Collection<SimpleGrantedAuthority>) authorities
     );
   }
 

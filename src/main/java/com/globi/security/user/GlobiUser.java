@@ -4,9 +4,11 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import lombok.Data;
 
@@ -26,6 +28,8 @@ public class GlobiUser implements UserDetails {
 
 	@JsonIgnore
 	private Date lastPasswordReset;
+	
+	@JsonIgnore
 	private Collection<? extends GrantedAuthority> authorities;
 	@JsonIgnore
 	private Boolean accountNonExpired = true;
