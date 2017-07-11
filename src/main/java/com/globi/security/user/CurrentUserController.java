@@ -14,6 +14,6 @@ public class CurrentUserController {
     @RequestMapping(value = "/user", method = RequestMethod.GET)
     @ResponseBody
     public UserDetails currentUserName(Authentication authentication) {
-        return (UserDetails) authentication;
+        return (UserDetails) authentication.getPrincipal();
     }
 }
