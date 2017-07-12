@@ -20,7 +20,7 @@ public class InfaConfig {
 		marshallerProps.put("jaxb.formatted.output", true);
 		
 		marshallerProps.put(Marshaller.JAXB_FRAGMENT, true);
-		marshallerProps.put("com.sun.xml.internal.bind.xmlHeaders","<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE POWERMART SYSTEM \"powrmart.dtd\">");
+		marshallerProps.put("com.sun.xml.bind.xmlHeaders","<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE POWERMART SYSTEM \"powrmart.dtd\">");
 		marshaller.setMarshallerProperties(marshallerProps);
 		marshaller.setSupportDtd(true);
 		return marshaller;
