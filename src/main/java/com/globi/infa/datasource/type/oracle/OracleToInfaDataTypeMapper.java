@@ -1,9 +1,11 @@
-package com.globi.infa.datasource.core;
+package com.globi.infa.datasource.type.oracle;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
+
+import com.globi.infa.datasource.core.DataTypeMapper;
 
 @Component
 public class OracleToInfaDataTypeMapper implements DataTypeMapper {
@@ -20,6 +22,8 @@ public class OracleToInfaDataTypeMapper implements DataTypeMapper {
 		typeMap.put("date","date/time");
 		typeMap.put("varchar2","string");
 		typeMap.put("varchar","string");
+		typeMap.put("clob","string");
+		
 	
 	}
 	

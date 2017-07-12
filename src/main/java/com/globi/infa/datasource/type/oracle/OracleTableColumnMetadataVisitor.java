@@ -1,4 +1,4 @@
-package com.globi.infa.datasource.core;
+package com.globi.infa.datasource.type.oracle;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
+import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;
 

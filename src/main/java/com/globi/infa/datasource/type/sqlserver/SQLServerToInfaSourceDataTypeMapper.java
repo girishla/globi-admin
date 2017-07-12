@@ -1,17 +1,20 @@
-package com.globi.infa.datasource.core;
+package com.globi.infa.datasource.type.sqlserver;
 
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import com.globi.infa.datasource.core.DataTypeMapper;
+import com.globi.infa.datasource.core.DefaultHashMap;
+
 @Component
-public class OracleToInfaSourceDataTypeMapper implements DataTypeMapper {
+public class SQLServerToInfaSourceDataTypeMapper implements DataTypeMapper {
 
 	
 	private Map<String,String>  typeMap= new DefaultHashMap<>("varchar2");
 	
 	
-	OracleToInfaSourceDataTypeMapper(){
+	SQLServerToInfaSourceDataTypeMapper(){
 	
 		typeMap.put("BIGINT","number(p,s)");
 		typeMap.put("BIT","char");

@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.globi.AbstractIntegrationTest;
 import com.globi.infa.datasource.core.DataSourceTableDTO;
-import com.globi.infa.datasource.core.OracleTableMetadataVisitor;
 import com.globi.infa.datasource.gen.GENTableRepository;
+import com.globi.infa.datasource.type.oracle.OracleTableMetadataVisitor;
 
 import lombok.extern.slf4j.Slf4j;
 

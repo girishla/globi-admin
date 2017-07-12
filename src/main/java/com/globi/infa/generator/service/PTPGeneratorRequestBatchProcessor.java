@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.globi.infa.AbstractInfaWorkflowEntity;
 import com.globi.infa.datasource.core.DataSourceTableColumnDTO;
-import com.globi.infa.datasource.core.MetadataTableColumnRepository;
+import com.globi.infa.datasource.core.TopDownMetadataTableColumnRepository;
 import com.globi.infa.generator.AggregateGitWriterEventListener;
 import com.globi.infa.generator.AggregatePTPPmcmdFileWriterEventListener;
 import com.globi.infa.generator.FileWriterEventListener;
@@ -52,7 +52,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 	private InfaPuddleDefinitionRepositoryWriter targetDefnWriter;
 
 	@Autowired
-	MetadataTableColumnRepository metadataColumnRepository;
+	TopDownMetadataTableColumnRepository metadataColumnRepository;
 
 	@Autowired
 	private WorkflowMessageNotifier notifier;

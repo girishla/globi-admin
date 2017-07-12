@@ -12,9 +12,9 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.test.annotation.Rollback;
 
 import com.globi.AbstractIntegrationTest;
-import com.globi.infa.datasource.core.OracleTableColumnMetadataVisitor;
 import com.globi.infa.datasource.fbm.FBMTableColumnRepository;
 import com.globi.infa.datasource.gcrm.GCRMTableColumnRepository;
+import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
