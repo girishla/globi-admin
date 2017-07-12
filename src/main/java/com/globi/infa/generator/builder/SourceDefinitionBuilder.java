@@ -38,7 +38,6 @@ public class SourceDefinitionBuilder {
 	}
 
 	
-	
 	public interface SetMarshallerStep {
 		LoadFromSeedStep marshaller(Jaxb2Marshaller marshaller);
 	}
@@ -63,13 +62,14 @@ public class SourceDefinitionBuilder {
 	}
 	
 	
-	public static class SourceDefinitionSteps implements SourceDefnStep, ClassStep,NameStep,SetMarshallerStep,LoadFromSeedStep,AddFieldsStep,BuildStep{
+	public static class SourceDefinitionSteps implements SourceDefnStep,ClassStep,NameStep,SetMarshallerStep,LoadFromSeedStep,AddFieldsStep,BuildStep{
 
 		
 	 	private Jaxb2Marshaller marshaller;
 	 	private SOURCE sourceDefinition;
 	 	@SuppressWarnings("unused")
 		private String className;
+
 		
 		
 		@Override
@@ -193,7 +193,9 @@ public class SourceDefinitionBuilder {
 			
 			return this;
 		}
-		
+
+
+
 		
 		
 	}

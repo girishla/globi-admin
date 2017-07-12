@@ -1,4 +1,4 @@
-package com.globi.infa.datasource.lnicrm;
+package com.globi.infa.datasource.vpt;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,64 +9,62 @@ import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.infa.datasource.core.TableMetadataVisitor;
 import com.globi.infa.datasource.core.TableRepository;
-import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
-import com.globi.infa.datasource.type.oracle.OracleTableMetadataVisitor;
-import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaXFormTypeMapper;
-
+import com.globi.infa.datasource.type.sqlserver.SQLServerTableColumnMetadataVisitor;
+import com.globi.infa.datasource.type.sqlserver.SQLServerTableMetadataVisitor;
+import com.globi.infa.datasource.type.sqlserver.SQLServerInfaSourceToInfaXFormTypeMapper;
 
 @Component
-public class LNICRMSourceMetadataFactory implements SourceMetadataFactory {
-	
+public class VPTSourceMetadataFactory implements SourceMetadataFactory {
+
 	@Autowired
-	private LNICRMTableRepository lnicrmRepo;
-	
+	private VPTTableRepository vptRepo;
+
 	@Autowired
-	private LNICRMTableColumnRepository lniTableColumnRepo;
-	
+	private VPTTableColumnRepository vptTableColumnRepo;
+
 	@Autowired
-	private OracleTableMetadataVisitor lniTableMetadataVisitor;
-	
+	private SQLServerTableMetadataVisitor vptTableMetadataVisitor;
+
 	@Autowired
-	private OracleTableColumnMetadataVisitor lniOracleTableColumnMetadataVisitor;
-	
+	private SQLServerTableColumnMetadataVisitor vptSQLServerTableColumnMetadataVisitor;
+
 	@Autowired
-	private OracleInfaSourceToInfaXFormTypeMapper lniOracleToInfaDataTypeMapper;
-	
+	private SQLServerInfaSourceToInfaXFormTypeMapper vptSQLServerToInfaDataTypeMapper;
 
 	@Override
 	public TableRepository createTableRepository() {
-		
-		return lnicrmRepo;
+
+		return vptRepo;
 	}
 
 	@Override
 	public TableColumnRepository createTableColumnRepository() {
-		
-		return lniTableColumnRepo;
+
+		return vptTableColumnRepo;
 	}
 
 	@Override
 	public TableMetadataVisitor createTableMetadataVisitor() {
-		
-		return lniTableMetadataVisitor;
+
+		return vptTableMetadataVisitor;
 	}
 
 	@Override
 	public TableColumnMetadataVisitor createTableColumnMetadataVisitor() {
-		
-		return lniOracleTableColumnMetadataVisitor;
+
+		return vptSQLServerTableColumnMetadataVisitor;
 	}
 
 	@Override
 	public DataTypeMapper createDatatypeMapper() {
-		
-		return lniOracleToInfaDataTypeMapper;
+
+		return vptSQLServerToInfaDataTypeMapper;
 	}
 
 	@Override
 	public String getSourceName() {
-		// 
-		return "CUK";
+		//
+		return "VPT";
 	}
 
 }

@@ -17,22 +17,55 @@ public class SQLServerTableColumnMetadataVisitor implements TableColumnMetadataV
 
 
 
-	@Autowired
-	protected SQLServerToInfaSourceDataTypeMapper mapper;
-
-	protected String columnSQL = "SELECT COLUMN_ID COLUMN_NUMBER\r\n" + 
-			"			,COLUMN_NAME\r\n" + 
-			"			,DATA_TYPE\r\n" + 
-			"			,CASE WHEN DATA_TYPE IN ('NUMBER','CLOB') THEN DATA_LENGTH WHEN DATA_TYPE IN ('DATE','TIMESTAMP(6)') THEN 19  ELSE CHAR_LENGTH END PHYSICAL_LENGTH\r\n" + 
-			"			,CASE WHEN DATA_TYPE IN ('DATE','TIMESTAMP(6)') THEN 19 WHEN DATA_TYPE IN ('NUMBER','CLOB') THEN DATA_LENGTH WHEN DATA_TYPE='LONG' THEN 4000 ELSE 0 END COL_LENGTH\r\n" + 
-			"			,CASE WHEN NULLABLE='Y' THEN 'NULL' ELSE 'NOTNULL' END NULLABLE\r\n" + 
-			"			,CASE WHEN DATA_TYPE IN ('DATE','TIMESTAMP(6)') THEN 19 WHEN DATA_TYPE IN ('VARCHAR2','CHAR') THEN CHAR_LENGTH WHEN DATA_TYPE='LONG' THEN 4000 WHEN DATA_TYPE IN ('NUMBER','CLOB') THEN DATA_LENGTH ELSE DATA_PRECISION END COL_PRECISION\r\n" + 
-			"			,CASE WHEN DATA_TYPE IN ('DATE','TIMESTAMP(6)') THEN 0 ELSE NVL(DATA_SCALE,0) END COL_SCALE\r\n" + 
-			"			,CASE WHEN DATA_TYPE IN ('DATE','TIMESTAMP(6)') THEN 19 ELSE 0 END COL_OFFSET\r\n" + 
-			"			,sum(CHAR_LENGTH) over (ORDER BY COLUMN_ID\r\n" + 
-			"			ROWS BETWEEN UNBOUNDED PRECEDING\r\n" + 
-			"			AND CURRENT ROW)-(CHAR_LENGTH) PHYSICAL_OFFSET\r\n" + 
-			"			FROM ALL_TAB_COLUMNS WHERE TABLE_NAME=?";
+	protected String columnSQL = "SELECT table_name, \r\n" + 
+			"       column_name                                    AS COL_NAME, \r\n" + 
+			"       CASE \r\n" + 
+			"         WHEN data_type IN ( 'int' ) THEN numeric_precision \r\n" + 
+			"         WHEN data_type IN ( 'bit' ) THEN 1 \r\n" + 
+			"         WHEN data_type IN ( 'datetime' ) THEN 19 \r\n" + 
+			"         ELSE 0 \r\n" + 
+			"       END                                            COL_LENGTH, \r\n" + 
+			"       ordinal_position                               COL_NUMBER, \r\n" + 
+			"       data_type, \r\n" + 
+			"       CASE \r\n" + 
+			"         WHEN is_nullable = 'NO' THEN 'NONNULL' \r\n" + 
+			"         ELSE 'NULL' \r\n" + 
+			"       END                                            NULLABLE, \r\n" + 
+			"       SUM(Isnull(numeric_precision, 0)) \r\n" + 
+			"         over( \r\n" + 
+			"           PARTITION BY table_name \r\n" + 
+			"           ORDER BY ordinal_position ROWS BETWEEN unbounded preceding AND \r\n" + 
+			"         CURRENT ROW) \r\n" + 
+			"                                                      AS COL_OFFSET, \r\n" + 
+			"       CASE \r\n" + 
+			"         WHEN data_type = 'timestamp' THEN 8 \r\n" + 
+			"         WHEN data_type = 'bit' THEN 1 \r\n" + 
+			"         WHEN data_type = 'datetime' THEN 23 \r\n" + 
+			"         ELSE Coalesce(character_maximum_length, numeric_precision, \r\n" + 
+			"              datetime_precision) \r\n" + 
+			"       END                                            PHYSICAL_LENGTH, \r\n" + 
+			"       SUM(CASE \r\n" + 
+			"             WHEN data_type = 'timestamp' THEN 8 \r\n" + 
+			"             WHEN data_type = 'bit' THEN 1 \r\n" + 
+			"             WHEN data_type = 'datetime' THEN 23 \r\n" + 
+			"             ELSE Coalesce(character_maximum_length, numeric_precision, \r\n" + 
+			"                  datetime_precision) \r\n" + 
+			"           END) \r\n" + 
+			"         over( \r\n" + 
+			"           PARTITION BY table_name \r\n" + 
+			"           ORDER BY ordinal_position ROWS BETWEEN unbounded preceding AND \r\n" + 
+			"         CURRENT ROW) \r\n" + 
+			"                                                      AS PHYSICAL_OFFSET, \r\n" + 
+			"       CASE \r\n" + 
+			"         WHEN data_type = 'timestamp' THEN 8 \r\n" + 
+			"         WHEN data_type = 'bit' THEN 1 \r\n" + 
+			"         WHEN data_type = 'datetime' THEN 23 \r\n" + 
+			"         ELSE Coalesce(character_maximum_length, numeric_precision, \r\n" + 
+			"              datetime_precision) \r\n" + 
+			"       END                                            COL_PRECISION, \r\n" + 
+			"       Coalesce(numeric_scale, datetime_precision, 0) COL_SCALE \r\n" + 
+			"FROM   information_schema.COLUMNS \r\n" + 
+			"WHERE  table_name = ?";
 	
 
 	@Override
@@ -53,10 +86,10 @@ public class SQLServerTableColumnMetadataVisitor implements TableColumnMetadataV
 		public InfaSourceColumnDefinition mapRow(ResultSet rs, int rowNum) throws SQLException {
 
 			InfaSourceColumnDefinition colDefn = InfaSourceColumnDefinition.builder()//
-					.columnName(rs.getString("COLUMN_NAME"))//
+					.columnName(rs.getString("COL_NAME"))//
 					.columnLength(tryParse(rs.getString("COL_LENGTH")))//
-					.columnNumber(tryParse(rs.getString("COLUMN_NUMBER")))//
-					.columnDataType(mapper.mapType(rs.getString("DATA_TYPE").toUpperCase()))//
+					.columnNumber(tryParse(rs.getString("COL_NUMBER")))//
+					.columnDataType(rs.getString("DATA_TYPE"))//
 					.nullable(rs.getString("NULLABLE"))//
 					.offset(tryParse(rs.getString("COL_OFFSET")))//
 					.physicalLength(tryParse(rs.getString("PHYSICAL_LENGTH")))//

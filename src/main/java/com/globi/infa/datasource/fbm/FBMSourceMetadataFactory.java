@@ -11,7 +11,7 @@ import com.globi.infa.datasource.core.TableMetadataVisitor;
 import com.globi.infa.datasource.core.TableRepository;
 import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
 import com.globi.infa.datasource.type.oracle.OracleTableMetadataVisitor;
-import com.globi.infa.datasource.type.oracle.OracleToInfaDataTypeMapper;
+import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaXFormTypeMapper;
 import com.globi.infa.datasource.type.oracle.OracleViewMetadataVisitor;
 
 
@@ -31,7 +31,7 @@ public class FBMSourceMetadataFactory implements SourceMetadataFactory {
 	private OracleTableColumnMetadataVisitor fbmOracleTableColumnMetadataVisitor;
 	
 	@Autowired
-	private OracleToInfaDataTypeMapper fbmOracleToInfaDataTypeMapper;
+	private OracleInfaSourceToInfaXFormTypeMapper fbmOracleToInfaDataTypeMapper;
 	
 
 	@Override

@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 import com.globi.infa.datasource.core.DataTypeMapper;
 
 @Component
-public class OracleToInfaDataTypeMapper implements DataTypeMapper {
+public class OracleInfaSourceToInfaXFormTypeMapper implements DataTypeMapper {
 
 	
 	private Map<String,String>  typeMap= new HashMap<>();
 	
 	
-	public OracleToInfaDataTypeMapper(){
+	public OracleInfaSourceToInfaXFormTypeMapper(){
 	
 		typeMap.put("number(p,s)","decimal");
 		typeMap.put("char","string");

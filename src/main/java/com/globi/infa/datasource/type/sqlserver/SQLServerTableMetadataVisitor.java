@@ -28,7 +28,7 @@ public class SQLServerTableMetadataVisitor implements TableMetadataVisitor {
 	@Override
 	public List<DataSourceTableDTO> getAllTables(JdbcTemplate jdbcT,String ownerName) {
 
-			return  jdbcT.query(tableSQL, tableMapper, ownerName);
+			return  jdbcT.query(tableSQL, tableMapper);
 	}
 
 }

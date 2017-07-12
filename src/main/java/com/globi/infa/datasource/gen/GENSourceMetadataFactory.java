@@ -11,7 +11,7 @@ import com.globi.infa.datasource.core.TableMetadataVisitor;
 import com.globi.infa.datasource.core.TableRepository;
 import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
 import com.globi.infa.datasource.type.oracle.OracleTableMetadataVisitor;
-import com.globi.infa.datasource.type.oracle.OracleToInfaDataTypeMapper;
+import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaXFormTypeMapper;
 
 @Component
 public class GENSourceMetadataFactory implements SourceMetadataFactory {
@@ -29,7 +29,7 @@ public class GENSourceMetadataFactory implements SourceMetadataFactory {
 	private OracleTableColumnMetadataVisitor genOracleTableColumnMetadataVisitor;
 
 	@Autowired
-	private OracleToInfaDataTypeMapper genOracleToInfaDataTypeMapper;
+	private OracleInfaSourceToInfaXFormTypeMapper genOracleToInfaDataTypeMapper;
 
 	@Override
 	public TableRepository createTableRepository() {
