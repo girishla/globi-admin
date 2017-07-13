@@ -114,14 +114,6 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 	}
 	
-	
-	private PTPWorkflow setWorkflowStatus(PTPWorkflow wf, String status){
-		
-		
-		
-		return null;
-		
-	}
 
 	private String getSourceFilterString(String sourceFilter, List<PTPWorkflowSourceColumn> inputSelectedColumns,
 			String tableName) {

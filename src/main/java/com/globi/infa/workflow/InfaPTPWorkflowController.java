@@ -42,9 +42,6 @@ public class InfaPTPWorkflowController {
 	public @ResponseBody ResponseEntity<?> createPTPExtractWorkflow(@RequestBody @Valid PTPWorkflow ptpWorkflow,
 			@RequestParam("sync") Optional<Boolean> sync, BindingResult result) throws Exception {
 
-//		if (result.hasErrors()) {
-//			throw new MethodArgumentNotValidException(null, result);
-//		}
 
 		PTPWorkflow savedWorkflow = (PTPWorkflow) requestProcessor.saveInput(ptpWorkflow);
 
