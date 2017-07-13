@@ -160,15 +160,6 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.getFilteredSourceDefnColumns(colRepository.accept(columnQueryVisitor, tblName), inputSelectedColumns);
 
 		
-		InfaSourceDefinition sourceTableDefAll = InfaSourceDefinition.builder()//
-				.sourceTableName(tblName)//
-				.ownerName(source.get().getOwnerName())//
-				.databaseName(source.get().getName())//
-				.databaseType(source.get().getDbType())//
-				.sourceTableUniqueName(source.get().getName() + "_" + tblName)
-				.build();
-
-		
 		sourceTableDef = InfaSourceDefinition.builder()//
 				.sourceTableName(tblName)//
 				.ownerName(source.get().getOwnerName())//
