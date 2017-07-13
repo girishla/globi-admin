@@ -54,17 +54,13 @@ import com.globi.metadata.sourcesystem.SourceSystemRepository;
 public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
 	private PTPWorkflow wfDefinition;
-	private InfaSourceDefinitionRepository sourceDefnRepo;
 	private SourceTableAbbreviationMap sourceTableAbbreviation;
-	InfaPTPWorkflowRepository wfRepo;
 
 	PTPExtractGenerationStrategy(Jaxb2Marshaller marshaller, SourceSystemRepository sourceSystemRepo,
 			SourceMetadataFactoryMapper metadataFactoryMapper, InfaSourceDefinitionRepository sourceDefnRepo,SourceTableAbbreviationMap sourceTableAbbreviation,WorkflowMessageNotifier socketNotifier,InfaPTPWorkflowRepository wfRepo) {
 
 		super(marshaller, sourceSystemRepo, metadataFactoryMapper,socketNotifier);
-		this.sourceDefnRepo = sourceDefnRepo;
 		this.sourceTableAbbreviation=sourceTableAbbreviation;
-		this.wfRepo=wfRepo;
 		
 	}
 
