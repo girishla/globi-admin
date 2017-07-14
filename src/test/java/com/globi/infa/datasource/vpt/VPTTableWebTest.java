@@ -16,7 +16,7 @@ public class VPTTableWebTest extends AbstractWebIntegrationTest {
 
 	@Test
 	@WithMockUser
-	@Ignore //ignore until firewall is opened
+	//@Ignore ignore until firewall is opened
 	public void exposesVPTTableResource() throws Exception {
 
 		mvc.perform(get("/infagen/datasources/vpt/tables"))//
