@@ -9,11 +9,8 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
@@ -39,8 +36,6 @@ import lombok.ToString;
 @UniqueConstraint(columnNames = { "src_name", "src_table_name" }) })
 @AllArgsConstructor
 @DiscriminatorValue("PTP")
-// @Builder
-
 
 public class PTPWorkflow extends InfaWorkflow {
 
@@ -58,8 +53,11 @@ public class PTPWorkflow extends InfaWorkflow {
 	private String sourceFilter = "";
 
 	@Column(name = "tgt_table")
-	@Size(min=0,max = 24)
+	@NonNull
+	@NotBlank(message = "Target table name cannot be empty!")
+	@Size(min=5,max = 24)
 	private String targetTableName = "";
+
 	
 	@OrderColumn //
 	@Column(unique = true) //
@@ -73,13 +71,14 @@ public class PTPWorkflow extends InfaWorkflow {
 
 	@Builder
 	public PTPWorkflow(String workflowName, String workflowUri, String workflowStatus, String sourceName,
-			String sourceTableName, String sourceFilter, List<PTPWorkflowSourceColumn> columns) {
+			String sourceTableName, String sourceFilter, List<PTPWorkflowSourceColumn> columns,String targetTableName) {
 
 		super(workflowName, workflowUri, workflowStatus);
 		this.sourceFilter = sourceFilter;
 		this.sourceTableName = sourceTableName;
 		this.sourceName = sourceName;
 		this.columns = columns;
+		this.targetTableName=targetTableName;
 
 	}
 

@@ -87,7 +87,6 @@ public class MetadataToPTPWorkflowDefnConverter {
 						.pguidColumn(false)//
 						.sourceColumnName("ROW_ID")//
 						.build());
-				
 			}
 			
 		}
@@ -99,6 +98,7 @@ public class MetadataToPTPWorkflowDefnConverter {
 					.columns(workflowSourceColumnList)
 					.workflowName(generatedWFName)
 					.workflowUri(generatedWFUri)
+					.targetTableName(table.getSourceName() + "_" +table.getTableName())
 					.build();
 		
 		
