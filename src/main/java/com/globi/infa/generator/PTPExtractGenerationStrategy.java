@@ -190,10 +190,9 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.collect(Collectors.toList());
 
 		String targetTableName = wfDefinition.getTargetTableName();
-		String targetTableDefnName;
 
-		targetTableName =targetTableName.isEmpty()?tblName:targetTableName;
-		targetTableDefnName=dbName + "_" + targetTableName + "_P";
+		
+		String targetTableDefnName =targetTableName.isEmpty()?dbName + "_" + tblName + "_P":targetTableName;
 		
 		
 		InfaMappingObject mappingObjPrimary = MappingBuilder//
@@ -247,7 +246,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.mappingvariable(getEtlProcWidMappingVariable())//
 				.mappingvariable(getInitialExtractDateMappingVariable())//
 				.mappingvariable(getDataSourceNumIdMappingVariable(Integer.toString(source.get().getSourceNum())))//
-				.mappingvariable(getTablenameMappingVariable(targetTableName))//
+				.mappingvariable(getTablenameMappingVariable(targetTableName.isEmpty()?dbName + "_" + tblName:targetTableName))//
 				.noMoreMappingVariables()//
 				.build();
 
@@ -297,12 +296,10 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		
 		String targetTableName = wfDefinition.getTargetTableName();
-		targetTableName =targetTableName.isEmpty()?tblName:targetTableName;
-		String targetTableDefnName=dbName + "_" + targetTableName;
+		String targetTableDefnName =targetTableName.isEmpty()?dbName + "_" + tblName:targetTableName;
 		
 		commonValuesMap.put("targetTableName", targetTableDefnName);
 		commonValuesMap.put("sourceName", dbName);
-
 		
 		
 		InfaMappingObject mappingObjExtract = MappingBuilder//
