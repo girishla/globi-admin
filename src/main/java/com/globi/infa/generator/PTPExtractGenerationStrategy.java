@@ -192,7 +192,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		String targetTableName = wfDefinition.getTargetTableName();
 
 		
-		String targetTableDefnName =targetTableName.isEmpty()?dbName + "_" + tblName + "_P":targetTableName;
+		String targetTableDefnName =targetTableName.isEmpty()?dbName + "_" + tblName + "_P":targetTableName+ "_P";
 		
 		
 		InfaMappingObject mappingObjPrimary = MappingBuilder//
