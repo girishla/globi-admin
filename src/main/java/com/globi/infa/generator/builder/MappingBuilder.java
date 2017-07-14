@@ -358,6 +358,7 @@ public class MappingBuilder {
 
 			List<String> fromInstanceFieldNames = new ArrayList<>();
 			List<String> toInstanceFieldNames = new ArrayList<>();
+			Map<String,String> normalisedColumns= new HashMap<>();
 
 			log.debug("Auto-connecting instances " + fromInstanceName + "and " + toInstanceName);
 
@@ -369,12 +370,17 @@ public class MappingBuilder {
 			fromInstanceFieldNames.addAll(extractFieldNamesForSources(fromInstanceName));
 			
 			
-			//normalise column names before comparing
+			//save normalised column names as Hash to use later
+			fromInstanceFieldNames//
+					.stream()//
+					.forEach(col->normalisedColumns.put(ObjectNameNormaliser.normalise(col) , col));
+
+			
+			//collect normalise column names as list before comparing
 			fromInstanceFieldNames=fromInstanceFieldNames//
 					.stream()//
 					.map(ObjectNameNormaliser::normalise)//
 					.collect(Collectors.toList());
-			
 			
 			toInstanceFieldNames.addAll(extractFieldNamesForTargets(toInstanceName));
 
@@ -383,8 +389,7 @@ public class MappingBuilder {
 
 			// Add a connector for each matching field
 			matchingFieldNames.forEach(matchingField -> {
-
-				this.connector(fromInstanceName, matchingField, toInstanceName, matchingField);
+				this.connector(fromInstanceName, normalisedColumns.get(matchingField), toInstanceName, matchingField);
 
 			});
 

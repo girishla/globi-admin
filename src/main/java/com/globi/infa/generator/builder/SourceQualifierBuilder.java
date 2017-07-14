@@ -75,10 +75,6 @@ public class SourceQualifierBuilder {
 
 			this.sourceQualifierDefn.getTRANSFORMFIELD()
 					.addAll(columns.stream()//
-//							.map(column->{
-//								column.setColumnName(ObjectNameNormaliser.normalise(column.getColumnName()));
-//								return column;
-//							})
 							.map(column -> sourceQualifierFieldFrom(mapper, column))//
 							.collect(Collectors.toList()));
 
