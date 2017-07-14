@@ -19,6 +19,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.FileCopyUtils;
 
 import com.globi.infa.datasource.core.DataTypeMapper;
+import com.globi.infa.datasource.core.ObjectNameNormaliser;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
 import xjc.TRANSFORMATION;
@@ -74,6 +75,10 @@ public class SourceQualifierBuilder {
 
 			this.sourceQualifierDefn.getTRANSFORMFIELD()
 					.addAll(columns.stream()//
+//							.map(column->{
+//								column.setColumnName(ObjectNameNormaliser.normalise(column.getColumnName()));
+//								return column;
+//							})
 							.map(column -> sourceQualifierFieldFrom(mapper, column))//
 							.collect(Collectors.toList()));
 

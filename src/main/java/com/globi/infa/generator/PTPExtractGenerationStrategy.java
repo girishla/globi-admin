@@ -23,6 +23,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
+import com.globi.infa.datasource.core.ObjectNameNormaliser;
 import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
 import com.globi.infa.generator.builder.FilterXformBuilder;
@@ -57,15 +58,15 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 	private SourceTableAbbreviationMap sourceTableAbbreviation;
 
 	PTPExtractGenerationStrategy(Jaxb2Marshaller marshaller, SourceSystemRepository sourceSystemRepo,
-			SourceMetadataFactoryMapper metadataFactoryMapper, InfaSourceDefinitionRepository sourceDefnRepo,SourceTableAbbreviationMap sourceTableAbbreviation,WorkflowMessageNotifier socketNotifier,InfaPTPWorkflowRepository wfRepo) {
+			SourceMetadataFactoryMapper metadataFactoryMapper, InfaSourceDefinitionRepository sourceDefnRepo,
+			SourceTableAbbreviationMap sourceTableAbbreviation, WorkflowMessageNotifier socketNotifier,
+			InfaPTPWorkflowRepository wfRepo) {
 
-		super(marshaller, sourceSystemRepo, metadataFactoryMapper,socketNotifier);
-		this.sourceTableAbbreviation=sourceTableAbbreviation;
-		
+		super(marshaller, sourceSystemRepo, metadataFactoryMapper, socketNotifier);
+		this.sourceTableAbbreviation = sourceTableAbbreviation;
+
 	}
 
-	
-	
 	private List<InfaSourceColumnDefinition> getFilteredSourceDefnColumns(
 			List<InfaSourceColumnDefinition> allTableColumns, List<PTPWorkflowSourceColumn> inputSelectedColumns) {
 
@@ -83,8 +84,6 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				allColsMap.get(inputColumn.getSourceColumnName()).setSelected(true);
 			}
 		});
-		
-		
 
 		List<InfaSourceColumnDefinition> matchedColumns = allColsMap.values()//
 				.stream()//
@@ -109,7 +108,6 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		return source;
 
 	}
-	
 
 	private String getSourceFilterString(String sourceFilter, List<PTPWorkflowSourceColumn> inputSelectedColumns,
 			String tableName) {
@@ -155,18 +153,15 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		List<InfaSourceColumnDefinition> matchedColumns = this
 				.getFilteredSourceDefnColumns(colRepository.accept(columnQueryVisitor, tblName), inputSelectedColumns);
 
-		
 		sourceTableDef = InfaSourceDefinition.builder()//
 				.sourceTableName(tblName)//
 				.ownerName(source.get().getOwnerName())//
 				.databaseName(source.get().getName())//
 				.databaseType(source.get().getDbType())//
-				.sourceTableUniqueName(source.get().getName() + "_" + tblName)
-				.build();
+				.sourceTableUniqueName(source.get().getName() + "_" + tblName).build();
 
 		String combinedFilter = getSourceFilterString(sourceFilter, inputSelectedColumns, tblName);
 
-		
 		sourceTableDef.getColumns().addAll(matchedColumns);
 
 		commonValuesMap.put("targetTableName", dbName + "_" + tblName);
@@ -192,8 +187,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.targetDefn(TargetDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.loadTargetFromSeed("Seed_PTPPrimaryExtractTargetTable")//
-						.mapper(this.sourceToTargetDataTypeMapper)
-						.noMoreFields()//
+						.mapper(this.sourceToTargetDataTypeMapper).noMoreFields()//
 						.name(targetTableDefnName)//
 						.build())//
 				.noMoreTargets()//
@@ -209,8 +203,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.transformation(ExpressionXformBuilder.newBuilder()//
 						.expressionFromPrototype("ExpFromPrototype")//
 						.expression("EXP_Resolve")//
-						.mapper(dataTypeMapper)
-						.addIntegrationIdField(columnsList)//
+						.mapper(dataTypeMapper).addIntegrationIdField(columnsList)//
 						.addDatasourceNumIdField()//
 						.noMoreFields()//
 						.nameAlreadySet()//
@@ -276,6 +269,12 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		List<InfaSourceColumnDefinition> columnsList = sourceTableDef.getColumns();
 
+		//normalise columns removing any special chars spaces etc
+		columnsList = columnsList.stream().map(column -> {
+			column.setColumnName(ObjectNameNormaliser.normalise(column.getColumnName()));
+			return column;
+		}).collect(Collectors.toList());
+
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
 				.simpleTableSyncClass("simpleTableSyncClass")//
@@ -289,8 +288,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.targetDefn(TargetDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.loadTargetFromSeed("Seed_PTPTargetTableSystemCols")//
-						.mapper(this.sourceToTargetDataTypeMapper)
-						.addFields(columnsList)//
+						.mapper(this.sourceToTargetDataTypeMapper).addFields(columnsList)//
 						.noMoreFields().name(dbName + "_" + tblName)//
 						.build())//
 				.noMoreTargets()//
@@ -312,13 +310,12 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.transformation(ExpressionXformBuilder.newBuilder()//
 						.expressionFromPrototype("ExpFromPrototype")//
 						.expression("EXP_Resolve")//
-						.mapper(dataTypeMapper)
-						.addEffectiveFromDateField()//
+						.mapper(dataTypeMapper).addEffectiveFromDateField()//
 						.addEtlProcWidField()//
 						.addDatasourceNumIdField()//
 						.addIntegrationIdField(columnsList)//
 						.addBUIDField(columnsList)//
-						.addPGUIDField(dbName,tblName, sourceTableAbbreviation, columnsList)//
+						.addPGUIDField(dbName, tblName, sourceTableAbbreviation, columnsList)//
 						.addMD5HashField(columnsList)//
 						.addRowWidField()//
 						.noMoreFields()//
@@ -348,8 +345,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.marshaller(marshaller)//
 						.setInterpolationValues(commonValuesMap)//
 						.loadExpressionXformFromSeed("Seed_EXPPrepDomLookup")//
-						.mapper(dataTypeMapper)
-						.noMoreFields()//
+						.mapper(dataTypeMapper).noMoreFields()//
 						.nameAlreadySet()//
 						.build())
 				.transformation(FilterXformBuilder.newBuilder()//
@@ -420,17 +416,13 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 	public InfaPowermartObject generate() {
 		InfaPowermartObject pmObj = null;
 
-		
-
-		
-		
 		try {
 			pmObj = this.generateWorkflow();
 			this.notifyListeners(pmObj, wfDefinition);
 		} catch (Exception e) {
 			e.printStackTrace();
-			
-		throw new WorkflowGenerationException((GeneratedWorkflow) this.wfDefinition, e.getMessage());
+
+			throw new WorkflowGenerationException((GeneratedWorkflow) this.wfDefinition, e.getMessage());
 
 		}
 

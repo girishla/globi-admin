@@ -1,5 +1,6 @@
 package com.globi.infa.generator;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -49,9 +50,10 @@ public class PTPWorkflowVPTWebtest extends AbstractWebIntegrationTest {
 		.sourceName("VPT")//
 		.tableName("YearOnYearSummary")//
 		.setIntegrationCol("CustomerID")//
-//		.setBuidCol("BU_ID")//
 		.setNormalCol("CustomerName")
 		.setNormalCol("NetValue_PYE")
+		.setNormalCol("CY v PY NetValue")
+		.setNormalCol("#Accounts_PY")
 		.sourceFilter("")
 		.build();
 		
@@ -70,7 +72,8 @@ public class PTPWorkflowVPTWebtest extends AbstractWebIntegrationTest {
 				.andExpect(status().isCreated())//
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))//
 				.andExpect(jsonPath("$.workflowName", notNullValue()))//
-				.andExpect(jsonPath("$.workflowUri", notNullValue()));
+				.andExpect(jsonPath("$.workflowUri", notNullValue()))
+				.andExpect(jsonPath("$.workflowStatus", is(("Processed"))));
 
 	}
 

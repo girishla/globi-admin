@@ -15,6 +15,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import com.globi.infa.datasource.core.DataTypeMapper;
+import com.globi.infa.datasource.core.ObjectNameNormaliser;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
 import xjc.TARGET;

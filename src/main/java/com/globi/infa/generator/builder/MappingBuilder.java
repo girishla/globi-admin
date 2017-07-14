@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import com.globi.infa.datasource.core.ObjectNameNormaliser;
 import com.rits.cloning.Cloner;
 
 import lombok.extern.slf4j.Slf4j;
@@ -363,14 +364,18 @@ public class MappingBuilder {
 			fromInstanceFieldNames.addAll(extractFieldNamesForTransformation(fromInstanceName));
 			toInstanceFieldNames.addAll(extractFieldNamesForTransformation(toInstanceName));
 
-			log.debug("From Fields:");
-			fromInstanceFieldNames.forEach(val -> log.debug(val));
-			log.debug("To Fields:");
-			toInstanceFieldNames.forEach(val -> log.debug(val));
-
 			// It is sufficient to look for fromInstances only in the SourceMap
 			// as targets cannot be "From" in a connector.
 			fromInstanceFieldNames.addAll(extractFieldNamesForSources(fromInstanceName));
+			
+			
+			//normalise column names before comparing
+			fromInstanceFieldNames=fromInstanceFieldNames//
+					.stream()//
+					.map(ObjectNameNormaliser::normalise)//
+					.collect(Collectors.toList());
+			
+			
 			toInstanceFieldNames.addAll(extractFieldNamesForTargets(toInstanceName));
 
 			List<String> matchingFieldNames = fromInstanceFieldNames.stream()//
