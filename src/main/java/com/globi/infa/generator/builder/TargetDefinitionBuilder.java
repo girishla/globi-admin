@@ -103,17 +103,6 @@ public class TargetDefinitionBuilder {
 		@Override
 		public BuildStep name(String name) {
 
-			if (name.length() >= 24) {
-				String strippedOffStr = name.substring(20);
-				char[] asciiArr = strippedOffStr.toCharArray();
-				int totalVal = 0;
-				for (char ch : asciiArr) {
-					totalVal += (int) ch;
-				}
-				name=name.substring(0, 20);
-				name += totalVal;
-			}
-
 			this.targetDefinition.setNAME(name);
 
 			return this;
