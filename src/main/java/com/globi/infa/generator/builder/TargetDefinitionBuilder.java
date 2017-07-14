@@ -32,13 +32,12 @@ public class TargetDefinitionBuilder {
 
 		SetMapperStep noMarshaller();
 	}
-	
-	
+
 	public interface SetMapperStep {
 		AddFieldsStep mapper(DataTypeMapper mapper);
+
 		AddFieldsStep noMapper();
 	}
-
 
 	public interface LoadFromSeedStep {
 		SetMapperStep loadTargetFromSeed(String seedName) throws FileNotFoundException, IOException;
@@ -61,7 +60,7 @@ public class TargetDefinitionBuilder {
 	}
 
 	public static class TargetDefinitionSteps
-			implements NameStep, SetMarshallerStep, LoadFromSeedStep, AddFieldsStep, BuildStep,SetMapperStep {
+			implements NameStep, SetMarshallerStep, LoadFromSeedStep, AddFieldsStep, BuildStep, SetMapperStep {
 
 		private Jaxb2Marshaller marshaller;
 		private DataTypeMapper mapper;
@@ -103,6 +102,17 @@ public class TargetDefinitionBuilder {
 
 		@Override
 		public BuildStep name(String name) {
+
+			if (name.length() >= 24) {
+				String strippedOffStr = name.substring(20);
+				char[] asciiArr = strippedOffStr.toCharArray();
+				int totalVal = 0;
+				for (char ch : asciiArr) {
+					totalVal += (int) ch;
+				}
+				name=name.substring(0, 20);
+				name += totalVal;
+			}
 
 			this.targetDefinition.setNAME(name);
 
@@ -157,9 +167,9 @@ public class TargetDefinitionBuilder {
 
 		@Override
 		public AddFieldsStep mapper(DataTypeMapper mapper) {
-			
-			this.mapper=mapper;
-			
+
+			this.mapper = mapper;
+
 			return this;
 		}
 
@@ -168,8 +178,6 @@ public class TargetDefinitionBuilder {
 
 			return this;
 		}
-
-
 
 	}
 

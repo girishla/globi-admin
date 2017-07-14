@@ -39,11 +39,8 @@ public class PTPWorkflowVPTWebtest extends AbstractWebIntegrationTest {
 	private PTPGeneratorInputBuilder inputBuilder;
 	
 	
-	
 	@Before
 	public void setup(){
-		
-		
 		inputBuilder= new PTPGeneratorInputBuilder(colRepo,queryVisitor);
 		
 		ptpWorkflow= inputBuilder.start()//
@@ -59,6 +56,7 @@ public class PTPWorkflowVPTWebtest extends AbstractWebIntegrationTest {
 		
 	}
 
+	
 
 	@Test
 	@WithMockUser

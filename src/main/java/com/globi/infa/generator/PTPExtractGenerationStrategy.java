@@ -135,6 +135,29 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		return combinedFilter == null ? "" : combinedFilter;
 	}
 
+	
+	
+	//Oracle supports only 30 chars max
+	private String getTruncatedTableName(String tblName) {
+
+		if (tblName.length() > 24) {
+			String strippedOffStr = tblName.substring(20);
+			char[] asciiArr = strippedOffStr.toCharArray();
+			int totalVal = 0;
+			for (char ch : asciiArr) {
+				totalVal += (int) ch;
+			}
+			tblName = tblName.substring(0, 20);
+			tblName += totalVal;
+		}
+
+		return tblName;
+	}
+	
+	
+	
+	
+
 	private InfaMappingObject getPrimaryMapping() throws IOException, SAXException, JAXBException {
 
 		InfaSourceDefinition sourceTableDef;
@@ -172,7 +195,8 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.filter(column -> column.getIntegrationIdFlag())//
 				.collect(Collectors.toList());
 
-		String targetTableDefnName = dbName + "_" + tblName + "_P";
+		String truncatedTblName = getTruncatedTableName(tblName);
+		String targetTableDefnName = dbName + "_" + truncatedTblName + "_P";
 
 		InfaMappingObject mappingObjPrimary = MappingBuilder//
 				.newBuilder()//
@@ -269,11 +293,17 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		List<InfaSourceColumnDefinition> columnsList = sourceTableDef.getColumns();
 
-		//normalise columns removing any special chars spaces etc
+		// normalise columns removing any special chars spaces etc
 		columnsList = columnsList.stream().map(column -> {
 			column.setColumnName(ObjectNameNormaliser.normalise(column.getColumnName()));
 			return column;
 		}).collect(Collectors.toList());
+		
+		
+		
+		String truncatedTblName = getTruncatedTableName(tblName);
+		
+		
 
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
@@ -289,7 +319,8 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.marshaller(marshaller)//
 						.loadTargetFromSeed("Seed_PTPTargetTableSystemCols")//
 						.mapper(this.sourceToTargetDataTypeMapper).addFields(columnsList)//
-						.noMoreFields().name(dbName + "_" + tblName)//
+						.noMoreFields()//
+						.name(dbName + "_" + truncatedTblName)//
 						.build())//
 				.noMoreTargets()//
 				.mappletDefn(MappletBuilder.newBuilder()//
@@ -360,7 +391,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.transformationCopyConnectAllFields("EXP_Resolve", "FIL_ChangesOnly")//
 				.noMoreTransformations()//
 				.autoConnectByName(tblName, "SQ_ExtractData")//
-				.autoConnectByName("FIL_ChangesOnly", dbName + "_" + tblName)//
+				.autoConnectByName("FIL_ChangesOnly", dbName + "_" + truncatedTblName)//
 				.connector("SEQ_WID", "NEXTVAL", "EXP_Resolve", "SYS_ROW_WID")
 				.connector("EXP_Resolve", "SYS_HASH_RECORD", "LKP_RecordInstance", "SYS_HASH_RECORD")
 				.connector("LKP_RecordInstance", "SYS_HASH_RECORD", "FIL_ChangesOnly", "SYS_HASH_RECORD")//
