@@ -52,12 +52,14 @@ public class PTPWorkflow extends InfaWorkflow {
 	@NonNull
 	@NotBlank(message = "PTP Workflow source table name cannot be empty!")
 	@Column(name = "src_table_name")
-	@Size(max = 26)
 	private String sourceTableName;
 
 	@Column(name = "src_filter")
 	private String sourceFilter = "";
 
+	@Column(name = "tgt_table")
+	@Size(min=0,max = 24)
+	private String targetTableName = "";
 	
 	@OrderColumn //
 	@Column(unique = true) //

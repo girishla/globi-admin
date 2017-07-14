@@ -135,9 +135,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		return combinedFilter == null ? "" : combinedFilter;
 	}
 
-	
-	
-	//Oracle supports only 30 chars max
+	// Oracle supports only 30 chars max
 	private String getTruncatedTableName(String tblName) {
 
 		if (tblName.length() > 24) {
@@ -153,10 +151,6 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		return tblName;
 	}
-	
-	
-	
-	
 
 	private InfaMappingObject getPrimaryMapping() throws IOException, SAXException, JAXBException {
 
@@ -195,9 +189,13 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.filter(column -> column.getIntegrationIdFlag())//
 				.collect(Collectors.toList());
 
-		String truncatedTblName = getTruncatedTableName(tblName);
-		String targetTableDefnName = dbName + "_" + truncatedTblName + "_P";
+		String targetTableName = wfDefinition.getTargetTableName();
+		String targetTableDefnName;
 
+		targetTableName =targetTableName.isEmpty()?tblName:targetTableName;
+		targetTableDefnName=dbName + "_" + targetTableName + "_P";
+		
+		
 		InfaMappingObject mappingObjPrimary = MappingBuilder//
 				.newBuilder()//
 				.simpleTableSyncClass("simpleTableSyncClass")//
@@ -249,7 +247,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.mappingvariable(getEtlProcWidMappingVariable())//
 				.mappingvariable(getInitialExtractDateMappingVariable())//
 				.mappingvariable(getDataSourceNumIdMappingVariable(Integer.toString(source.get().getSourceNum())))//
-				.mappingvariable(getTablenameMappingVariable(dbName + "_" + tblName))//
+				.mappingvariable(getTablenameMappingVariable(targetTableName))//
 				.noMoreMappingVariables()//
 				.build();
 
@@ -288,8 +286,6 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		sourceTableDef.getColumns().addAll(matchedColumns);
 
-		commonValuesMap.put("targetTableName", dbName + "_" + tblName);
-		commonValuesMap.put("sourceName", dbName);
 
 		List<InfaSourceColumnDefinition> columnsList = sourceTableDef.getColumns();
 
@@ -298,13 +294,17 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 			column.setColumnName(ObjectNameNormaliser.normalise(column.getColumnName()));
 			return column;
 		}).collect(Collectors.toList());
-		
-		
-		
-		String truncatedTblName = getTruncatedTableName(tblName);
-		
-		
 
+		
+		String targetTableName = wfDefinition.getTargetTableName();
+		targetTableName =targetTableName.isEmpty()?tblName:targetTableName;
+		String targetTableDefnName=dbName + "_" + targetTableName;
+		
+		commonValuesMap.put("targetTableName", targetTableDefnName);
+		commonValuesMap.put("sourceName", dbName);
+
+		
+		
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
 				.simpleTableSyncClass("simpleTableSyncClass")//
@@ -320,7 +320,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.loadTargetFromSeed("Seed_PTPTargetTableSystemCols")//
 						.mapper(this.sourceToTargetDataTypeMapper).addFields(columnsList)//
 						.noMoreFields()//
-						.name(dbName + "_" + truncatedTblName)//
+						.name(targetTableDefnName)//
 						.build())//
 				.noMoreTargets()//
 				.mappletDefn(MappletBuilder.newBuilder()//
@@ -391,7 +391,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.transformationCopyConnectAllFields("EXP_Resolve", "FIL_ChangesOnly")//
 				.noMoreTransformations()//
 				.autoConnectByName(tblName, "SQ_ExtractData")//
-				.autoConnectByName("FIL_ChangesOnly", dbName + "_" + truncatedTblName)//
+				.autoConnectByName("FIL_ChangesOnly", targetTableDefnName)//
 				.connector("SEQ_WID", "NEXTVAL", "EXP_Resolve", "SYS_ROW_WID")
 				.connector("EXP_Resolve", "SYS_HASH_RECORD", "LKP_RecordInstance", "SYS_HASH_RECORD")
 				.connector("LKP_RecordInstance", "SYS_HASH_RECORD", "FIL_ChangesOnly", "SYS_HASH_RECORD")//
