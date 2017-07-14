@@ -75,10 +75,9 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 
 		} catch (Exception e) {
 			
+			e.printStackTrace();
 			log.error(ExceptionUtils.getStackTrace(e));
 			wf.setWorkflowStatus("Error");
-			wf.setStatusMessage(e.getMessage());
-
 			this.notifier.message(wf, "Error processing puddle workflow");
 		}
 
@@ -109,7 +108,6 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		}
 		wf.setMessage("");
 		this.notifier.message(wf, "Waiting for a new generator thread...");
-		
 
 		
 		wf.setWorkflowStatus("Processing");
