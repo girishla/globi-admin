@@ -33,7 +33,7 @@
                     <ATTRIBUTE NAME ="Recovery Strategy" VALUE ="Fail task and continue workflow"/>
                 </TASK>
             </SESSIONCOMPONENT>
-            <SESSIONEXTENSION NAME ="Relational Writer" SINSTANCENAME ="{{sourceShortCode}}_{{tableName}}_P" SUBTYPE ="Relational Writer" TRANSFORMATIONTYPE ="Target Definition" TYPE ="WRITER">
+            <SESSIONEXTENSION NAME ="Relational Writer" SINSTANCENAME ="{{tgtTableName}}_P" SUBTYPE ="Relational Writer" TRANSFORMATIONTYPE ="Target Definition" TYPE ="WRITER">
                 <CONNECTIONREFERENCE CNXREFNAME ="DB Connection" CONNECTIONNAME ="" CONNECTIONNUMBER ="1" CONNECTIONSUBTYPE ="" CONNECTIONTYPE ="Relational" VARIABLE ="$Target"/>
                 <ATTRIBUTE NAME ="Target load type" VALUE ="Bulk"/>
                 <ATTRIBUTE NAME ="Insert" VALUE ="YES"/>
@@ -115,7 +115,7 @@
                 <CONNECTIONREFERENCE CNXREFNAME ="DB Connection" CONNECTIONNAME ="" CONNECTIONNUMBER ="1" CONNECTIONSUBTYPE ="" CONNECTIONTYPE ="Relational" VARIABLE ="$Target"/>
             </SESSIONEXTENSION>
             <SESSIONEXTENSION DSQINSTNAME ="SQ_ExtractData" DSQINSTTYPE ="Source Qualifier" NAME ="Relational Reader" SINSTANCENAME ="{{tableName}}" SUBTYPE ="Relational Reader" TRANSFORMATIONTYPE ="Source Definition" TYPE ="READER"/>
-            <SESSIONEXTENSION NAME ="Relational Writer" SINSTANCENAME ="{{sourceShortCode}}_{{tableName}}" SUBTYPE ="Relational Writer" TRANSFORMATIONTYPE ="Target Definition" TYPE ="WRITER">
+            <SESSIONEXTENSION NAME ="Relational Writer" SINSTANCENAME ="{{tgtTableName}}" SUBTYPE ="Relational Writer" TRANSFORMATIONTYPE ="Target Definition" TYPE ="WRITER">
                 <CONNECTIONREFERENCE CNXREFNAME ="DB Connection" CONNECTIONNAME ="" CONNECTIONNUMBER ="1" CONNECTIONSUBTYPE ="" CONNECTIONTYPE ="Relational" VARIABLE ="$Target"/>
                 <ATTRIBUTE NAME ="Target load type" VALUE ="Bulk"/>
                 <ATTRIBUTE NAME ="Insert" VALUE ="YES"/>

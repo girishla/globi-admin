@@ -414,6 +414,9 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		String tblName = wfDefinition.getSourceTableName();
 		String dbName = wfDefinition.getSourceName();
+		
+		String targetTableName = wfDefinition.getTargetTableName();
+		String targetTableDefnName =targetTableName.isEmpty()?dbName + "_" + tblName:targetTableName;
 
 		InfaPowermartObject pmObj = PowermartObjectBuilder//
 				.newBuilder()//
@@ -429,6 +432,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.setValue("sourceShortCode", dbName)//
 						.setValue("TargetShortCode", "PDL")//
 						.setValue("tableName", tblName)//
+						.setValue("tgtTableName", targetTableDefnName)
 						.noMoreValues()//
 						.loadWorkflowFromSeed("Seed_WFPTP")//
 						.nameAlreadySet()//
