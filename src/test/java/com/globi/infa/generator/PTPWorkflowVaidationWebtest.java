@@ -49,6 +49,7 @@ public class PTPWorkflowVaidationWebtest extends AbstractWebIntegrationTest {
 				.sourceTableName(sourceTable)//
 				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + source+ "_"+ sourceTable  + ".xml")
 				.workflowName("PTP_" + source+ "_"+ sourceTable)
+				.targetTableName(source + "_" + sourceTable)
 				.build();
 	}
 	

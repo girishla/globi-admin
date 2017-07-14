@@ -36,7 +36,7 @@ import lombok.ToString;
 @UniqueConstraint(columnNames = { "src_name", "src_table_name" }) })
 @AllArgsConstructor
 @DiscriminatorValue("PTP")
-
+//
 public class PTPWorkflow extends InfaWorkflow {
 
 	@NonNull
@@ -55,8 +55,8 @@ public class PTPWorkflow extends InfaWorkflow {
 	@Column(name = "tgt_table")
 	@NonNull
 	@NotBlank(message = "Target table name cannot be empty!")
-	@Size(min=5,max = 24)
-	private String targetTableName = "";
+	@Size(min=0,max = 24)
+	private String targetTableName;
 
 	
 	@OrderColumn //
