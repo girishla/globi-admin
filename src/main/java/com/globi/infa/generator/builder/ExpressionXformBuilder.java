@@ -19,6 +19,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.FileCopyUtils;
 
+import com.globi.infa.datasource.core.DataTypeMapper;
 import com.globi.infa.metadata.core.SourceTableAbbreviationMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
@@ -41,7 +42,7 @@ public class ExpressionXformBuilder {
 	}
 
 	public interface ExpressionStep {
-		AddFieldsStep expression(String expressionName);
+		SetMapperStep expression(String expressionName);
 	}
 
 	public interface SetMarshallerStep {
@@ -52,10 +53,18 @@ public class ExpressionXformBuilder {
 		LoadFromSeedStep setInterpolationValues(Map<String, String> values);
 
 	}
+	
 
 	public interface LoadFromSeedStep {
-		AddFieldsStep loadExpressionXformFromSeed(String seedName) throws FileNotFoundException, IOException;
+		SetMapperStep loadExpressionXformFromSeed(String seedName) throws FileNotFoundException, IOException;
 	}
+	
+	
+	public interface SetMapperStep {
+		AddFieldsStep mapper(DataTypeMapper mapper);
+
+	}
+
 
 	public interface AddFieldsStep {
 		AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns);
@@ -92,11 +101,12 @@ public class ExpressionXformBuilder {
 	}
 
 	public static class ExpressionXformSteps implements ClassStep, ExpressionStep, NameStep, SetMarshallerStep,
-			SetInterPolationValues, LoadFromSeedStep, AddFieldsStep, BuildStep {
+			SetInterPolationValues, LoadFromSeedStep, AddFieldsStep, BuildStep,SetMapperStep {
 
 		private Jaxb2Marshaller marshaller;
 		private TRANSFORMATION expressionXformDefn;
 		private Map<String, String> interpolationValues;
+		private DataTypeMapper mapper;
 
 		@SuppressWarnings("unused")
 		private String className;
@@ -108,7 +118,7 @@ public class ExpressionXformBuilder {
 		}
 
 		@Override
-		public AddFieldsStep loadExpressionXformFromSeed(String seedName) throws FileNotFoundException, IOException {
+		public SetMapperStep loadExpressionXformFromSeed(String seedName) throws FileNotFoundException, IOException {
 
 			InputStream is = null;
 
@@ -169,7 +179,7 @@ public class ExpressionXformBuilder {
 		}
 
 		@Override
-		public AddFieldsStep expression(String expressionName) {
+		public SetMapperStep expression(String expressionName) {
 			expressionXformDefn = new TRANSFORMATION();
 
 			expressionXformDefn.setNAME(expressionName);
@@ -300,7 +310,7 @@ public class ExpressionXformBuilder {
 			String concatenatedId = columns.stream()//
 					.filter(InfaSourceColumnDefinition::getIntegrationIdFlag)//
 					.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e2.getColumnSequence()))
-					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
+					.map(this::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
 
 			if (concatenatedId.isEmpty()) {
@@ -330,7 +340,7 @@ public class ExpressionXformBuilder {
 			String concatenatedId = columns.stream()//
 					.filter(InfaSourceColumnDefinition::getBuidFlag)//
 					.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e2.getColumnSequence()))
-					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
+					.map(this::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
 
 			if (concatenatedId.isEmpty()) {
@@ -362,20 +372,20 @@ public class ExpressionXformBuilder {
 			String concatenatedId = columns.stream()//
 					.filter(InfaSourceColumnDefinition::getPguidFlag)//
 					.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e2.getColumnSequence()))
-					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
+					.map(this::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
 
 			if (concatenatedId.isEmpty()) {
-				concatenatedId =  columns.stream()//
+				concatenatedId = columns.stream()//
 						.filter(InfaSourceColumnDefinition::getIntegrationIdFlag)//
 						.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e2.getColumnSequence()))
-						.map(ExpressionXformSteps::getInfaCastToStringExpression)//
+						.map(this::getInfaCastToStringExpression)//
 						.collect(Collectors.joining("|| ':' ||"));
 			}
 
-			
-			concatenatedId = "'OBI:" + sourceName + ":" + sourceTableAbbr.map(tableName) + ":'" + " || " + concatenatedId ;
-			
+			concatenatedId = "'OBI:" + sourceName + ":" + sourceTableAbbr.map(tableName) + ":'" + " || "
+					+ concatenatedId;
+
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("string");
 			xformExpressionField.setDEFAULTVALUE("");
@@ -397,7 +407,7 @@ public class ExpressionXformBuilder {
 		public AddFieldsStep addMD5HashField(List<InfaSourceColumnDefinition> columns) {
 
 			String MD5Value = columns.stream()//
-					.map(ExpressionXformSteps::getInfaCastToStringExpression)//
+					.map(this::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("||"));
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
@@ -423,21 +433,39 @@ public class ExpressionXformBuilder {
 			return this;
 		}
 
-		private static String getInfaCastToStringExpression(InfaSourceColumnDefinition coldef) {
+		private String getInfaCastToStringExpression(InfaSourceColumnDefinition coldef) {
 
 			String colExpr = "";
+			
+			//map to Xform type before casting
+			String dataType=mapper.mapType(coldef.getColumnDataType());
+			String colName=coldef.getColumnName();
 
-			if (coldef.getColumnDataType().equals("date"))
-				colExpr = "TO_CHAR(" + coldef.getColumnName() + ",'YYYY-MM-DD HH24:MI:SS')";
-			else if (coldef.getColumnDataType().equals("number(p,s)"))
-				colExpr = "TO_CHAR(TO_INTEGER(" + coldef.getColumnName() + "))";
+			if (dataType.equals("date/time"))
+				colExpr = "TO_CHAR(" + colName + ",'YYYY-MM-DD HH24:MI:SS')";
+			else if (dataType.equals("decimal") || dataType.equals("double"))
+				colExpr = "TO_CHAR(TO_INTEGER(" + colName+ "))";
+			else if (dataType.equals("integer") || dataType.equals("bigint") || dataType.equals("small integer"))
+				colExpr = "TO_CHAR(" + colName + ")";
+			else if (dataType.equals("binary"))
+				colExpr = "ENC_BASE64(" + colName + ")";
 			else
-				colExpr = coldef.getColumnName();
+				colExpr = colName;
 
 			colExpr = "IIF(ISNULL(" + colExpr + "),'NOVAL'," + colExpr + ")";
 
 			return colExpr;
 
+
+			
+		}
+
+		@Override
+		public AddFieldsStep mapper(DataTypeMapper mapper) {
+			
+			this.mapper=mapper;
+			
+			return this;
 		}
 
 	}

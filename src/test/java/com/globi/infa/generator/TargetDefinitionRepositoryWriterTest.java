@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.globi.AbstractIntegrationTest;
+import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaTargetTypeMapper;
 import com.globi.infa.generator.builder.InfaTargetObject;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
@@ -27,6 +28,9 @@ public class TargetDefinitionRepositoryWriterTest extends AbstractIntegrationTes
 	@Autowired
 	InfaPuddleDefinitionRepositoryWriter tgtRepoWriter;
 	
+	@Autowired
+	OracleInfaSourceToInfaTargetTypeMapper mapper;
+	
 	
 	@Before
 	public void setup(){
@@ -35,6 +39,7 @@ public class TargetDefinitionRepositoryWriterTest extends AbstractIntegrationTes
 		String targetname="FBM_PS_LN_BI_INV_HD_VW";
 		
 		InfaTargetObject tgtObj=new InfaTargetObject(TargetDefinitionBuilder.newBuilder().noMarshaller()//
+				.mapper(mapper)				
 				.addTargetField(targetNumberField("ROW_WID"))//
 				.addTargetField(targetVarcharField("INTEGRATION_ID",100))//
 				.addTargetField(targetDateField("SYS_EFF_FROM_DT"))//

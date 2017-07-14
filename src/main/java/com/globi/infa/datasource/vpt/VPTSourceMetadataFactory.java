@@ -9,9 +9,10 @@ import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.infa.datasource.core.TableMetadataVisitor;
 import com.globi.infa.datasource.core.TableRepository;
+import com.globi.infa.datasource.type.sqlserver.SQLServerInfaSourceToInfaTargetTypeMapper;
+import com.globi.infa.datasource.type.sqlserver.SQLServerInfaSourceToInfaXFormTypeMapper;
 import com.globi.infa.datasource.type.sqlserver.SQLServerTableColumnMetadataVisitor;
 import com.globi.infa.datasource.type.sqlserver.SQLServerTableMetadataVisitor;
-import com.globi.infa.datasource.type.sqlserver.SQLServerInfaSourceToInfaXFormTypeMapper;
 
 @Component
 public class VPTSourceMetadataFactory implements SourceMetadataFactory {
@@ -31,6 +32,16 @@ public class VPTSourceMetadataFactory implements SourceMetadataFactory {
 	@Autowired
 	private SQLServerInfaSourceToInfaXFormTypeMapper vptSQLServerToInfaDataTypeMapper;
 
+	
+	@Autowired
+	private SQLServerInfaSourceToInfaTargetTypeMapper vptSQLServerInfaSourceToInfaTargetTypeMapper;
+
+	@Override
+	public DataTypeMapper createSourceToTargetDatatypeMapper() {
+		return vptSQLServerInfaSourceToInfaTargetTypeMapper;
+	}
+	
+	
 	@Override
 	public TableRepository createTableRepository() {
 

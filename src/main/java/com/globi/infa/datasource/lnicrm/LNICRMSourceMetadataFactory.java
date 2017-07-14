@@ -9,9 +9,10 @@ import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.infa.datasource.core.TableMetadataVisitor;
 import com.globi.infa.datasource.core.TableRepository;
+import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaTargetTypeMapper;
+import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaXFormTypeMapper;
 import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
 import com.globi.infa.datasource.type.oracle.OracleTableMetadataVisitor;
-import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaXFormTypeMapper;
 
 
 @Component
@@ -32,7 +33,14 @@ public class LNICRMSourceMetadataFactory implements SourceMetadataFactory {
 	@Autowired
 	private OracleInfaSourceToInfaXFormTypeMapper lniOracleToInfaDataTypeMapper;
 	
+	@Autowired
+	private OracleInfaSourceToInfaTargetTypeMapper lniOracleInfaSourceToInfaTargetTypeMapper;
 
+	@Override
+	public DataTypeMapper createSourceToTargetDatatypeMapper() {
+		return lniOracleInfaSourceToInfaTargetTypeMapper;
+	}
+	
 	@Override
 	public TableRepository createTableRepository() {
 		
@@ -68,5 +76,7 @@ public class LNICRMSourceMetadataFactory implements SourceMetadataFactory {
 		// 
 		return "CUK";
 	}
+
+
 
 }

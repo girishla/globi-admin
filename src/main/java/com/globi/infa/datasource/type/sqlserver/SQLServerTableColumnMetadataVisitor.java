@@ -28,7 +28,7 @@ public class SQLServerTableColumnMetadataVisitor implements TableColumnMetadataV
 			"       ordinal_position                               COL_NUMBER, \r\n" + 
 			"       data_type, \r\n" + 
 			"       CASE \r\n" + 
-			"         WHEN is_nullable = 'NO' THEN 'NONNULL' \r\n" + 
+			"         WHEN is_nullable = 'NO' THEN 'NOTNULL' \r\n" + 
 			"         ELSE 'NULL' \r\n" + 
 			"       END                                            NULLABLE, \r\n" + 
 			"       SUM(Isnull(numeric_precision, 0)) \r\n" + 

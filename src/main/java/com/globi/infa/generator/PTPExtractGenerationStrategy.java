@@ -192,6 +192,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.targetDefn(TargetDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.loadTargetFromSeed("Seed_PTPPrimaryExtractTargetTable")//
+						.mapper(this.sourceToTargetDataTypeMapper)
 						.noMoreFields()//
 						.name(targetTableDefnName)//
 						.build())//
@@ -208,6 +209,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.transformation(ExpressionXformBuilder.newBuilder()//
 						.expressionFromPrototype("ExpFromPrototype")//
 						.expression("EXP_Resolve")//
+						.mapper(dataTypeMapper)
 						.addIntegrationIdField(columnsList)//
 						.addDatasourceNumIdField()//
 						.noMoreFields()//
@@ -287,6 +289,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.targetDefn(TargetDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.loadTargetFromSeed("Seed_PTPTargetTableSystemCols")//
+						.mapper(this.sourceToTargetDataTypeMapper)
 						.addFields(columnsList)//
 						.noMoreFields().name(dbName + "_" + tblName)//
 						.build())//
@@ -309,6 +312,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.transformation(ExpressionXformBuilder.newBuilder()//
 						.expressionFromPrototype("ExpFromPrototype")//
 						.expression("EXP_Resolve")//
+						.mapper(dataTypeMapper)
 						.addEffectiveFromDateField()//
 						.addEtlProcWidField()//
 						.addDatasourceNumIdField()//
@@ -344,6 +348,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.marshaller(marshaller)//
 						.setInterpolationValues(commonValuesMap)//
 						.loadExpressionXformFromSeed("Seed_EXPPrepDomLookup")//
+						.mapper(dataTypeMapper)
 						.noMoreFields()//
 						.nameAlreadySet()//
 						.build())

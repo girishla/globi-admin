@@ -32,6 +32,11 @@ public abstract class AbstractGenerationStrategy {
 
 	@Setter
 	protected DataTypeMapper dataTypeMapper;
+	
+	@Setter
+	protected DataTypeMapper sourceToTargetDataTypeMapper;
+	
+	
 	@Setter
 	protected TableColumnRepository colRepository;
 	@Setter
@@ -78,6 +83,7 @@ public abstract class AbstractGenerationStrategy {
 		this.sourceMetadataFactory = this.metadataFactoryMapper.getMetadataFactoryMap()
 				.get(sourceName);
 		this.dataTypeMapper = sourceMetadataFactory.createDatatypeMapper();
+		this.sourceToTargetDataTypeMapper=sourceMetadataFactory.createSourceToTargetDatatypeMapper();
 		this.colRepository = sourceMetadataFactory.createTableColumnRepository();
 		this.columnQueryVisitor = sourceMetadataFactory.createTableColumnMetadataVisitor();
 

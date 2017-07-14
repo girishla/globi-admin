@@ -14,6 +14,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
+import com.globi.infa.datasource.core.DataTypeMapper;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
 import xjc.TARGET;
@@ -28,11 +29,18 @@ public class TargetDefinitionBuilder {
 	public interface SetMarshallerStep {
 		LoadFromSeedStep marshaller(Jaxb2Marshaller marshaller);
 
-		AddFieldsStep noMarshaller();
+		SetMapperStep noMarshaller();
+	}
+	
+	
+	public interface SetMapperStep {
+		AddFieldsStep mapper(DataTypeMapper mapper);
+		AddFieldsStep noMapper();
 	}
 
+
 	public interface LoadFromSeedStep {
-		AddFieldsStep loadTargetFromSeed(String seedName) throws FileNotFoundException, IOException;
+		SetMapperStep loadTargetFromSeed(String seedName) throws FileNotFoundException, IOException;
 	}
 
 	public interface AddFieldsStep {
@@ -52,9 +60,10 @@ public class TargetDefinitionBuilder {
 	}
 
 	public static class TargetDefinitionSteps
-			implements NameStep, SetMarshallerStep, LoadFromSeedStep, AddFieldsStep, BuildStep {
+			implements NameStep, SetMarshallerStep, LoadFromSeedStep, AddFieldsStep, BuildStep,SetMapperStep {
 
 		private Jaxb2Marshaller marshaller;
+		private DataTypeMapper mapper;
 		private TARGET targetDefinition = new TARGET();
 
 		@Override
@@ -74,7 +83,7 @@ public class TargetDefinitionBuilder {
 		}
 
 		@Override
-		public AddFieldsStep loadTargetFromSeed(String seedName) throws FileNotFoundException, IOException {
+		public SetMapperStep loadTargetFromSeed(String seedName) throws FileNotFoundException, IOException {
 
 			InputStream is = null;
 
@@ -107,14 +116,14 @@ public class TargetDefinitionBuilder {
 			return this;
 		}
 
-		private static TARGETFIELD targetFieldFrom(InfaSourceColumnDefinition column) {
+		private TARGETFIELD targetFieldFrom(InfaSourceColumnDefinition column) {
 
 			TARGETFIELD targetField = new TARGETFIELD();
 
 			Integer fieldNumber = column.getColumnDataType().equals("long") ? 99 : column.getColumnNumber();
 
 			targetField.setBUSINESSNAME(DEFAULT_DESCRIPTION.getValue());
-			targetField.setDATATYPE(column.getColumnDataType());
+			targetField.setDATATYPE(mapper.mapType(column.getColumnDataType()));
 			targetField.setFIELDNUMBER(Integer.toString(fieldNumber));
 			targetField.setNULLABLE(column.getNullable());
 			targetField.setNAME(column.getColumnName());
@@ -135,7 +144,7 @@ public class TargetDefinitionBuilder {
 		}
 
 		@Override
-		public AddFieldsStep noMarshaller() {
+		public SetMapperStep noMarshaller() {
 			return this;
 		}
 
@@ -144,6 +153,22 @@ public class TargetDefinitionBuilder {
 			this.targetDefinition.getTARGETFIELD().add(field);
 			return this;
 		}
+
+		@Override
+		public AddFieldsStep mapper(DataTypeMapper mapper) {
+			
+			this.mapper=mapper;
+			
+			return this;
+		}
+
+		@Override
+		public AddFieldsStep noMapper() {
+
+			return this;
+		}
+
+
 
 	}
 

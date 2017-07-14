@@ -7,6 +7,7 @@ public interface SourceMetadataFactory {
 	public abstract TableMetadataVisitor createTableMetadataVisitor();
 	public abstract TableColumnMetadataVisitor createTableColumnMetadataVisitor();
 	public abstract DataTypeMapper createDatatypeMapper();
+	public abstract DataTypeMapper createSourceToTargetDatatypeMapper();
 	
 	public abstract String getSourceName();
 	

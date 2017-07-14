@@ -11,6 +11,7 @@ import com.globi.infa.datasource.core.TableMetadataVisitor;
 import com.globi.infa.datasource.core.TableRepository;
 import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
 import com.globi.infa.datasource.type.oracle.OracleTableMetadataVisitor;
+import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaTargetTypeMapper;
 import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaXFormTypeMapper;
 
 
@@ -33,6 +34,15 @@ public class GCRMSourceMetadataFactory implements SourceMetadataFactory {
 	private OracleInfaSourceToInfaXFormTypeMapper gcrmOracleToInfaDataTypeMapper;
 	
 
+	
+	@Autowired
+	private OracleInfaSourceToInfaTargetTypeMapper gcrmOracleInfaSourceToInfaTargetTypeMapper;
+
+	@Override
+	public DataTypeMapper createSourceToTargetDatatypeMapper() {
+		return gcrmOracleInfaSourceToInfaTargetTypeMapper;
+	}
+	
 	@Override
 	public TableRepository createTableRepository() {
 		
