@@ -43,6 +43,11 @@ public class InfaPTPWorkflowController {
 			@RequestParam("sync") Optional<Boolean> sync, BindingResult result) throws Exception {
 
 
+		//hack to default target table
+		if(ptpWorkflow.getTargetTableName().isEmpty()){
+			ptpWorkflow.setTargetTableName(ptpWorkflow.getSourceName() + "_" +  ptpWorkflow.getSourceTableName());
+		}
+		
 		PTPWorkflow savedWorkflow = (PTPWorkflow) requestProcessor.saveInput(ptpWorkflow);
 
 		if (sync.isPresent() && sync.get()) {
