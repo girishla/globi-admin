@@ -3,7 +3,7 @@
             <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="BU_KEY_IN" PICTURETEXT ="" PORTTYPE ="INPUT" PRECISION ="50" SCALE ="0"/>
             <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="BU_KEY" PICTURETEXT ="" PORTTYPE ="LOOKUP" PRECISION ="50" SCALE ="0"/>
             <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="BU_VAL" PICTURETEXT ="" PORTTYPE ="LOOKUP/RETURN/OUTPUT" PRECISION ="100" SCALE ="0"/>
-            <TABLEATTRIBUTE NAME ="Lookup Sql Override" VALUE ="SELECT&#xD;&#xA;    &apos;&apos; BU_KEY,&#xD;&#xA;    &apos;&apos; BU_VAL&#xD;&#xA;FROM&#xD;&#xA;    DUAL"/>
+            <TABLEATTRIBUTE NAME ="Lookup Sql Override" VALUE ="SELECT 'BU not set' BU_KEY, 'United Kingdom' BU_VAL FROM DUAL"/>
             <TABLEATTRIBUTE NAME ="Lookup table name" VALUE =""/>
             <TABLEATTRIBUTE NAME ="Lookup Source Filter" VALUE =""/>
             <TABLEATTRIBUTE NAME ="Lookup caching enabled" VALUE ="YES"/>
