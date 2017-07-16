@@ -74,6 +74,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
       .authorizeRequests()
         .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+        .antMatchers("/shutdown").permitAll()
         .antMatchers("/auth/**").permitAll()
         .antMatchers("/**/websocket").permitAll()
         
