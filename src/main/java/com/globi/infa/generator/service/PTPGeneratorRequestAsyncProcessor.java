@@ -107,10 +107,8 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 			wf.getWorkflow().setVersion(cleanedWf.getWorkflow().getVersion());
 		}
 		wf.setMessage("");
-		this.notifier.message(wf, "Waiting for a new generator thread...");
-
-		
 		wf.setWorkflowStatus("Processing");
+		this.notifier.message(wf, "Waiting for a new generator thread...");
 		this.notifier.message(wf, "Starting workflow generation.");
 		wf = ptpRepository.save(wf);
 
