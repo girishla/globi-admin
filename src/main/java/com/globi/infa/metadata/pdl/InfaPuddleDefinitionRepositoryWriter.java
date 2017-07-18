@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.globi.infa.datasource.core.InfaTargetToOracleDataTypeMapper;
 import com.globi.infa.generator.WorkflowCreatedEventListener;
@@ -92,6 +93,8 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 
 	}
 
+
+	
 	public void writeToRepository(InfaPowermartObject pmObj) {
 
 		this.targets = pmObj.folderObjects.stream()//
