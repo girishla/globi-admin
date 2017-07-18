@@ -1,22 +1,18 @@
 package com.globi.infa.metadata.pdl;
 
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
-import org.springframework.stereotype.Component;
 
 import oracle.jdbc.OracleTypes;
 
-@Component
+
+
+//This is no longer used. Marked for deletion
 public class PuddleDDLGenerator {
 
 	@Autowired

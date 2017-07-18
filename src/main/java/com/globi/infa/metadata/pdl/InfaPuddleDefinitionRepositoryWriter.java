@@ -30,7 +30,7 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 	private InfaTargetToOracleDataTypeMapper mapper;
 
 	@Autowired
-	private PuddleDDLGenerator ddlGen;
+	private PuddleDDLRepository ddlGen;
 
 	public InfaPuddleDefinitionRepositoryWriter(InfaPuddleDefinitionRepository tgtRepo,
 			InfaTargetToOracleDataTypeMapper mapper) {
@@ -101,7 +101,9 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 		this.targets.forEach(target -> {
 			this.writeTarget(target);
 			log.info(String.format("Generating DDL for table %s", target.getName()));
-			ddlGen.generateRunDDL(target.getName());
+			ddlGen.generateDDL("NoRelease", target.getName(), "Y", "N");
+			
+
 		});
 
 	}
@@ -112,7 +114,7 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 		this.targets.forEach(target -> {
 			this.writeTarget(target);
 			log.info(String.format("Generating DDL for table %s", target.getName()));
-			ddlGen.generateRunDDL(target.getName());
+			ddlGen.generateDDL("NoRelease", target.getName(), "Y", "N");
 		});
 
 	}

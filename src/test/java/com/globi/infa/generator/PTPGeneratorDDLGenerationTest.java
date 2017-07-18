@@ -59,7 +59,7 @@ public class PTPGeneratorDDLGenerationTest extends AbstractIntegrationTest {
 	
 	@Test
 	@Rollback(false)
-	@Ignore //as it doesnt assert anything
+	@Ignore //as it doesn't assert anything
 	public void generatesDDLForOrgExtTable()
 			throws Exception {
 
