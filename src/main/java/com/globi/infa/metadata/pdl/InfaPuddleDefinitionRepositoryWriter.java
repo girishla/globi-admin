@@ -29,6 +29,9 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 	@Autowired
 	private InfaTargetToOracleDataTypeMapper mapper;
 
+	@Autowired
+	private PuddleDDLGenerator ddlGen;
+
 	public InfaPuddleDefinitionRepositoryWriter(InfaPuddleDefinitionRepository tgtRepo,
 			InfaTargetToOracleDataTypeMapper mapper) {
 
@@ -80,7 +83,7 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 		Optional<InfaPuddleDefinition> existingPuddleDefn = tgtRepo.findByPdlTableName(target.getName());
 		if (existingPuddleDefn.isPresent()) {
 			existingPuddleDefn.get().getColumns().clear();
-			InfaPuddleDefinition cleanedPuddle=tgtRepo.save(existingPuddleDefn.get());
+			InfaPuddleDefinition cleanedPuddle = tgtRepo.save(existingPuddleDefn.get());
 			tgt.setId(cleanedPuddle.getId());
 			tgt.setVersion(cleanedPuddle.getVersion());
 		}
@@ -95,14 +98,22 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 				.filter(fo -> fo.getType().equals("TARGET"))//
 				.map(fo -> (InfaTargetObject) fo).collect(Collectors.toList());
 
-		this.targets.forEach(target -> this.writeTarget(target));
+		this.targets.forEach(target -> {
+			this.writeTarget(target);
+			log.info(String.format("Generating DDL for table %s", target.getName()));
+			ddlGen.generateRunDDL(target.getName());
+		});
 
 	}
 
 	public void writeToRepository(List<InfaTargetObject> targets) {
 
 		this.targets = targets;
-		this.targets.forEach(target -> this.writeTarget(target));
+		this.targets.forEach(target -> {
+			this.writeTarget(target);
+			log.info(String.format("Generating DDL for table %s", target.getName()));
+			ddlGen.generateRunDDL(target.getName());
+		});
 
 	}
 
