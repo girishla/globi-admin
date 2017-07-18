@@ -21,7 +21,7 @@ public class ErrorViewConfig implements ErrorViewResolver {
 			public ModelAndView resolveErrorView(HttpServletRequest request, HttpStatus status,
 					Map<String, Object> model) {
 				return status == HttpStatus.NOT_FOUND
-						? new ModelAndView("index.html", Collections.<String, Object>emptyMap(), HttpStatus.OK) : null;
+						? new ModelAndView("/globi/index.html", Collections.<String, Object>emptyMap(), HttpStatus.OK) : null;
 			}
 		};
 	}
