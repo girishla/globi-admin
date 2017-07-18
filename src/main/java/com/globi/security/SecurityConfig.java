@@ -76,6 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
         .antMatchers("/shutdown").permitAll()
         .antMatchers("/auth/**").permitAll()
+        .antMatchers("/index.html").permitAll()
         .antMatchers("/**/websocket").permitAll()
         
 //        .antMatchers("/**").permitAll()
