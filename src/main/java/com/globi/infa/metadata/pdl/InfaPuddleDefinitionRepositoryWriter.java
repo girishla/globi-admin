@@ -14,6 +14,7 @@ import com.globi.infa.generator.RepositoryLoader;
 import com.globi.infa.generator.WorkflowCreatedEventListener;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.generator.builder.InfaTargetObject;
+import com.globi.infa.notification.messages.WorkflowMessageNotifier;
 import com.globi.infa.workflow.GeneratedWorkflow;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,10 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 	@Autowired
 	private RepositoryLoader repoLoader;
 
+	
+	@Autowired
+	private WorkflowMessageNotifier notifier;
+	
 	public InfaPuddleDefinitionRepositoryWriter(InfaPuddleDefinitionRepository tgtRepo,
 			InfaTargetToOracleDataTypeMapper mapper) {
 
@@ -99,7 +104,7 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 
 
 	
-	public void writeToRepository(InfaPowermartObject pmObj) {
+	public void writeToRepository(InfaPowermartObject pmObj, GeneratedWorkflow wf) {
 
 		this.targets = pmObj.folderObjects.stream()//
 				.filter(fo -> fo.getType().equals("TARGET"))//
@@ -107,21 +112,28 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 
 		this.targets.forEach(target -> {
 			this.writeTarget(target);
-			log.info(String.format("Generating DDL for table %s", target.getName()));
-			ddlGen.generateDDL("NoRelease", target.getName(), "Y", "N");
 			
+			notifier.message(wf,String.format("Generating DDL for table %s", target.getName()));
+			
+			log.info(String.format("Generating DDL for table %s", target.getName()));
+			String ddlOut=ddlGen.generateDDL("NoRelease", target.getName(), "Y", "N");
+			notifier.message(wf,ddlOut);
 
+			
 		});
 
 	}
 
-	public void writeToRepository(List<InfaTargetObject> targets) {
+	public void writeToRepository(List<InfaTargetObject> targets, GeneratedWorkflow wf) {
 
 		this.targets = targets;
 		this.targets.forEach(target -> {
 			this.writeTarget(target);
+			
+			notifier.message(wf,String.format("Generating DDL for table %s", target.getName()));
 			log.info(String.format("Generating DDL for table %s", target.getName()));
-			ddlGen.generateDDL("NoRelease", target.getName(), "Y", "N");
+			String ddlOut=ddlGen.generateDDL("NoRelease", target.getName(), "Y", "N");
+			notifier.message(wf,ddlOut);
 		});
 
 	}
@@ -129,7 +141,7 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 	@Override
 	public void notify(InfaPowermartObject generatedObject, GeneratedWorkflow wf) {
 
-		this.writeToRepository(generatedObject);
+		this.writeToRepository(generatedObject,wf);
 		repoLoader.loadWorkflow(generatedObject, wf);
 
 	}
