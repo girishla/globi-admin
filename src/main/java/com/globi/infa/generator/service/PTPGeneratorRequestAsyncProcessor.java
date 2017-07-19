@@ -140,7 +140,6 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 
 	@Override
 	@Async
-	@Transactional
 	public void processAsync(AbstractInfaWorkflowEntity inputWorkflowDefinition) {
 		this.process(inputWorkflowDefinition);
 
