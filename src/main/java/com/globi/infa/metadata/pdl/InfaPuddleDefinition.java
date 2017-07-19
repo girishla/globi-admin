@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
@@ -45,7 +46,7 @@ public class InfaPuddleDefinition extends AbstractEntity {
 
 	@OrderColumn //
 	@Column(unique = true) //
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true) //
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true,fetch=FetchType.EAGER) //
 	@JoinColumn(name="pdl_defn_id",referencedColumnName="id")
 	@Builder.Default
 	private List<InfaPuddleColumnDefinition> columns = new ArrayList<>();
