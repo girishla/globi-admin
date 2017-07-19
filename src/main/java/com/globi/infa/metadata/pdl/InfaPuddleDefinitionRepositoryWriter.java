@@ -108,7 +108,7 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 		this.targets.forEach(target -> {
 			this.writeTarget(target);
 			log.info(String.format("Generating DDL for table %s", target.getName()));
-			ddlGen.generateDDL("NoRelease", target.getName(), "Y", "N");
+		//	ddlGen.generateDDL("NoRelease", target.getName(), "Y", "N");
 			
 
 		});
@@ -121,7 +121,7 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 		this.targets.forEach(target -> {
 			this.writeTarget(target);
 			log.info(String.format("Generating DDL for table %s", target.getName()));
-			ddlGen.generateDDL("NoRelease", target.getName(), "Y", "N");
+		//	ddlGen.generateDDL("NoRelease", target.getName(), "Y", "N");
 		});
 
 	}
