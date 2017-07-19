@@ -64,7 +64,8 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		wf.setWorkflowStatus("Processed");
 		this.notifier.message(wf, "Finished processing puddle workflow");
 
-
+		ptpRepository.save(wf);
+		
 
 		return wf;
 	}
@@ -108,14 +109,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		ptpExtractgenerator.addListener(gitWriter);
 		ptpExtractgenerator.addListener(aggregateGitWriter);
 		ptpExtractgenerator.addListener(aggregateCommandWriter);
-		// ptpExtractgenerator.addListener(targetDefnWriter);
 
-		// Refresh in case someone has modified the wf meanwhile
-//		PTPWorkflow existingWF = ptpRepository.findOne(wf.getId());
-//		if(existingWF!=null){
-//			wf=existingWF;
-//		}
-			
 		ptpExtractgenerator.setWfDefinition(wf);
 		
 		try {
@@ -129,8 +123,6 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 			wf.setWorkflowStatus("Error");
 			this.notifier.message(wf, "Error processing puddle workflow: " + ExceptionUtils.getMessage(e));
 		}
-
-		
 		
 		ptpRepository.save(wf);
 		
@@ -141,6 +133,14 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	@Override
 	@Async
 	public void processAsync(AbstractInfaWorkflowEntity inputWorkflowDefinition) {
+
+		
+		//refresh in case someone updated before the async thread picks it up
+		PTPWorkflow existingWF = ptpRepository.findOne(inputWorkflowDefinition.getId());
+		if(existingWF!=null){
+			inputWorkflowDefinition=existingWF;
+		}
+		
 		this.process(inputWorkflowDefinition);
 
 	}
