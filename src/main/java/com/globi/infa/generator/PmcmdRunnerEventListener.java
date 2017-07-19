@@ -79,9 +79,9 @@ public class PmcmdRunnerEventListener implements WorkflowCreatedEventListener, W
 						"Errors while attempting to start workflow. Please see logs for more info.", result);
 			}
 			
-			wf.getWorkflow().setWorkflowRunStatus("Started");
-			wf=wfRepo.save(wf.getWorkflow());
-			
+//			wf.getWorkflow().setWorkflowRunStatus("Started");
+//			wf=wfRepo.save(wf.getWorkflow());
+//			
 
 		} catch (InvalidExitValueException | IOException | InterruptedException | TimeoutException e1) {
 
