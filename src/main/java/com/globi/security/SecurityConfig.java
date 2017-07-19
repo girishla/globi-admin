@@ -64,7 +64,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-      .csrf()
+      .headers().cacheControl().disable();
+    
+    httpSecurity.csrf()
         .disable()
       .exceptionHandling()
         .authenticationEntryPoint(this.unauthorizedHandler)
@@ -79,8 +81,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/index.html").permitAll()
         .antMatchers("/globi/**").permitAll()
         .antMatchers("/**/websocket").permitAll()
-        
-//        .antMatchers("/**").permitAll()
         .anyRequest().authenticated();
 
     // Custom JWT based authentication
