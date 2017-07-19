@@ -43,8 +43,6 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	@Autowired
 	AggregatePTPPmcmdFileWriterEventListener aggregateCommandWriter;
 
-
-
 	@Autowired
 	TopDownMetadataTableColumnRepository metadataColumnRepository;
 
@@ -57,28 +55,16 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 
 	}
 
-
 	@Transactional(propagation = Propagation.NESTED)
 	private PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
 
-		//Refresh in case someone has modified the wf meanwhile
-		wf=ptpRepository.findOne(wf.getId());
+		// Refresh in case someone has modified the wf meanwhile
+		wf = ptpRepository.findOne(wf.getId());
 		ptpExtractgenerator.setWfDefinition(wf);
 
-		
-		try {
-
-			ptpExtractgenerator.generate();
-			wf.setWorkflowStatus("Processed");
-			this.notifier.message(wf, "Finished processing puddle workflow");
-
-		} catch (Exception e) {
-			
-			e.printStackTrace();
-			log.error(ExceptionUtils.getStackTrace(e));
-			wf.setWorkflowStatus("Error");
-			this.notifier.message(wf, "Error processing puddle workflow");
-		}
+		ptpExtractgenerator.generate();
+		wf.setWorkflowStatus("Processed");
+		this.notifier.message(wf, "Finished processing puddle workflow");
 
 		ptpRepository.save(wf);
 
@@ -111,7 +97,6 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		this.notifier.message(wf, "Starting workflow generation.");
 		wf = ptpRepository.save(wf);
 
-
 		return wf;
 
 	}
@@ -119,14 +104,27 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	@Override
 	public AbstractInfaWorkflowEntity process(AbstractInfaWorkflowEntity inputWorkflowDefinition) {
 
+		PTPWorkflow wf = (PTPWorkflow) inputWorkflowDefinition;
 		PTPExtractGenerationStrategy ptpExtractgenerator = getPtpExtractgenerator();
 
 		ptpExtractgenerator.addListener(gitWriter);
 		ptpExtractgenerator.addListener(aggregateGitWriter);
 		ptpExtractgenerator.addListener(aggregateCommandWriter);
-		//ptpExtractgenerator.addListener(targetDefnWriter);
+		// ptpExtractgenerator.addListener(targetDefnWriter);
 
-		return this.processWorkflow((PTPWorkflow) inputWorkflowDefinition, ptpExtractgenerator);
+		try {
+
+			wf = this.processWorkflow(wf, ptpExtractgenerator);
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			log.error(ExceptionUtils.getStackTrace(e));
+			wf.setWorkflowStatus("Error");
+			this.notifier.message(wf, "Error processing puddle workflow");
+		}
+
+		return wf;
 
 	}
 
