@@ -55,7 +55,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 
 	}
 
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional(propagation = Propagation.NESTED)
 	private PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
 
 		// Refresh in case someone has modified the wf meanwhile
@@ -66,7 +66,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		wf.setWorkflowStatus("Processed");
 		this.notifier.message(wf, "Finished processing puddle workflow");
 
-		ptpRepository.save(wf);
+
 
 		return wf;
 	}
@@ -124,6 +124,9 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 			this.notifier.message(wf, "Error processing puddle workflow: " + ExceptionUtils.getRootCauseMessage(e));
 		}
 
+		
+		ptpRepository.save(wf);
+		
 		return wf;
 
 	}
