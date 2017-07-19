@@ -178,8 +178,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 			List<DataSourceTableDTO> sourceTables = tableRepository.accept(tableQueryVisitor);
 			Optional<DataSourceTableDTO> sourceTable = sourceTables.stream()//
-					.filter(table -> table.getSourceName().equals(source.get().getDbName())
-							&& table.getTableName().equals(source.get().getName()))
+					.filter(table -> table.getTableName().equals(source.get().getName()))
 					.findFirst();
 
 			if (sourceTable.isPresent()) {
