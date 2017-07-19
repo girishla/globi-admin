@@ -58,9 +58,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	@Transactional(propagation = Propagation.NESTED)
 	private PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
 
-		// Refresh in case someone has modified the wf meanwhile
-		wf = ptpRepository.findOne(wf.getId());
-		ptpExtractgenerator.setWfDefinition(wf);
+
 
 		ptpExtractgenerator.generate();
 		wf.setWorkflowStatus("Processed");
@@ -112,6 +110,10 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		ptpExtractgenerator.addListener(aggregateCommandWriter);
 		// ptpExtractgenerator.addListener(targetDefnWriter);
 
+		// Refresh in case someone has modified the wf meanwhile
+		wf = ptpRepository.findOne(wf.getId());
+		ptpExtractgenerator.setWfDefinition(wf);
+		
 		try {
 
 			wf = this.processWorkflow(wf, ptpExtractgenerator);
