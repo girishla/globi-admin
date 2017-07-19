@@ -111,7 +111,11 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		// ptpExtractgenerator.addListener(targetDefnWriter);
 
 		// Refresh in case someone has modified the wf meanwhile
-		wf = ptpRepository.findOne(wf.getId());
+		PTPWorkflow existingWF = ptpRepository.findOne(wf.getId());
+		if(existingWF!=null){
+			wf=existingWF;
+		}
+			
 		ptpExtractgenerator.setWfDefinition(wf);
 		
 		try {
