@@ -51,8 +51,11 @@ import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @Scope("prototype")
+
 public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
 	private PTPWorkflow wfDefinition;
@@ -136,22 +139,6 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		return combinedFilter == null ? "" : combinedFilter;
 	}
 
-	// Oracle supports only 30 chars max
-	private String getTruncatedTableName(String tblName) {
-
-		if (tblName.length() > 24) {
-			String strippedOffStr = tblName.substring(20);
-			char[] asciiArr = strippedOffStr.toCharArray();
-			int totalVal = 0;
-			for (char ch : asciiArr) {
-				totalVal += (int) ch;
-			}
-			tblName = tblName.substring(0, 20);
-			tblName += totalVal;
-		}
-
-		return tblName;
-	}
 
 	private InfaMappingObject getPrimaryMapping() throws IOException, SAXException, JAXBException {
 
@@ -282,6 +269,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		String tblName = wfDefinition.getSourceTableName();
 		String dbName = wfDefinition.getSourceName();
 		String sourceFilter = wfDefinition.getSourceFilter();
+		String tableOwner = source.get().getOwnerName();
 
 		List<InfaSourceColumnDefinition> allTableColumns = colRepository.accept(columnQueryVisitor, tblName);
 
@@ -290,9 +278,27 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		List<InfaSourceColumnDefinition> matchedColumns = this
 				.getFilteredSourceDefnColumns(colRepository.accept(columnQueryVisitor, tblName), inputSelectedColumns);
 
+		
+		
+		//for SQL server each table can have a different owner so needs looking up
+		if (source.get().getDbType().equals("Microsoft SQL Server")) {
+
+			List<DataSourceTableDTO> sourceTables = tableRepository.accept(tableQueryVisitor);
+			Optional<DataSourceTableDTO> sourceTable = sourceTables.stream()//
+					.filter(table -> table.getTableName().equals(tblName))
+					.findFirst();
+			
+			if (sourceTable.isPresent()) {
+				tableOwner = sourceTable.get().getTableOwner();
+
+			}
+
+		}
+		
+		
 		sourceTableDef = InfaSourceDefinition.builder()//
 				.sourceTableName(tblName)//
-				.ownerName(source.get().getOwnerName())//
+				.ownerName(tableOwner)//
 				.databaseName(source.get().getName())//
 				.databaseType(source.get().getDbType())//
 				.build();
