@@ -43,8 +43,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	@Autowired
 	AggregatePTPPmcmdFileWriterEventListener aggregateCommandWriter;
 
-	@Autowired
-	private InfaPuddleDefinitionRepositoryWriter targetDefnWriter;
+
 
 	@Autowired
 	TopDownMetadataTableColumnRepository metadataColumnRepository;
@@ -125,7 +124,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		ptpExtractgenerator.addListener(gitWriter);
 		ptpExtractgenerator.addListener(aggregateGitWriter);
 		ptpExtractgenerator.addListener(aggregateCommandWriter);
-		ptpExtractgenerator.addListener(targetDefnWriter);
+		//ptpExtractgenerator.addListener(targetDefnWriter);
 
 		return this.processWorkflow((PTPWorkflow) inputWorkflowDefinition, ptpExtractgenerator);
 

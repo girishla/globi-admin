@@ -18,14 +18,13 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
 
 import com.globi.infa.generator.builder.InfaPowermartObject;
+import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 import com.globi.infa.notification.messages.WorkflowMessageNotifier;
 import com.globi.infa.workflow.GeneratedWorkflow;
 
 @Component
 public class GitWriterEventListener implements WorkflowCreatedEventListener {
 
-	@Autowired
-	private RepositoryLoader repoLoader;
 
 	@Autowired
 	private WorkflowMessageNotifier notifier;
@@ -34,6 +33,9 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 	private String gitDirectory;
 	@Autowired
 	private Jaxb2Marshaller marshaller;
+	
+	@Autowired
+	private InfaPuddleDefinitionRepositoryWriter targetDefnWriter;
 
 	private InfaPowermartObject generatedObject;
 	private GeneratedWorkflow wf;
@@ -49,7 +51,9 @@ public class GitWriterEventListener implements WorkflowCreatedEventListener {
 			this.writeToGit();
 			
 			notifier.message(wf, "Requesting loader to start loading into informatica repository..");
-			repoLoader.loadWorkflow(generatedObject, wf);
+			
+			targetDefnWriter.notify(generatedObject, wf);
+						
 
 		} catch (IOException e) {
 			e.printStackTrace();

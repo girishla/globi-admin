@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.globi.infa.datasource.core.InfaTargetToOracleDataTypeMapper;
+import com.globi.infa.generator.RepositoryLoader;
 import com.globi.infa.generator.WorkflowCreatedEventListener;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.generator.builder.InfaTargetObject;
@@ -32,6 +33,9 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 
 	@Autowired
 	private PuddleDDLRepository ddlGen;
+	
+	@Autowired
+	private RepositoryLoader repoLoader;
 
 	public InfaPuddleDefinitionRepositoryWriter(InfaPuddleDefinitionRepository tgtRepo,
 			InfaTargetToOracleDataTypeMapper mapper) {
@@ -126,6 +130,7 @@ public class InfaPuddleDefinitionRepositoryWriter implements WorkflowCreatedEven
 	public void notify(InfaPowermartObject generatedObject, GeneratedWorkflow wf) {
 
 		this.writeToRepository(generatedObject);
+		repoLoader.loadWorkflow(generatedObject, wf);
 
 	}
 
