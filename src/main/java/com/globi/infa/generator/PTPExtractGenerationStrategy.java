@@ -23,6 +23,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
+import com.globi.infa.datasource.core.DataSourceTableDTO;
 import com.globi.infa.datasource.core.ObjectNameNormaliser;
 import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
@@ -163,6 +164,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		String tblName = wfDefinition.getSourceTableName();
 		String dbName = wfDefinition.getSourceName();
 		String sourceFilter = wfDefinition.getSourceFilter();
+		String tableOwner = source.get().getOwnerName();
 
 		List<InfaSourceColumnDefinition> allTableColumns = colRepository.accept(columnQueryVisitor, tblName);
 		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
@@ -170,9 +172,25 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 		List<InfaSourceColumnDefinition> matchedColumns = this
 				.getFilteredSourceDefnColumns(colRepository.accept(columnQueryVisitor, tblName), inputSelectedColumns);
 
+		
+		//for SQL server each table can have a different owner so needs looking up
+		if (source.get().getDbType().equals("Microsoft SQL Server")) {
+
+			List<DataSourceTableDTO> sourceTables = tableRepository.accept(tableQueryVisitor);
+			Optional<DataSourceTableDTO> sourceTable = sourceTables.stream()//
+					.filter(table -> table.getSourceName().equals(source.get().getDbName())
+							&& table.getTableName().equals(source.get().getName()))
+					.findFirst();
+
+			if (sourceTable.isPresent()) {
+				tableOwner = sourceTable.get().getTableOwner();
+			}
+
+		}
+
 		sourceTableDef = InfaSourceDefinition.builder()//
 				.sourceTableName(tblName)//
-				.ownerName(source.get().getOwnerName())//
+				.ownerName(tableOwner)//
 				.databaseName(source.get().getName())//
 				.databaseType(source.get().getDbType())//
 				.sourceTableUniqueName(source.get().getName() + "_" + tblName).build();
@@ -191,10 +209,8 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		String targetTableName = wfDefinition.getTargetTableName();
 
-		
-		String targetTableDefnName =targetTableName.isEmpty()?dbName + "_" + tblName + "_P":targetTableName+ "_P";
-		
-		
+		String targetTableDefnName = targetTableName.isEmpty() ? dbName + "_" + tblName + "_P" : targetTableName + "_P";
+
 		InfaMappingObject mappingObjPrimary = MappingBuilder//
 				.newBuilder()//
 				.simpleTableSyncClass("simpleTableSyncClass")//
@@ -246,7 +262,8 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.mappingvariable(getEtlProcWidMappingVariable())//
 				.mappingvariable(getInitialExtractDateMappingVariable())//
 				.mappingvariable(getDataSourceNumIdMappingVariable(Integer.toString(source.get().getSourceNum())))//
-				.mappingvariable(getTablenameMappingVariable(targetTableName.isEmpty()?dbName + "_" + tblName:targetTableName))//
+				.mappingvariable(getTablenameMappingVariable(
+						targetTableName.isEmpty() ? dbName + "_" + tblName : targetTableName))//
 				.noMoreMappingVariables()//
 				.build();
 
@@ -285,7 +302,6 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		sourceTableDef.getColumns().addAll(matchedColumns);
 
-
 		List<InfaSourceColumnDefinition> columnsList = sourceTableDef.getColumns();
 
 		// normalise columns removing any special chars spaces etc
@@ -294,14 +310,12 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 			return column;
 		}).collect(Collectors.toList());
 
-		
 		String targetTableName = wfDefinition.getTargetTableName();
-		String targetTableDefnName =targetTableName.isEmpty()?dbName + "_" + tblName:targetTableName;
-		
+		String targetTableDefnName = targetTableName.isEmpty() ? dbName + "_" + tblName : targetTableName;
+
 		commonValuesMap.put("targetTableName", targetTableDefnName);
 		commonValuesMap.put("sourceName", dbName);
-		
-		
+
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
 				.simpleTableSyncClass("simpleTableSyncClass")//
@@ -414,9 +428,9 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		String tblName = wfDefinition.getSourceTableName();
 		String dbName = wfDefinition.getSourceName();
-		
+
 		String targetTableName = wfDefinition.getTargetTableName();
-		String targetTableDefnName =targetTableName.isEmpty()?dbName + "_" + tblName:targetTableName;
+		String targetTableDefnName = targetTableName.isEmpty() ? dbName + "_" + tblName : targetTableName;
 
 		InfaPowermartObject pmObj = PowermartObjectBuilder//
 				.newBuilder()//
@@ -432,8 +446,7 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 						.setValue("sourceShortCode", dbName)//
 						.setValue("TargetShortCode", "PDL")//
 						.setValue("tableName", tblName)//
-						.setValue("tgtTableName", targetTableDefnName)
-						.noMoreValues()//
+						.setValue("tgtTableName", targetTableDefnName).noMoreValues()//
 						.loadWorkflowFromSeed("Seed_WFPTP")//
 						.nameAlreadySet()//
 						.build())//

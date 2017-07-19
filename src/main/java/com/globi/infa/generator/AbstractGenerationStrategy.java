@@ -2,9 +2,7 @@ package com.globi.infa.generator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import com.globi.infa.datasource.core.DataTypeMapper;
@@ -12,9 +10,10 @@ import com.globi.infa.datasource.core.SourceMetadataFactory;
 import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
 import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.datasource.core.TableColumnRepository;
+import com.globi.infa.datasource.core.TableMetadataVisitor;
+import com.globi.infa.datasource.core.TableRepository;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.notification.messages.WorkflowMessageNotifier;
-import com.globi.infa.notification.messages.WorkflowNotificationContentMessage;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;
 
@@ -39,9 +38,17 @@ public abstract class AbstractGenerationStrategy {
 	
 	@Setter
 	protected TableColumnRepository colRepository;
+	
+	
+	@Setter
+	protected TableRepository tableRepository;
+		
 	@Setter
 	protected TableColumnMetadataVisitor columnQueryVisitor;
 
+	@Setter
+	protected TableMetadataVisitor tableQueryVisitor;
+	
 	protected final List<WorkflowCreatedEventListener> createdEventListeners = new ArrayList<>();;
 	
 	
@@ -86,6 +93,8 @@ public abstract class AbstractGenerationStrategy {
 		this.sourceToTargetDataTypeMapper=sourceMetadataFactory.createSourceToTargetDatatypeMapper();
 		this.colRepository = sourceMetadataFactory.createTableColumnRepository();
 		this.columnQueryVisitor = sourceMetadataFactory.createTableColumnMetadataVisitor();
+		this.tableQueryVisitor=sourceMetadataFactory.createTableMetadataVisitor();
+		this.tableRepository=sourceMetadataFactory.createTableRepository();
 
 	}
 	
