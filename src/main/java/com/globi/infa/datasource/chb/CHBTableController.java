@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.globi.infa.datasource.core.DataSourceTableDTO;
+import com.globi.infa.datasource.type.oracle.OracleNonOwnerTableMetadataVisitor;
 import com.globi.infa.datasource.type.oracle.OracleViewMetadataVisitor;
 
 @RestController
@@ -23,7 +24,7 @@ public class CHBTableController {
 	private final CHBTableRepository repository;
 	
 	@Autowired
-	private OracleViewMetadataVisitor viewQueryVisitor;
+	private OracleNonOwnerTableMetadataVisitor tableQueryVisitor;
 
 	@Autowired
 	@Qualifier("dsCHB")
@@ -37,7 +38,7 @@ public class CHBTableController {
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/datasources/chb/tables")
 	public @ResponseBody ResponseEntity<?> getTables() {
 
-		List<DataSourceTableDTO> tables = repository.accept(viewQueryVisitor);
+		List<DataSourceTableDTO> tables = repository.accept(tableQueryVisitor);
 		return ResponseEntity.ok(tables);
 	}
 

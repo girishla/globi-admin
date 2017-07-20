@@ -30,6 +30,7 @@ public class CHBSourceMetadataFactory implements SourceMetadataFactory {
 	@Autowired
 	private OracleTableColumnMetadataVisitor chbOracleTableColumnMetadataVisitor;
 	
+	
 	@Autowired
 	private OracleInfaSourceToInfaXFormTypeMapper chbOracleToInfaDataTypeMapper;
 	
