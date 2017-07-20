@@ -34,7 +34,7 @@ public class CHBTableController {
 		repository = repo;
 	}
 
-	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/datasources/CHB/tables")
+	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/datasources/chb/tables")
 	public @ResponseBody ResponseEntity<?> getTables() {
 
 		List<DataSourceTableDTO> tables = repository.accept(viewQueryVisitor);

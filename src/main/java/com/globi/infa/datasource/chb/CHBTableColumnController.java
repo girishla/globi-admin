@@ -35,7 +35,7 @@ public class CHBTableColumnController {
 		repository = repo;
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/datasources/CHB/tables/{tableName}/columns")
+	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/datasources/chb/tables/{tableName}/columns")
 	public @ResponseBody ResponseEntity<?> getTableColumns(@PathVariable String tableName) {
 
 		List<InfaSourceColumnDefinition> columns = repository.accept(columnQueryVisitor,tableName.toUpperCase());
