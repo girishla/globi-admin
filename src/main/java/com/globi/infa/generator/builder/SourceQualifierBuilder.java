@@ -123,6 +123,11 @@ public class SourceQualifierBuilder {
 		private static TRANSFORMFIELD sourceQualifierFieldFrom(DataTypeMapper mapper,
 				InfaSourceColumnDefinition column) {
 
+			
+			String precision= column.getColumnDataType().equals("datetime") ? "19" : Integer.toString(column.getPrecision());
+			String scale= column.getColumnDataType().equals("datetime") ? "0" : Integer.toString(column.getScale());
+			
+			
 			TRANSFORMFIELD field = new TRANSFORMFIELD();
 			field.setDATATYPE(mapper.mapType(column.getColumnDataType()));
 			field.setDEFAULTVALUE("");
@@ -130,8 +135,8 @@ public class SourceQualifierBuilder {
 			field.setNAME(column.getColumnName());
 			field.setPICTURETEXT("");
 			field.setPORTTYPE("INPUT/OUTPUT");
-			field.setPRECISION(Integer.toString(column.getPrecision()));
-			field.setSCALE(Integer.toString(column.getScale()));
+			field.setPRECISION(precision);
+			field.setSCALE(scale);
 
 			return field;
 
