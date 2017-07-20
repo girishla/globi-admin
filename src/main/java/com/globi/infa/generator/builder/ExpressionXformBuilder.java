@@ -383,7 +383,7 @@ public class ExpressionXformBuilder {
 						.collect(Collectors.joining("|| ':' ||"));
 			}
 
-			concatenatedId = "'OBI:" + sourceName + ":" + sourceTableAbbr.map(tableName) + ":'" + " || "
+			concatenatedId = "'" + sourceTableAbbr.map(sourceName + "_" + tableName) + "'" + " || "
 					+ concatenatedId;
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
