@@ -11,8 +11,8 @@ import com.globi.infa.datasource.core.TableMetadataVisitor;
 import com.globi.infa.datasource.core.TableRepository;
 import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaTargetTypeMapper;
 import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaXFormTypeMapper;
+import com.globi.infa.datasource.type.oracle.OracleNonOwnerTableMetadataVisitor;
 import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
-import com.globi.infa.datasource.type.oracle.OracleTableMetadataVisitor;
 
 
 @Component
@@ -25,7 +25,7 @@ public class CHBSourceMetadataFactory implements SourceMetadataFactory {
 	private CHBTableColumnRepository chbTableColumnRepo;
 	
 	@Autowired
-	private OracleTableMetadataVisitor chbTableMetadataVisitor;
+	private OracleNonOwnerTableMetadataVisitor chbTableMetadataVisitor;
 	
 	@Autowired
 	private OracleTableColumnMetadataVisitor chbOracleTableColumnMetadataVisitor;
