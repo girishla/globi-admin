@@ -280,8 +280,10 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 
 		
 		
+		
 		//for SQL server each table can have a different owner so needs looking up
-		if (source.get().getDbType().equals("Microsoft SQL Server")) {
+		//for Non-Siebel sources, each table can have a different owner so needs looking up
+		if ((!(source.get().getName().equals("CUK")) && (!source.get().getName().equals("CGL")))) {
 
 			List<DataSourceTableDTO> sourceTables = tableRepository.accept(tableQueryVisitor);
 			Optional<DataSourceTableDTO> sourceTable = sourceTables.stream()//
