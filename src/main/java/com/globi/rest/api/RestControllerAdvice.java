@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
@@ -78,6 +80,19 @@ public class RestControllerAdvice
 		restApiError.setApiCode(ApiErrorCodes.UNAUTHORIZED);
 		restApiError.setUserMessage("Invalid Credentials. Please enter a valid username and password.");
 		restApiError.setDeveloperMessage("org.springframework.security.core.userdetails.UsernameNotFoundException");
+		return createResponseEntity(restApiError);
+	}
+	
+	
+	
+	@ExceptionHandler(CannotGetJdbcConnectionException.class)
+	public ResponseEntity<RestApiError> handleException(CannotGetJdbcConnectionException e)
+	{
+		log.error("Api Error caused by exception", e);
+		RestApiError restApiError = new RestApiError(RestApiHttpStatus.INTERNAL_SERVER_ERROR);
+		restApiError.setApiCode(ApiErrorCodes.UNHANDLED_SERVER_EXCEPTION);
+		restApiError.setUserMessage("Could not get a connection to the datasource. Please verify if the source is available.");
+		restApiError.setDeveloperMessage("org.springframework.jdbc.CannotGetJdbcConnectionException  " + ExceptionUtils.getFullStackTrace(e));
 		return createResponseEntity(restApiError);
 	}
 	
