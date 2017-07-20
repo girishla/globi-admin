@@ -121,7 +121,10 @@ public class TargetDefinitionBuilder {
 			TARGETFIELD targetField = new TARGETFIELD();
 
 			Integer fieldNumber = column.getColumnDataType().equals("long") ? 99 : column.getColumnNumber();
-
+			String precision= column.getColumnDataType().equals("datetime") ? "19" : Integer.toString(column.getPrecision());
+			String scale= column.getColumnDataType().equals("datetime") ? "0" : Integer.toString(column.getScale());
+			
+			
 			targetField.setBUSINESSNAME(DEFAULT_DESCRIPTION.getValue());
 			targetField.setDATATYPE(mapper.mapType(column.getColumnDataType()));
 			targetField.setFIELDNUMBER(Integer.toString(fieldNumber));
@@ -129,8 +132,8 @@ public class TargetDefinitionBuilder {
 			targetField.setNAME(column.getColumnName());
 			targetField.setKEYTYPE("NOT A KEY");
 			targetField.setPICTURETEXT("");
-			targetField.setPRECISION(Integer.toString(column.getPrecision()));
-			targetField.setSCALE(Integer.toString(column.getScale()));
+			targetField.setPRECISION(precision);
+			targetField.setSCALE(scale);
 
 			return targetField;
 

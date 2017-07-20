@@ -135,7 +135,7 @@ public class PTPGeneratorInputBuilder {
 				.columns(workflowSourceColumnList)
 				.workflowUri("/GeneratedWorkflows/Repl/" + "PTP_" + sourceName + "_" + tableName + ".xml")
 				.workflowName("PTP_" + sourceName + "_" + tableName + "_Extract")//
-				.targetTableName(sourceName + "_" + sourceName)
+				.targetTableName(sourceName + "_" + tableName)
 				.build();
 
 		return ptpWorkflowGeneratorInput;

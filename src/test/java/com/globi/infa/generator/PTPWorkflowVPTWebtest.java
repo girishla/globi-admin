@@ -45,8 +45,9 @@ public class PTPWorkflowVPTWebtest extends AbstractWebIntegrationTest {
 		
 		ptpWorkflow= inputBuilder.start()//
 		.sourceName("VPT")//
-		.tableName("vwTargetsGenesisCurrentRep")//
-		.setIntegrationCol("CurrentRepCode")//
+		.tableName("AdjustmentGenesis")//
+		.setIntegrationCol("RequestID")//
+		.setNormalCol("ProcessedDate")
 		.sourceFilter("")
 		.build();
 		
