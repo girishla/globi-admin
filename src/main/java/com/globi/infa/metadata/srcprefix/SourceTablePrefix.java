@@ -20,7 +20,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-@Subselect("SELECT * FROM MDT.SourceTablePrefix")
+@Subselect("SELECT * FROM MDT.M_DDL_PGUID_PREFIX_V")
 public class SourceTablePrefix  {
 
 	@Column(name="ID")
