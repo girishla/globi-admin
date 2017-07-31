@@ -20,7 +20,7 @@ import com.globi.infa.generator.AggregateGitWriterEventListener;
 import com.globi.infa.generator.AggregatePTPPmcmdFileWriterEventListener;
 import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
-import com.globi.infa.generator.PTPExtractGenerationStrategy;
+import com.globi.infa.generator.ptp.PTPGenerationStrategy;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 import com.globi.infa.notification.messages.WorkflowMessageNotifier;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
@@ -76,21 +76,21 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 	}
 
 	@Lookup
-	public PTPExtractGenerationStrategy getPtpExtractgenerator() {
+	//to get a new generator instance for every invocation
+	public PTPGenerationStrategy getPtpExtractgenerator() {
 		return null; // This implementation will be overridden by dynamically
 						// generated subclass
 	}
 
 	@Transactional(propagation = Propagation.NESTED)
-	public PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
+	public PTPWorkflow processWorkflow(PTPWorkflow wf, PTPGenerationStrategy ptpExtractgenerator) {
 
 		try {
 
 			// Refresh in case someone has modified the wf meanwhile
 			wf = ptpRepository.findOne(wf.getId());
 
-			ptpExtractgenerator.setWfDefinition(wf);
-			ptpExtractgenerator.generate();
+			ptpExtractgenerator.generate(wf);
 			wf.setWorkflowStatus("Processed");
 			this.notifier.message(wf, "Finished processing puddle workflow.");
 			
@@ -111,7 +111,6 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 	}
 
 	@Async
-	@Transactional
 	public void processAsync(List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions) {
 
 		process(inputWorkflowDefinitions);
@@ -124,7 +123,7 @@ public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchA
 
 		List<PTPWorkflow> processedWorkflows;
 
-		PTPExtractGenerationStrategy ptpExtractgenerator = getPtpExtractgenerator();
+		PTPGenerationStrategy ptpExtractgenerator = getPtpExtractgenerator();
 
 		ptpExtractgenerator.addListener(gitWriter);
 		ptpExtractgenerator.addListener(aggregateGitWriter);

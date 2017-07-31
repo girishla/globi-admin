@@ -8,10 +8,12 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -21,7 +23,9 @@ import org.springframework.util.FileCopyUtils;
 import com.globi.infa.datasource.core.DataTypeMapper;
 import com.globi.infa.datasource.core.ObjectNameNormaliser;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
+import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
+import xjc.TABLEATTRIBUTE;
 import xjc.TRANSFORMATION;
 import xjc.TRANSFORMFIELD;
 
@@ -46,7 +50,15 @@ public class SourceQualifierBuilder {
 	}
 
 	public interface AddFieldsStep {
-		NameStep addFields(DataTypeMapper mapper, List<InfaSourceColumnDefinition> columns);
+		AddFilterStep addFields(DataTypeMapper mapper, List<InfaSourceColumnDefinition> columns);
+	}
+
+	public interface AddFilterStep {
+		AddFilterStep addFilter(String filter);
+
+		AddFilterStep addCCFilterFromColumns(List<PTPWorkflowSourceColumn> inputSelectedColumns, String tableName);
+
+		NameStep noMoreFilters();
 	}
 
 	public interface NameStep {
@@ -58,10 +70,11 @@ public class SourceQualifierBuilder {
 	}
 
 	public static class SourceQualifierSteps implements NameStep, SetMarshallerStep, SetInterpolationValueStep,
-			LoadFromSeedStep, AddFieldsStep, BuildStep {
+			LoadFromSeedStep, AddFieldsStep, AddFilterStep, BuildStep {
 
 		private Jaxb2Marshaller marshaller;
 		private TRANSFORMATION sourceQualifierDefn;
+		private String filterString = "";
 		private Map<String, String> interpolationValues = new HashMap<>();
 
 		@Override
@@ -71,7 +84,7 @@ public class SourceQualifierBuilder {
 		}
 
 		@Override
-		public NameStep addFields(DataTypeMapper mapper, List<InfaSourceColumnDefinition> columns) {
+		public AddFilterStep addFields(DataTypeMapper mapper, List<InfaSourceColumnDefinition> columns) {
 
 			this.sourceQualifierDefn.getTRANSFORMFIELD()
 					.addAll(columns.stream()//
@@ -120,14 +133,30 @@ public class SourceQualifierBuilder {
 			return this;
 		}
 
+		private String getCCFilterString(List<PTPWorkflowSourceColumn> inputSelectedColumns, String tableName) {
+
+			// Find and set the sourceQualifier filter column
+			Optional<PTPWorkflowSourceColumn> sourceQualifierFilterClauseColumn = inputSelectedColumns.stream()//
+					.filter(column -> column.isChangeCaptureColumn())//
+					.findAny();
+
+			String ccFilter = "";
+
+			if (sourceQualifierFilterClauseColumn.isPresent()) {
+				ccFilter = tableName + "." + sourceQualifierFilterClauseColumn.get().getSourceColumnName()
+						+ " >= TO_DATE('$$INITIAL_EXTRACT_DATE','dd/MM/yyyy HH24:mi:ss')";
+			}
+
+			return ccFilter;
+		}
+
 		private static TRANSFORMFIELD sourceQualifierFieldFrom(DataTypeMapper mapper,
 				InfaSourceColumnDefinition column) {
 
-			
-			String precision= column.getColumnDataType().equals("datetime") ? "19" : Integer.toString(column.getPrecision());
-			String scale= column.getColumnDataType().equals("datetime") ? "0" : Integer.toString(column.getScale());
-			
-			
+			String precision = column.getColumnDataType().equals("datetime") ? "19"
+					: Integer.toString(column.getPrecision());
+			String scale = column.getColumnDataType().equals("datetime") ? "0" : Integer.toString(column.getScale());
+
 			TRANSFORMFIELD field = new TRANSFORMFIELD();
 			field.setDATATYPE(mapper.mapType(column.getColumnDataType()));
 			field.setDEFAULTVALUE("");
@@ -150,6 +179,39 @@ public class SourceQualifierBuilder {
 
 		@Override
 		public LoadFromSeedStep noMoreValues() {
+			return this;
+		}
+
+		@Override
+		public AddFilterStep addFilter(String filter) {
+
+			if (!filterString.isEmpty())
+				filterString = filterString + " AND ";
+
+			filterString += filter;
+
+			return this;
+		}
+
+		@Override
+		public NameStep noMoreFilters() {
+
+			TABLEATTRIBUTE filterAttribute = new TABLEATTRIBUTE();
+			filterAttribute.setNAME("Source Filter");
+			filterAttribute.setVALUE(filterString);
+			sourceQualifierDefn.getTABLEATTRIBUTE().add(filterAttribute);
+
+			return this;
+		}
+
+		@Override
+		public AddFilterStep addCCFilterFromColumns(List<PTPWorkflowSourceColumn> inputSelectedColumns,
+				String tableName) {
+
+			if (!filterString.isEmpty())
+				filterString = filterString + " AND ";
+
+			filterString += this.getCCFilterString(inputSelectedColumns, tableName);
 			return this;
 		}
 

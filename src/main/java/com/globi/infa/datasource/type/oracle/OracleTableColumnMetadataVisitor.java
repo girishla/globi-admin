@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
+import com.globi.infa.datasource.core.ObjectNameNormaliser;
 import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;
@@ -55,8 +56,9 @@ public class OracleTableColumnMetadataVisitor implements TableColumnMetadataVisi
 	protected final RowMapper<InfaSourceColumnDefinition> tableColumnMapper = new RowMapper<InfaSourceColumnDefinition>() {
 		public InfaSourceColumnDefinition mapRow(ResultSet rs, int rowNum) throws SQLException {
 
+			
 			InfaSourceColumnDefinition colDefn = InfaSourceColumnDefinition.builder()//
-					.columnName(rs.getString("COLUMN_NAME"))//
+					.columnName(ObjectNameNormaliser.normalise(rs.getString("COLUMN_NAME")))//
 					.columnLength(tryParse(rs.getString("COL_LENGTH")))//
 					.columnNumber(tryParse(rs.getString("COLUMN_NUMBER")))//
 					.columnDataType(mapper.mapType(rs.getString("DATA_TYPE").toUpperCase()))//

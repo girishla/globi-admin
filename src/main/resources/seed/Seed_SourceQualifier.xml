@@ -2,7 +2,6 @@
 <TRANSFORMATION DESCRIPTION ="" NAME ="{{sourceQualifierName}}" OBJECTVERSION ="1" REUSABLE ="NO" TYPE ="Source Qualifier" VERSIONNUMBER ="1">
 	<TABLEATTRIBUTE NAME ="Sql Query" VALUE =""/>
 	<TABLEATTRIBUTE NAME ="User Defined Join" VALUE =""/>
-	<TABLEATTRIBUTE NAME ="Source Filter" VALUE ="{{sourceFilter}}"/>
 	<TABLEATTRIBUTE NAME ="Number Of Sorted Ports" VALUE ="0"/>
 	<TABLEATTRIBUTE NAME ="Tracing Level" VALUE ="Normal"/>
 	<TABLEATTRIBUTE NAME ="Select Distinct" VALUE ="NO"/>

@@ -16,7 +16,7 @@ import com.globi.infa.generator.AggregateGitWriterEventListener;
 import com.globi.infa.generator.AggregatePTPPmcmdFileWriterEventListener;
 import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
-import com.globi.infa.generator.PTPExtractGenerationStrategy;
+import com.globi.infa.generator.ptp.PTPGenerationStrategy;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 import com.globi.infa.notification.messages.WorkflowMessageNotifier;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
@@ -56,11 +56,10 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	}
 
 	@Transactional(propagation = Propagation.NESTED)
-	private PTPWorkflow processWorkflow(PTPWorkflow wf, PTPExtractGenerationStrategy ptpExtractgenerator) {
+	private PTPWorkflow processWorkflow(PTPWorkflow wf, PTPGenerationStrategy ptpExtractgenerator) {
 
 
-
-		ptpExtractgenerator.generate();
+		ptpExtractgenerator.generate(wf);
 		wf.setWorkflowStatus("Processed");
 		this.notifier.message(wf, "Finished processing puddle workflow");
 
@@ -71,7 +70,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	}
 
 	@Lookup
-	public PTPExtractGenerationStrategy getPtpExtractgenerator() {
+	public PTPGenerationStrategy getPtpExtractgenerator() {
 		return null; // This implementation will be overridden by dynamically
 						// generated subclass
 	}
@@ -104,13 +103,12 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	public AbstractInfaWorkflowEntity process(AbstractInfaWorkflowEntity inputWorkflowDefinition) {
 
 		PTPWorkflow wf = (PTPWorkflow) inputWorkflowDefinition;
-		PTPExtractGenerationStrategy ptpExtractgenerator = getPtpExtractgenerator();
+		PTPGenerationStrategy ptpExtractgenerator = getPtpExtractgenerator();
 
 		ptpExtractgenerator.addListener(gitWriter);
 		ptpExtractgenerator.addListener(aggregateGitWriter);
 		ptpExtractgenerator.addListener(aggregateCommandWriter);
 
-		ptpExtractgenerator.setWfDefinition(wf);
 		
 		try {
 

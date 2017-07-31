@@ -19,6 +19,7 @@ import org.springframework.test.annotation.Rollback;
 
 import com.globi.AbstractIntegrationTest;
 import com.globi.infa.generator.builder.InfaPowermartObject;
+import com.globi.infa.generator.ptp.PTPGenerationStrategy;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
@@ -30,7 +31,7 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 	private Jaxb2Marshaller marshaller;
 
 	@Autowired
-	private PTPExtractGenerationStrategy generator;
+	private PTPGenerationStrategy generator;
 
 	@Autowired
 	InfaPTPWorkflowRepository ptpRepository;
@@ -91,10 +92,9 @@ public class PTPExtractWorkflowGeneratorIntegrationTest extends AbstractIntegrat
 	public void generatesPTPWorkflowForOrgExtTable()
 			throws Exception {
 
-		generator.setWfDefinition(ptpWorkflowInputToGenerator);
 		generator.addListener(gitWriter);
 
-		InfaPowermartObject pmObj = generator.generate();
+		InfaPowermartObject pmObj = generator.generate(ptpWorkflowInputToGenerator);
 
 
 		Optional<PTPWorkflow> existingWorkflow = ptpRepository

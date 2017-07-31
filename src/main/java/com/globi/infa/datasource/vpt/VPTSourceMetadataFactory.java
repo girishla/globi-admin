@@ -1,5 +1,7 @@
 package com.globi.infa.datasource.vpt;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,8 @@ import com.globi.infa.datasource.type.sqlserver.SQLServerInfaSourceToInfaTargetT
 import com.globi.infa.datasource.type.sqlserver.SQLServerInfaSourceToInfaXFormTypeMapper;
 import com.globi.infa.datasource.type.sqlserver.SQLServerTableColumnMetadataVisitor;
 import com.globi.infa.datasource.type.sqlserver.SQLServerTableMetadataVisitor;
+import com.globi.metadata.sourcesystem.SourceSystem;
+import com.globi.metadata.sourcesystem.SourceSystemRepository;
 
 @Component
 public class VPTSourceMetadataFactory implements SourceMetadataFactory {
@@ -36,6 +40,25 @@ public class VPTSourceMetadataFactory implements SourceMetadataFactory {
 	@Autowired
 	private SQLServerInfaSourceToInfaTargetTypeMapper vptSQLServerInfaSourceToInfaTargetTypeMapper;
 
+	
+	@Autowired
+	private SourceSystemRepository sourceSystemRepo;
+	
+
+
+	@Override
+	public SourceSystem getSourceSystem() {
+		
+		Optional<SourceSystem> source;
+
+		source = sourceSystemRepo.findByName(getSourceName());
+		
+		if (!source.isPresent())
+			throw new IllegalArgumentException("Cannot find Source System. Please ensure it is defined.");
+
+		return source.get();
+	}
+	
 	@Override
 	public DataTypeMapper createSourceToTargetDatatypeMapper() {
 		return vptSQLServerInfaSourceToInfaTargetTypeMapper;

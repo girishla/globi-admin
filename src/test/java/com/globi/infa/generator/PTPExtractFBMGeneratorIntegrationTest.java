@@ -16,6 +16,7 @@ import com.globi.AbstractIntegrationTest;
 import com.globi.infa.datasource.fbm.FBMTableColumnRepository;
 import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
 import com.globi.infa.generator.builder.InfaPowermartObject;
+import com.globi.infa.generator.ptp.PTPGenerationStrategy;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
 
@@ -25,7 +26,7 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 	private Jaxb2Marshaller marshaller;
 
 	@Autowired
-	private PTPExtractGenerationStrategy generator;
+	private PTPGenerationStrategy generator;
 
 	@Autowired
 	InfaPTPWorkflowRepository repository;
@@ -107,10 +108,9 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 
 	private InfaPowermartObject generateAndSave(PTPWorkflow wfInput) {
 
-		generator.setWfDefinition(wfInput);
 		generator.addListener(fileWriter);
 		generator.addListener(gitWriter);
-		InfaPowermartObject pmObj = generator.generate();
+		InfaPowermartObject pmObj = generator.generate(wfInput);
 
 		Optional<PTPWorkflow> existingWorkflow = repository
 				.findByWorkflowName(ptpWorkflowGeneratorInvoiceHDInput.getWorkflow().getWorkflowName());
