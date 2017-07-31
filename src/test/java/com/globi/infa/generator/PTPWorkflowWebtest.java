@@ -48,7 +48,7 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 		.sourceName("CGL")//
 		.tableName("S_BU")//
 		.setIntegrationCol("ROW_ID")//
-		.setChangeCaptureCol("LAST_UPD")
+//		.setChangeCaptureCol("LAST_UPD")
 //		.setBuidCol("BU_ID")//
 		.setNormalCol("NAME")
 		.sourceFilter("")

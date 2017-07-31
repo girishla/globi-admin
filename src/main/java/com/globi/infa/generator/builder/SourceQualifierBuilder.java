@@ -185,10 +185,12 @@ public class SourceQualifierBuilder {
 		@Override
 		public AddFilterStep addFilter(String filter) {
 
-			if (!filterString.isEmpty())
-				filterString = filterString + " AND ";
+			if (filter != null) {
+				if (!filterString.isEmpty())
+					filterString = filterString + " AND ";
 
-			filterString += filter;
+				filterString += filter;
+			}
 
 			return this;
 		}
