@@ -21,7 +21,6 @@ import com.globi.infa.workflow.InfaWorkflowRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
-@Slf4j
 @Profile("prod")
 public class PmcmdRunnerEventListener implements WorkflowCreatedEventListener, WorkflowRunner {
 
@@ -68,20 +67,12 @@ public class PmcmdRunnerEventListener implements WorkflowCreatedEventListener, W
 			
 			notifier.message(wf, output);
 
-			log.info("*************************************");
-			log.info("*************************************");
-			log.info(output);
-			
-			
-
 			if (!output.contains("started successfully")) {
 				throw new InvalidExitValueException(
 						"Errors while attempting to start workflow. Please see logs for more info.", result);
 			}
 			
-//			wf.getWorkflow().setWorkflowRunStatus("Started");
-//			wf=wfRepo.save(wf.getWorkflow());
-//			
+
 
 		} catch (InvalidExitValueException | IOException | InterruptedException | TimeoutException e1) {
 

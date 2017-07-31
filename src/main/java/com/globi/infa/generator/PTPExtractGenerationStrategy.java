@@ -51,7 +51,6 @@ import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
 import com.globi.metadata.sourcesystem.SourceSystemRepository;
 
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Scope("prototype")
@@ -179,7 +178,8 @@ public class PTPExtractGenerationStrategy extends AbstractGenerationStrategy imp
 				.ownerName(tableOwner)//
 				.databaseName(source.get().getName())//
 				.databaseType(source.get().getDbType())//
-				.sourceTableUniqueName(source.get().getName() + "_" + tblName).build();
+				.sourceTableUniqueName(source.get().getName() + "_" + tblName)//
+				.build();
 
 		String combinedFilter = getSourceFilterString(sourceFilter, inputSelectedColumns, tblName);
 

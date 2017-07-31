@@ -11,15 +11,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 @Configuration
-public class PrimaryDSConfig {
+@ConfigurationProperties("app.datasource.mdt")
+public class PrimaryDSConfig  extends HikariConfig {
 
 	
 	@Bean(name = "dsMDT")
-	@ConfigurationProperties("app.datasource.mdt")
 	@Primary
 	public DataSource dataSource() {
-		return DataSourceBuilder.create().build();
+		return new HikariDataSource(this);
 	}
 
 	

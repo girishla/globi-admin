@@ -9,19 +9,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 import javax.sql.DataSource;
 
 @Configuration
-public class OracleGENConfig {
-	
-	
-	
-	
+@ConfigurationProperties("app.datasource.gen")
+public class OracleGENConfig  extends HikariConfig {
 
 	@Bean(name = "dsGEN")
-	@ConfigurationProperties("app.datasource.gen")
 	public DataSource dataSourceGEN() {
-		return DataSourceBuilder.create().build();
+		return new HikariDataSource(this);
 	}
 
 	@Bean(name = "jdbcOracleGEN")
