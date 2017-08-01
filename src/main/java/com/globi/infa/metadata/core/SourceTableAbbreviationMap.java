@@ -8,17 +8,18 @@ import com.globi.infa.metadata.srcprefix.SourceTablePrefix;
 import com.globi.infa.metadata.srcprefix.SourceTablePrefixRepository;
 
 @Component
-public class SourceTableAbbreviationMap {
+public class SourceTableAbbreviationMap implements StringMap {
 
 
 	private SourceTablePrefixRepository prefixRepo;
 
-	SourceTableAbbreviationMap(SourceTablePrefixRepository prefixRepo) {
+	public SourceTableAbbreviationMap(SourceTablePrefixRepository prefixRepo) {
 		
 		this.prefixRepo=prefixRepo;
 
 	}
 
+	@Override
 	public String map(String tableUniqueName) {
 
 		Optional<SourceTablePrefix> prefixRepositoryResult;

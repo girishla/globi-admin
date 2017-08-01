@@ -20,7 +20,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.FileCopyUtils;
 
 import com.globi.infa.datasource.core.DataTypeMapper;
-import com.globi.infa.metadata.core.SourceTableAbbreviationMap;
+import com.globi.infa.metadata.core.StringMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
 import lombok.extern.slf4j.Slf4j;
@@ -81,7 +81,7 @@ public class ExpressionXformBuilder {
 
 		AddFieldsStep addDatasourceNumIdField();
 
-		AddFieldsStep addPGUIDField(String sourceName, String tableName, SourceTableAbbreviationMap sourceTableAbbr,
+		AddFieldsStep addPGUIDField(String sourceName, String tableName, StringMap sourceTableAbbr,
 				List<InfaSourceColumnDefinition> columns);
 
 		AddFieldsStep addMD5HashField(List<InfaSourceColumnDefinition> columns);
@@ -367,7 +367,7 @@ public class ExpressionXformBuilder {
 
 		@Override
 		public AddFieldsStep addPGUIDField(String sourceName, String tableName,
-				SourceTableAbbreviationMap sourceTableAbbr, List<InfaSourceColumnDefinition> columns) {
+				StringMap sourceTableAbbr, List<InfaSourceColumnDefinition> columns) {
 
 			String concatenatedId = columns.stream()//
 					.filter(InfaSourceColumnDefinition::getPguidFlag)//

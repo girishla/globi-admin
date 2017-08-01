@@ -38,7 +38,7 @@ public class PTPWorkflowVaidationWebtest extends AbstractWebIntegrationTest {
 	public void setup(){ 
 
 		List<PTPWorkflowSourceColumn> cols=new ArrayList<>();
-//		cols.add(getIntegrationIdColumn("ROW_ID"));
+		cols.add(getIntegrationIdColumn("ROW_ID"));
 		cols.add(getNormalColumn("ROW_ID"));
 		cols.add(getCCColumn("LAST_UPD"));
 

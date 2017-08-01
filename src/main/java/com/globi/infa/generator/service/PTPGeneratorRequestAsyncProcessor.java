@@ -52,19 +52,17 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 	@Override
 	public void postProcess() {
 		// do nothing
-
 	}
 
 	@Transactional(propagation = Propagation.NESTED)
 	private PTPWorkflow processWorkflow(PTPWorkflow wf, PTPGenerationStrategy ptpExtractgenerator) {
 
 
+		this.notifier.message(wf, "Starting workflow generation...");
 		ptpExtractgenerator.generate(wf);
 		wf.setWorkflowStatus("Processed");
 		this.notifier.message(wf, "Finished processing puddle workflow");
-
 		ptpRepository.save(wf);
-		
 
 		return wf;
 	}
@@ -92,7 +90,7 @@ public class PTPGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncP
 		wf.setMessage("");
 		wf.setWorkflowStatus("Processing");
 		this.notifier.message(wf, "Waiting for a new generator thread...");
-		this.notifier.message(wf, "Starting workflow generation.");
+	
 		wf = ptpRepository.save(wf);
 
 		return wf;

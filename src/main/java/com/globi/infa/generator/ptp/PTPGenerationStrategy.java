@@ -12,14 +12,14 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
-import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
+import com.globi.infa.datasource.core.MetadataFactoryMapper;
 import com.globi.infa.generator.AbstractGenerationStrategy;
 import com.globi.infa.generator.InfaGenerationStrategy;
 import com.globi.infa.generator.WorkflowGenerationException;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.generator.builder.PowermartObjectBuilder;
 import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
-import com.globi.infa.metadata.core.SourceTableAbbreviationMap;
+import com.globi.infa.metadata.core.StringMap;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
@@ -29,30 +29,50 @@ import com.globi.infa.workflow.PTPWorkflow;
 @Scope("prototype")
 public class PTPGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
-	private SourceTableAbbreviationMap sourceTableAbbreviation;
+	private StringMap sourceTableAbbreviation;
 
 	PTPGenerationStrategy(Jaxb2Marshaller marshaller,//
-			SourceMetadataFactoryMapper metadataFactoryMapper,//
-			SourceTableAbbreviationMap sourceTableAbbreviation) {
+			MetadataFactoryMapper metadataFactoryMapper,//
+			StringMap sourceTableAbbreviation) {
 
 		super(marshaller, metadataFactoryMapper);
 		this.sourceTableAbbreviation = sourceTableAbbreviation;
 
 	}
+	
+	
 
 	private InfaPowermartObject generateWorkflow(PTPWorkflow wfDefinition) throws IOException, SAXException, JAXBException {
 
 
-		this.setContext(wfDefinition.getSourceName(),wfDefinition);
+
 		
 		String tblName = wfDefinition.getSourceTableName();
 		String dbName = wfDefinition.getSourceName();
-
 		String targetTableName = wfDefinition.getTargetTableName();
 		String targetTableDefnName = targetTableName.isEmpty() ? dbName + "_" + tblName : targetTableName;
+
 		
-		PTPPrimaryMappingGenerator primaryMappingGenerator=new PTPPrimaryMappingGenerator(generatorContext,marshaller);
-		PTPExtractMappingGenerator extractMappingGenerator=new PTPExtractMappingGenerator(generatorContext,marshaller,sourceTableAbbreviation);
+		this.setContext(dbName,tblName,wfDefinition);
+		
+		PTPPrimaryMappingGenerator primaryMappingGenerator=new PTPPrimaryMappingGenerator(//
+				(PTPWorkflow) generatorContext.getInputWF()//
+				,generatorContext.getAllSourceColumns(),//
+				generatorContext.getSource(),//
+				generatorContext.getSourceTable(),//
+				marshaller,//
+				generatorContext.getDataTypeMapper(),//
+				generatorContext.getSourceToTargetDatatypeMapper());
+	
+		PTPExtractMappingGenerator extractMappingGenerator=new PTPExtractMappingGenerator(//
+				(PTPWorkflow) generatorContext.getInputWF()//
+				,generatorContext.getAllSourceColumns(),//
+				generatorContext.getSource(),//
+				generatorContext.getSourceTable(),//
+				sourceTableAbbreviation,//
+				marshaller,//
+				generatorContext.getDataTypeMapper(),//
+				generatorContext.getSourceToTargetDatatypeMapper());
 
 		InfaPowermartObject pmObj = PowermartObjectBuilder//
 				.newBuilder()//

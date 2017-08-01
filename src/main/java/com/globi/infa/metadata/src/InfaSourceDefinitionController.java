@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.globi.infa.datasource.core.DataTypeMapper;
+import com.globi.infa.datasource.core.MetadataFactoryMapper;
 import com.globi.infa.datasource.core.SourceMetadataFactory;
-import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
 import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.metadata.sourcesystem.SourceSystem;
@@ -31,7 +31,7 @@ public class InfaSourceDefinitionController {
 	InfaSourceDefinitionRepository sourceDefnRepo;
 
 	@Autowired
-	SourceMetadataFactoryMapper metadataFactoryMapper;
+	MetadataFactoryMapper metadataFactoryMapper;
 	
 	@Autowired
 	SourceSystemRepository sourceSystemRepo;

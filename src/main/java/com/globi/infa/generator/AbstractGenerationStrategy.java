@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
-import com.globi.infa.datasource.core.SourceMetadataFactoryMapper;
+import com.globi.infa.datasource.core.MetadataFactoryMapper;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.InfaWorkflow;
@@ -13,14 +13,14 @@ import com.globi.infa.workflow.InfaWorkflow;
 public abstract class AbstractGenerationStrategy {
 
 	protected final Jaxb2Marshaller marshaller;
-	protected final SourceMetadataFactoryMapper metadataFactoryMapper;
-	protected GeneratorContext generatorContext;
+	protected final MetadataFactoryMapper metadataFactoryMapper;
+	protected DefaultGeneratorContext generatorContext;
 
 	
 	protected final List<WorkflowCreatedEventListener> createdEventListeners = new ArrayList<>();;
 	
 	
-	protected AbstractGenerationStrategy(Jaxb2Marshaller marshaller,SourceMetadataFactoryMapper metadataFactoryMapper){
+	protected AbstractGenerationStrategy(Jaxb2Marshaller marshaller,MetadataFactoryMapper metadataFactoryMapper){
 	
 		this.marshaller=marshaller;
 		this.metadataFactoryMapper=metadataFactoryMapper;
@@ -47,9 +47,9 @@ public abstract class AbstractGenerationStrategy {
 	
 	
 	
-	public void setContext(String sourceName,InfaWorkflow inputWF) {
+	public void setContext(String sourceName,String tblName,InfaWorkflow inputWF) {
 		
-		generatorContext=GeneratorContext.contextFor(sourceName, metadataFactoryMapper,inputWF);
+		generatorContext=DefaultGeneratorContext.contextFor(sourceName,tblName, metadataFactoryMapper,inputWF);
 
 	}
 	

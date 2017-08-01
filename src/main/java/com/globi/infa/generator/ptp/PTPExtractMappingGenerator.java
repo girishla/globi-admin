@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.xml.bind.JAXBException;
 
@@ -16,8 +15,8 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.xml.sax.SAXException;
 
 import com.globi.infa.datasource.core.DataSourceTableDTO;
+import com.globi.infa.datasource.core.DataTypeMapper;
 import com.globi.infa.generator.AbstractMappingGenerator;
-import com.globi.infa.generator.GeneratorContext;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
 import com.globi.infa.generator.builder.FilterXformBuilder;
 import com.globi.infa.generator.builder.InfaMappingObject;
@@ -28,99 +27,78 @@ import com.globi.infa.generator.builder.SequenceXformBuilder;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
-import com.globi.infa.metadata.core.SourceTableAbbreviationMap;
+import com.globi.infa.metadata.core.StringMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
-import com.globi.infa.metadata.src.InfaSourceDefinition;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
+import com.globi.metadata.sourcesystem.SourceSystem;
 
 public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 
-	private final GeneratorContext context;
 	private final PTPWorkflow wfDefinition;
+	private final List<InfaSourceColumnDefinition> allSourceColumns;
+	private final SourceSystem sourceSystem;
+	private final DataSourceTableDTO sourceTable;
+	private final StringMap sourceTableAbbreviation;
 	private final Jaxb2Marshaller marshaller;
-	private final SourceTableAbbreviationMap sourceTableAbbreviation;
+	private final DataTypeMapper dataTypeMapper;
+	private final DataTypeMapper sourceToTargetDatatypeMapper;
 	
-	public PTPExtractMappingGenerator(GeneratorContext context,Jaxb2Marshaller marshaller,SourceTableAbbreviationMap sourceTableAbbreviation){
+	public PTPExtractMappingGenerator(PTPWorkflow wfDefinition,//
+			List<InfaSourceColumnDefinition> allSourceColumns,//
+			SourceSystem sourceSystem,//
+			DataSourceTableDTO sourceTable,//
+			StringMap sourceTableAbbreviation,//
+			Jaxb2Marshaller marshaller,//
+			DataTypeMapper dataTypeMapper,//
+			DataTypeMapper sourceToTargetDatatypeMapper){
 		
-		this.context=context;
-		this.wfDefinition=(PTPWorkflow) context.inputWF;
+		this.wfDefinition=wfDefinition;
+		this.allSourceColumns=allSourceColumns;
+		this.sourceSystem=sourceSystem;
+		this.sourceTable=sourceTable;
 		this.marshaller=marshaller;
 		this.sourceTableAbbreviation=sourceTableAbbreviation;
+		this.dataTypeMapper=dataTypeMapper;
+		this.sourceToTargetDatatypeMapper=sourceToTargetDatatypeMapper;
+		
 		
 	}
 	
 	InfaMappingObject getExtractMapping() throws IOException, SAXException, JAXBException {
 
-		InfaSourceDefinition sourceTableDef;
-
-		Map<String, String> emptyValuesMap = new HashMap<>();
-		Map<String, String> commonValuesMap = new HashMap<>();
-
-
-
 		String tblName = wfDefinition.getSourceTableName();
 		String dbName = wfDefinition.getSourceName();
 		String sourceFilter = wfDefinition.getSourceFilter();
-		String tableOwner = context.source.getOwnerName();
-
-		List<InfaSourceColumnDefinition> allTableColumns = context.colRepository.accept(context.columnQueryVisitor, tblName);
-
+		String tableOwner = sourceTable.getTableOwner();
+		String targetTableName = wfDefinition.getTargetTableName();
+		String targetTableDefnName = targetTableName.isEmpty() ? dbName + "_" + tblName : targetTableName;
+		Map<String, String> emptyValuesMap = new HashMap<>();
+		Map<String, String> commonValuesMap = new HashMap<>();
+		commonValuesMap.put("targetTableName", targetTableDefnName);
+		commonValuesMap.put("sourceName", dbName);
+		
+		
 		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
 
 		List<InfaSourceColumnDefinition> matchedColumns = this
-				.getFilteredSourceDefnColumns(context.colRepository.accept(context.columnQueryVisitor, tblName), inputSelectedColumns);
+				.getFilteredSourceDefnColumns(allSourceColumns, inputSelectedColumns);
 
-
-		
-		//for SQL server each table can have a different owner so needs looking up
-		//for Non-Siebel sources, each table can have a different owner so needs looking up
-		if ((!(context.source.getName().equals("CUK")) && (!context.source.getName().equals("CGL")))) {
-
-			List<DataSourceTableDTO> sourceTables = context.tableRepository.accept(context.tableQueryVisitor);
-			Optional<DataSourceTableDTO> sourceTable = sourceTables.stream()//
-					.filter(table -> table.getTableName().equals(tblName))
-					.findFirst();
-			
-			if (sourceTable.isPresent()) {
-				tableOwner = sourceTable.get().getTableOwner();
-
-			}
-
-		}
-		
-		
-		sourceTableDef = InfaSourceDefinition.builder()//
-				.sourceTableName(tblName)//
-				.ownerName(tableOwner)//
-				.databaseName(context.source.getName())//
-				.databaseType(context.source.getDbType())//
-				.build();
-
-
-		sourceTableDef.getColumns().addAll(matchedColumns);
-
-
-		String targetTableName = wfDefinition.getTargetTableName();
-		String targetTableDefnName = targetTableName.isEmpty() ? dbName + "_" + tblName : targetTableName;
-
-		commonValuesMap.put("targetTableName", targetTableDefnName);
-		commonValuesMap.put("sourceName", dbName);
 
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
 				.simpleTableSyncClass("simpleTableSyncClass")//
 				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
 						.sourceDefnFromPrototype("SourceFromPrototype")//
-						.sourceDefn(sourceTableDef)//
-						.addFields(allTableColumns)//
+						.sourceDefn(sourceSystem,tblName,tableOwner)//
+						.addFields(allSourceColumns)//
 						.name(tblName)//
 						.build())//
 				.noMoreSources()//
 				.targetDefn(TargetDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.loadTargetFromSeed("Seed_PTPTargetTableSystemCols")//
-						.mapper(context.sourceToTargetDatatypeMapper)//
+						.mapper(sourceToTargetDatatypeMapper)//
 						.addFields(matchedColumns)//
 						.noMoreFields()//
 						.name(targetTableDefnName)//
@@ -137,7 +115,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 						.marshaller(marshaller)//
 						.noMoreValues()//
 						.loadSourceQualifierFromSeed("Seed_SourceQualifier")//
-						.addFields(context.dataTypeMapper, matchedColumns)//
+						.addFields(dataTypeMapper, matchedColumns)//
 						.addFilter(sourceFilter)
 						.addCCFilterFromColumns(inputSelectedColumns, tblName)
 						.noMoreFilters()
@@ -146,7 +124,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 				.transformation(ExpressionXformBuilder.newBuilder()//
 						.expressionFromPrototype("ExpFromPrototype")//
 						.expression("EXP_Resolve")//
-						.mapper(context.dataTypeMapper).addEffectiveFromDateField()//
+						.mapper(dataTypeMapper).addEffectiveFromDateField()//
 						.addEtlProcWidField()//
 						.addDatasourceNumIdField()//
 						.addIntegrationIdField(matchedColumns)//
@@ -181,7 +159,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 						.marshaller(marshaller)//
 						.setInterpolationValues(commonValuesMap)//
 						.loadExpressionXformFromSeed("Seed_EXPPrepDomLookup")//
-						.mapper(context.dataTypeMapper).noMoreFields()//
+						.mapper(dataTypeMapper).noMoreFields()//
 						.nameAlreadySet()//
 						.build())
 				.transformation(FilterXformBuilder.newBuilder()//
@@ -210,7 +188,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 				.noMoreTargetLoadOrders()//
 				.mappingvariable(getEtlProcWidMappingVariable())//
 				.mappingvariable(getInitialExtractDateMappingVariable())//
-				.mappingvariable(getDataSourceNumIdMappingVariable(Integer.toString(context.source.getSourceNum())))//
+				.mappingvariable(getDataSourceNumIdMappingVariable(Integer.toString(sourceSystem.getSourceNum())))//
 				.noMoreMappingVariables()//
 				.build();
 

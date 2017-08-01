@@ -16,6 +16,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.InfaSourceDefinition;
+import com.globi.metadata.sourcesystem.SourceSystem;
 
 import xjc.SOURCE;
 import xjc.SOURCEFIELD;
@@ -34,7 +35,7 @@ public class SourceDefinitionBuilder {
 	} 
 
 	public interface SourceDefnStep {
-		AddFieldsStep sourceDefn(InfaSourceDefinition source);
+		AddFieldsStep sourceDefn(SourceSystem sourceSystem,String tblName,String tableOwner);
 	}
 
 	
@@ -49,6 +50,7 @@ public class SourceDefinitionBuilder {
 
 	public interface AddFieldsStep {
 		NameStep addFields(List<InfaSourceColumnDefinition> columns);
+		NameStep noFields();
 	}
 
 	
@@ -173,11 +175,22 @@ public class SourceDefinitionBuilder {
 		}
 
 		@Override
-		public AddFieldsStep sourceDefn(InfaSourceDefinition source) {
+		public AddFieldsStep sourceDefn(SourceSystem sourceSystem,String tblName,String tableOwner) {
 			
 			
 			SOURCE sourceDefn = new SOURCE();
 
+			
+			InfaSourceDefinition source = InfaSourceDefinition.builder()//
+					.sourceTableName(tblName)//
+					.ownerName(tableOwner)//
+					.databaseName(sourceSystem.getName())//
+					.databaseType(sourceSystem.getDbType())//
+					.sourceTableUniqueName(sourceSystem.getName() + "_" + tblName)//
+					.build();
+
+
+			
 			sourceDefn.setBUSINESSNAME("");
 			sourceDefn.setDATABASETYPE(source.getDatabaseType());
 			sourceDefn.setDBDNAME(source.getDatabaseName());
@@ -191,6 +204,11 @@ public class SourceDefinitionBuilder {
 			
 			
 			
+			return this;
+		}
+
+		@Override
+		public NameStep noFields() {
 			return this;
 		}
 
