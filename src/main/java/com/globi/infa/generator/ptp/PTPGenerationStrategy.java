@@ -82,7 +82,7 @@ public class PTPGenerationStrategy extends AbstractGenerationStrategy implements
 				.mappingDefn(extractMappingGenerator.getExtractMapping())//
 				.mappingDefn(primaryMappingGenerator.getPrimaryMapping())//
 				.noMoreMappings()//
-				.setdefaultConfigFromSeed("Seed_DefaultSessionConfig")//
+				.setdefaultConfigFromSeed("Seed_PTP_DefaultSessionConfig")//
 				.workflow(WorkflowDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setValue("phasePrefix", "PTP")//
@@ -91,7 +91,7 @@ public class PTPGenerationStrategy extends AbstractGenerationStrategy implements
 						.setValue("tableName", tblName)//
 						.setValue("tgtTableName", targetTableDefnName)//
 						.noMoreValues()//
-						.loadWorkflowFromSeed("Seed_WFPTP")//
+						.loadWorkflowFromSeed("Seed_PTP_WFPTP")//
 						.nameAlreadySet()//
 						.build())//
 				.build();

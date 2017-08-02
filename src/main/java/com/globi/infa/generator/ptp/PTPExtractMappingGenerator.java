@@ -97,7 +97,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 				.noMoreSources()//
 				.targetDefn(TargetDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.loadTargetFromSeed("Seed_PTPTargetTableSystemCols")//
+						.loadTargetFromSeed("Seed_PTP_PTPTargetTableSystemCols")//
 						.mapper(sourceToTargetDatatypeMapper)//
 						.addFields(matchedColumns)//
 						.noMoreFields()//
@@ -106,7 +106,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 				.noMoreTargets()//
 				.mappletDefn(MappletBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.loadMappletFromSeed("Seed_MPLDomainLookup")//
+						.loadMappletFromSeed("Seed_PTP_MPLDomainLookup")//
 						.nameAlreadySet()//
 						.build())//
 				.noMoreMapplets()//
@@ -114,7 +114,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.noMoreValues()//
-						.loadSourceQualifierFromSeed("Seed_SourceQualifier")//
+						.loadSourceQualifierFromSeed("Seed_PTP_SourceQualifier")//
 						.addFields(dataTypeMapper, matchedColumns)//
 						.addFilter(sourceFilter)
 						.addCCFilterFromColumns(inputSelectedColumns, tblName)
@@ -139,26 +139,26 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 				.transformation(SequenceXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setInterpolationValues(emptyValuesMap)//
-						.loadExpressionXformFromSeed("Seed_WidSequence")//
+						.loadExpressionXformFromSeed("Seed_PTP_WidSequence")//
 						.nameAlreadySet()//
 						.build())
 				.transformation(LookupXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setInterpolationValues(commonValuesMap)//
-						.loadLookupXformFromSeed("Seed_LKPRecordInstanceViaHash")//
+						.loadLookupXformFromSeed("Seed_PTP_LKPRecordInstanceViaHash")//
 						.nameAlreadySet()//
 						.build())
 				.transformation(LookupXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.setInterpolationValues(commonValuesMap)//
-						.loadLookupXformFromSeed("Seed_LKPBU_" + dbName)//
+						.loadLookupXformFromSeed("Seed_PTP_LKPBU_" + dbName)//
 						.nameAlreadySet()//
 						.build())
 				.transformation(ExpressionXformBuilder.newBuilder()//
 						.ExpressionFromSeed("Prepare BU Domain Lookup")//
 						.marshaller(marshaller)//
 						.setInterpolationValues(commonValuesMap)//
-						.loadExpressionXformFromSeed("Seed_EXPPrepDomLookup")//
+						.loadExpressionXformFromSeed("Seed_PTP_EXPPrepDomLookup")//
 						.mapper(dataTypeMapper).noMoreFields()//
 						.nameAlreadySet()//
 						.build())

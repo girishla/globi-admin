@@ -23,12 +23,10 @@ import com.globi.infa.datasource.core.DataTypeMapper;
 import com.globi.infa.metadata.core.StringMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
-import lombok.extern.slf4j.Slf4j;
 import xjc.TABLEATTRIBUTE;
 import xjc.TRANSFORMATION;
 import xjc.TRANSFORMFIELD;
 
-@Slf4j
 public class ExpressionXformBuilder {
 
 	public static ClassStep newBuilder() {
@@ -471,8 +469,6 @@ public class ExpressionXformBuilder {
 			colExpr = "IIF(ISNULL(" + colExpr + "),'NOVAL'," + colExpr + ")";
 
 			return colExpr;
-
-
 			
 		}
 

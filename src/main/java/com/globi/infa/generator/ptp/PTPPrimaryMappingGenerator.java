@@ -95,7 +95,7 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 				.noMoreSources()//
 				.targetDefn(TargetDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.loadTargetFromSeed("Seed_PTPPrimaryExtractTargetTable")//
+						.loadTargetFromSeed("Seed_PTP_PTPPrimaryExtractTargetTable")//
 						.mapper(sourceToTargetDatatypeMapper).noMoreFields()//
 						.name(targetTableDefnName)//
 						.build())//
@@ -105,7 +105,7 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.noMoreValues()
-						.loadSourceQualifierFromSeed("Seed_SourceQualifier")//
+						.loadSourceQualifierFromSeed("Seed_PTP_SourceQualifier")//
 						.addFields(dataTypeMapper, columnsList)//
 						.addCCFilterFromColumns(inputSelectedColumns, tblName)
 						.addFilter(sourceFilter)
@@ -124,7 +124,7 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 				.transformation(LookupXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.noInterpolationValues()//
-						.loadLookupXformFromSeed("Seed_LKPPTPPrimaryRecordKeys")//
+						.loadLookupXformFromSeed("Seed_PTP_LKPPTPPrimaryRecordKeys")//
 						.nameAlreadySet()//
 						.build())
 				.noMoreTransformations()//

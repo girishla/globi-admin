@@ -1,4 +1,4 @@
-package com.globi.infa.generator.ptp;
+package com.globi.infa.generator.fsil;
 
 import static com.globi.infa.generator.StaticObjectMother.getCCColumn;
 import static com.globi.infa.generator.StaticObjectMother.getInfaSourceColumnsFromSourceDefn;
@@ -33,7 +33,7 @@ import xjc.INSTANCE;
 import xjc.TABLEATTRIBUTE;
 import xjc.TRANSFORMFIELD;
 
-public class PTPExtractMappingGeneratorTest {
+public class FSILMappingGeneratorTest {
 
 	private DataTypeMapper sourcetoXformDataTypeMapper;
 	private DataTypeMapper sourceToTargetDatatypeMapper;
@@ -49,7 +49,7 @@ public class PTPExtractMappingGeneratorTest {
 	private static final String DB_TYPE_ORACLE = "Oracle";
 	private static final int SOURCE_NUM_CGL = 1;
 
-	private PTPExtractMappingGenerator mappingService;
+	private  FSILMappingGenerator mappingService;
 	private StringMap strMap;
 
 	@Before
@@ -102,96 +102,25 @@ public class PTPExtractMappingGeneratorTest {
 	}
 
 	private InfaMappingObject generateMapping() throws Exception {
+		return null;
 
-		mappingService = new PTPExtractMappingGenerator(ptpWorkflow, //
-				allSourceColumns, //
-				sourceSystem, //
-				sourceTable, //
-				strMap, //
-				marshaller, //
-				sourcetoXformDataTypeMapper, //
-				sourceToTargetDatatypeMapper);
-
-		return mappingService.getExtractMapping();
+//		mappingService = new FSILMappingGenerator(ptpWorkflow, //
+//				allSourceColumns, //
+//				sourceSystem, //
+//				sourceTable, //
+//				strMap, //
+//				marshaller, //
+//				sourcetoXformDataTypeMapper, //
+//				sourceToTargetDatatypeMapper);
+//
+//		return mappingService.getExtractMapping();
 	}
 
 	@Test
 	public void generatesPtpMappingWithCorrectAssociatedSourceInstance() throws Exception {
 
-		// assert if the troublesome Associated instance is correctly set
-		Optional<INSTANCE> optInstance = generateMapping().getMapping()//
-				.getINSTANCE()//
-				.stream()//
-				.filter(instance -> instance.getNAME().equals("SQ_ExtractData"))//
-				.findFirst();
-		assertThat(optInstance.get().getASSOCIATEDSOURCEINSTANCE().get(0).getNAME()).isEqualTo("S_BU");
 
 	}
 
-	@Test
-	public void generatesPtpMappingWithCorrectChangeCaptureFilter() throws Exception {
-
-		// assert CC filter is set correctly
-		Optional<TABLEATTRIBUTE> optCCTableAttribute = generateMapping().getMapping()//
-				.getTRANSFORMATION()//
-				.stream()//
-				.filter(xform -> xform.getNAME().equals("SQ_ExtractData"))//
-				.flatMap(xform -> xform.getTABLEATTRIBUTE().stream())//
-				.filter(tableAttr -> tableAttr.getNAME().equals("Source Filter"))//
-				.findFirst();
-		assertThat(optCCTableAttribute.get().getVALUE())
-				.isEqualTo("S_BU.LAST_UPD >= TO_DATE('$$INITIAL_EXTRACT_DATE','dd/MM/yyyy HH24:mi:ss')");
-
-	}
-
-	@Test
-	public void generatesMappingWithCorrectNameAndInfaObjectCounts() throws Exception {
-
-		InfaMappingObject mappingObj = generateMapping();
-
-		assertThat(mappingObj.getMapping().getNAME())
-				.isEqualTo("PTP_" + SOURCE_NAME_CGL + "_" + SOURCE_TABLE_SBU + "_Extract");
-		assertThat(mappingObj.getMapping().getTRANSFORMATION().size()).isEqualTo(7);
-		assertThat(mappingObj.getMapping().getINSTANCE().size()).isEqualTo(10);
-		assertThat(mappingObj.getMapping().getCONNECTOR().size()).isEqualTo(36);
-		assertThat(mappingObj.getMapping().getTARGETLOADORDER().size()).isEqualTo(1);
-		assertThat(mappingObj.getMapping().getMAPPINGVARIABLE().size()).isEqualTo(3);
-
-	}
-
-	// IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID)
-
-	@Test
-	public void generatesMappingWithCorrectIntegrationIdResolution() throws Exception {
-
-		// assert pguid expression - if all PGUID cols are null, it is set to
-		// Int Id
-		Optional<TRANSFORMFIELD> optPGUIDformField = generateMapping().getMapping()//
-				.getTRANSFORMATION()//
-				.stream()//
-				.filter(xform -> xform.getNAME().equals("EXP_Resolve"))//
-				.flatMap(xform -> xform.getTRANSFORMFIELD().stream())//
-				.filter(tableAttr -> tableAttr.getNAME().equals("SYS_INTEGRATION_ID"))//
-				.findFirst();
-		assertThat(optPGUIDformField.get().getEXPRESSION()).isEqualTo("IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID)");
-
-	}
-
-	@Test
-	public void generatesMappingWithCorrectPguidResolution() throws Exception {
-
-		// assert pguid expression - if all PGUID cols are null, it is set to
-		// Int Id
-		Optional<TRANSFORMFIELD> optPGUIDformField = generateMapping().getMapping()//
-				.getTRANSFORMATION()//
-				.stream()//
-				.filter(xform -> xform.getNAME().equals("EXP_Resolve"))//
-				.flatMap(xform -> xform.getTRANSFORMFIELD().stream())//
-				.filter(tableAttr -> tableAttr.getNAME().equals("SYS_PGUID"))//
-				.findFirst();
-		assertThat(optPGUIDformField.get().getEXPRESSION()).isEqualTo(
-				"IIF(ISNULL(NAME) AND ISNULL(ROW_ID),IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID),'BUN' || IIF(ISNULL(NAME),'NOVAL',NAME)|| ':' ||IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID))");
-
-	}
 
 }
