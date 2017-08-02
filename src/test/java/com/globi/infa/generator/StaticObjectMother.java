@@ -19,6 +19,18 @@ public class StaticObjectMother {
 		return PTPWorkflowSourceColumn.builder()//
 				.integrationIdColumn(true)//
 				.changeCaptureColumn(false)//
+				.pguidColumn(false)//
+				.sourceColumnName(colName)//
+				.buidColumn(false)//
+				.build();
+
+	}
+	
+	public static PTPWorkflowSourceColumn getIntegrationIdAndPguidColumn(String colName) {
+
+		return PTPWorkflowSourceColumn.builder()//
+				.integrationIdColumn(true)//
+				.changeCaptureColumn(false)//
 				.pguidColumn(true)//
 				.sourceColumnName(colName)//
 				.buidColumn(false)//
@@ -32,6 +44,19 @@ public class StaticObjectMother {
 				.integrationIdColumn(false)//
 				.changeCaptureColumn(true)//
 				.pguidColumn(false)//
+				.sourceColumnName(colName)//
+				.buidColumn(false)//
+				.build();
+
+	}
+	
+	
+	public static PTPWorkflowSourceColumn getPguidColumn(String colName) {
+
+		return PTPWorkflowSourceColumn.builder()//
+				.integrationIdColumn(false)//
+				.changeCaptureColumn(false)//
+				.pguidColumn(true)//
 				.sourceColumnName(colName)//
 				.buidColumn(false)//
 				.build();

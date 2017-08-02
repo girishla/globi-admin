@@ -25,7 +25,6 @@ import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
-import com.globi.infa.metadata.src.InfaSourceDefinition;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
@@ -39,6 +38,7 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 	private final Jaxb2Marshaller marshaller;
 	private final DataTypeMapper dataTypeMapper;
 	private final DataTypeMapper sourceToTargetDatatypeMapper;
+	
 	
 	public PTPPrimaryMappingGenerator(PTPWorkflow wfDefinition,//
 			List<InfaSourceColumnDefinition> allSourceColumns,//
