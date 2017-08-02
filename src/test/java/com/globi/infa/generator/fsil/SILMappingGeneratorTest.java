@@ -4,13 +4,11 @@ import static com.globi.infa.generator.StaticObjectMother.getCCColumn;
 import static com.globi.infa.generator.StaticObjectMother.getInfaSourceColumnsFromSourceDefn;
 import static com.globi.infa.generator.StaticObjectMother.getIntegrationIdAndPguidColumn;
 import static com.globi.infa.generator.StaticObjectMother.getPguidColumn;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,17 +21,14 @@ import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaTargetTypeMap
 import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaXFormTypeMapper;
 import com.globi.infa.generator.builder.InfaMappingObject;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
+import com.globi.infa.generator.sil.SILDimensionMappingGenerator;
 import com.globi.infa.metadata.core.StringMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
 
-import xjc.INSTANCE;
-import xjc.TABLEATTRIBUTE;
-import xjc.TRANSFORMFIELD;
-
-public class FSILMappingGeneratorTest {
+public class SILMappingGeneratorTest {
 
 	private DataTypeMapper sourcetoXformDataTypeMapper;
 	private DataTypeMapper sourceToTargetDatatypeMapper;
@@ -49,7 +44,7 @@ public class FSILMappingGeneratorTest {
 	private static final String DB_TYPE_ORACLE = "Oracle";
 	private static final int SOURCE_NUM_CGL = 1;
 
-	private  FSILMappingGenerator mappingService;
+	private  SILDimensionMappingGenerator mappingService;
 	private StringMap strMap;
 
 	@Before
@@ -104,7 +99,7 @@ public class FSILMappingGeneratorTest {
 	private InfaMappingObject generateMapping() throws Exception {
 		return null;
 
-//		mappingService = new FSILMappingGenerator(ptpWorkflow, //
+//		mappingService = new SILMappingGenerator(ptpWorkflow, //
 //				allSourceColumns, //
 //				sourceSystem, //
 //				sourceTable, //

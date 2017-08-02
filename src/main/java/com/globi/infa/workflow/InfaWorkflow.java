@@ -25,7 +25,6 @@ import lombok.ToString;
 
 @Entity
 @ToString(callSuper = true)
-// @RequiredArgsConstructor
 @Getter
 @Setter
 @NoArgsConstructor
