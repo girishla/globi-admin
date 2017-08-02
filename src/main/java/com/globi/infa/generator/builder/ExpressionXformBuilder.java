@@ -375,22 +375,38 @@ public class ExpressionXformBuilder {
 					.map(this::getInfaCastToStringExpression)//
 					.collect(Collectors.joining("|| ':' ||"));
 
+			
+			String integrationId = columns.stream()//
+					.filter(InfaSourceColumnDefinition::getIntegrationIdFlag)//
+					.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e2.getColumnSequence()))
+					.map(this::getInfaCastToStringExpression)//
+					.collect(Collectors.joining("|| ':' ||"));
+			
+			
 			if (concatenatedId.isEmpty()) {
-				concatenatedId = columns.stream()//
-						.filter(InfaSourceColumnDefinition::getIntegrationIdFlag)//
-						.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e2.getColumnSequence()))
-						.map(this::getInfaCastToStringExpression)//
-						.collect(Collectors.joining("|| ':' ||"));
+				concatenatedId=integrationId;
 			}
 
 			concatenatedId = "'" + sourceTableAbbr.map(sourceName + "_" + tableName) + "'" + " || "
 					+ concatenatedId;
+			
+			String expPguidColsNullsCheck="ISNULL(" + columns.stream()//
+					.filter(InfaSourceColumnDefinition::getPguidFlag)//
+					.sorted((e1, e2) -> Integer.compare(e1.getColumnSequence(), e2.getColumnSequence()))
+					.map(col->col.getColumnName())//
+					.collect(Collectors.joining(") AND ISNULL(")) + ")";
+			
+			
+			
+			//If all PGUID columns have a NULL value, then set to Int Id
+			String pguidWithIntIdIfNullExpression= "IIF(" + expPguidColsNullsCheck + "," + integrationId + "," + concatenatedId + ")";
+			
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("string");
 			xformExpressionField.setDEFAULTVALUE("");
 			xformExpressionField.setDESCRIPTION("");
-			xformExpressionField.setEXPRESSION(concatenatedId);
+			xformExpressionField.setEXPRESSION(pguidWithIntIdIfNullExpression);
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
 			xformExpressionField.setNAME("SYS_PGUID");
 			xformExpressionField.setPICTURETEXT("");
