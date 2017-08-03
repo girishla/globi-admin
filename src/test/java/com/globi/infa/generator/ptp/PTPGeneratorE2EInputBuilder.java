@@ -1,4 +1,4 @@
-package com.globi.infa.generator;
+package com.globi.infa.generator.ptp;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -23,7 +23,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(fluent = true)
-public class PTPGeneratorInputBuilder {
+public class PTPGeneratorE2EInputBuilder {
 
 	private TableColumnRepository colRepo;
 
@@ -45,43 +45,43 @@ public class PTPGeneratorInputBuilder {
 	List<String> buidCols = new ArrayList<>();
 	List<String> allCols = new ArrayList<>();
 
-	PTPGeneratorInputBuilder(TableColumnRepository colRepo, TableColumnMetadataVisitor queryVisitor) {
+	PTPGeneratorE2EInputBuilder(TableColumnRepository colRepo, TableColumnMetadataVisitor queryVisitor) {
 
 		this.colRepo = colRepo;
 		this.queryVisitor = queryVisitor;
 
 	}
 
-	public PTPGeneratorInputBuilder setIntegrationCol(String columnName) {
+	public PTPGeneratorE2EInputBuilder setIntegrationCol(String columnName) {
 		integrationIdCols.add(columnName);
 		allCols.add(columnName);
 		return this;
 	}
 
-	public PTPGeneratorInputBuilder setBuidCol(String columnName) {
+	public PTPGeneratorE2EInputBuilder setBuidCol(String columnName) {
 		buidCols.add(columnName);
 		allCols.add(columnName);
 		return this;
 	}
 
-	public PTPGeneratorInputBuilder setPguidCol(String columnName) {
+	public PTPGeneratorE2EInputBuilder setPguidCol(String columnName) {
 		pguidCols.add(columnName);
 		allCols.add(columnName);
 		return this;
 	}
 
-	public PTPGeneratorInputBuilder setNormalCol(String columnName) {
+	public PTPGeneratorE2EInputBuilder setNormalCol(String columnName) {
 		allCols.add(columnName);
 		return this;
 	}
 
-	public PTPGeneratorInputBuilder setChangeCaptureCol(String columnName) {
+	public PTPGeneratorE2EInputBuilder setChangeCaptureCol(String columnName) {
 		this.changeCaptureCol = columnName;
 		allCols.add(columnName);
 		return this;
 	}
 
-	public PTPGeneratorInputBuilder start() {
+	public PTPGeneratorE2EInputBuilder start() {
 		sourceName = "";
 		tableName = "";
 		changeCaptureCol = "";

@@ -1,9 +1,9 @@
 package com.globi.infa.generator.fsil;
 
-import static com.globi.infa.generator.StaticObjectMother.getCCColumn;
-import static com.globi.infa.generator.StaticObjectMother.getInfaSourceColumnsFromSourceDefn;
-import static com.globi.infa.generator.StaticObjectMother.getIntegrationIdAndPguidColumn;
-import static com.globi.infa.generator.StaticObjectMother.getPguidColumn;
+import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getCCColumn;
+import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getInfaSourceColumnsFromSourceDefn;
+import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getIntegrationIdAndPguidColumn;
+import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getPguidColumn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

@@ -39,12 +39,15 @@ public class SILWorkflowSourceColumn extends AbstractEntity {
 	@Builder.Default
 	@Column(name="COL_TGT_IND")
 	private boolean targetColumn = false;
+	
 	@Builder.Default
 	@Column(name="COL_LEGCY_IND")
 	private boolean legacyColumn = false;
+	
 	@Builder.Default
 	@Column(name="COL_MINI_IND")
 	private boolean miniDimColumn = false;
+	
 	@Builder.Default
 	@Column(name="COL_DOM_LKP_IND")
 	private boolean domainLookupColumn = false;

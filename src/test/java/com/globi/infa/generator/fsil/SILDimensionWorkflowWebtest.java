@@ -1,4 +1,4 @@
-package com.globi.infa.generator;
+package com.globi.infa.generator.fsil;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -20,7 +20,7 @@ import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
 
-public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
+public class SILDimensionWorkflowWebtest extends AbstractWebIntegrationTest {
 
 	@Autowired
 	InfaPTPWorkflowRepository wfRepository;
@@ -34,7 +34,7 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 	
 	PTPWorkflow ptpWorkflow;
 
-	private PTPGeneratorInputBuilder inputBuilder;
+	private SILGeneratorE2EInputBuilder inputBuilder;
 	
 	
 	
@@ -42,7 +42,7 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 	public void setup(){
 		
 		
-		inputBuilder= new PTPGeneratorInputBuilder(colRepo,queryVisitor);
+		inputBuilder= new SILGeneratorE2EInputBuilder(colRepo,queryVisitor);
 		
 		ptpWorkflow= inputBuilder.start()//
 		.sourceName("CGL")//

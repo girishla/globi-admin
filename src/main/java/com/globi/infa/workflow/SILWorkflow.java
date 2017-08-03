@@ -65,13 +65,14 @@ public class SILWorkflow extends InfaWorkflow {
 	
 	
 	@Builder
-	public SILWorkflow(String workflowName, String workflowUri, String workflowStatus, String stageName,
+	public SILWorkflow(String workflowName, String workflowUri, String workflowStatus,List<SILWorkflowSourceColumn> columns, String stageName,
 			String tableName,String loadType) {
 
 		super(workflowName, workflowUri, workflowStatus);
 		this.tableBaseName = tableName;
 		this.stageName = stageName;
 		this.loadType=loadType;
+		this.columns=columns;
 
 	}
 

@@ -1,6 +1,6 @@
-package com.globi.infa.generator;
+package com.globi.infa.generator.ptp;
 
-import static com.globi.infa.generator.StaticObjectMother.*;
+import static com.globi.infa.generator.ptp.PTPStaticObjectMother.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

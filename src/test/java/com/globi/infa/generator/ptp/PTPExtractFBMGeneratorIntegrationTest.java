@@ -1,4 +1,4 @@
-package com.globi.infa.generator;
+package com.globi.infa.generator.ptp;
 
 import static org.junit.Assert.assertThat;
 import static org.xmlunit.matchers.HasXPathMatcher.hasXPath;
@@ -15,6 +15,9 @@ import org.springframework.test.annotation.Rollback;
 import com.globi.AbstractIntegrationTest;
 import com.globi.infa.datasource.fbm.FBMTableColumnRepository;
 import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
+import com.globi.infa.generator.FileWriterEventListener;
+import com.globi.infa.generator.GitWriterEventListener;
+import com.globi.infa.generator.PTPRepositoryWriterEventListener;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.generator.ptp.PTPGenerationStrategy;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
@@ -40,7 +43,7 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 	@Autowired
 	GitWriterEventListener gitWriter;
 
-	private PTPGeneratorInputBuilder inputBuilder;
+	private PTPGeneratorE2EInputBuilder inputBuilder;
 	
 	
 	@Autowired
@@ -66,7 +69,7 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 	public void setup() {
 
 		
-		inputBuilder=new PTPGeneratorInputBuilder(colRepo,queryVisitor);
+		inputBuilder=new PTPGeneratorE2EInputBuilder(colRepo,queryVisitor);
 		
 		ptpWorkflowGeneratorInvoiceHDInput = inputBuilder.start()//
 				.sourceName("FBM")//

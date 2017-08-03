@@ -1,4 +1,4 @@
-package com.globi.infa.generator;
+package com.globi.infa.generator.ptp;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -36,12 +36,12 @@ public class PTPWorkflowVPTWebtest extends AbstractWebIntegrationTest {
 	
 	PTPWorkflow ptpWorkflow;
 
-	private PTPGeneratorInputBuilder inputBuilder;
+	private PTPGeneratorE2EInputBuilder inputBuilder;
 	
 	
 	@Before
 	public void setup(){
-		inputBuilder= new PTPGeneratorInputBuilder(colRepo,queryVisitor);
+		inputBuilder= new PTPGeneratorE2EInputBuilder(colRepo,queryVisitor);
 		
 		ptpWorkflow= inputBuilder.start()//
 		.sourceName("VPT")//

@@ -1,8 +1,6 @@
 package com.globi.infa.metadata.src;
 
 import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Size;
@@ -20,33 +18,13 @@ import lombok.ToString;
 
 @Entity
 @ToString(callSuper = true)
-@RequiredArgsConstructor
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "M_INFA_SRC_DEFN_COLS")
-@AllArgsConstructor
-@Builder
-@Inheritance(strategy = InheritanceType.JOINED)
-public class InfaSourceColumnDefinition extends AbstractEntity {
+@Table(name = "M_INFA_SRC_PTP_COLS")
 
-	@NonNull
-	private String columnName;
-	@NonNull
-	private String columnDataType;
-	private int columnNumber;
+public class PTPInfaSourceColumnDefinition extends InfaSourceColumnDefinition {
 
-	private String nullable;
-
-	private int columnLength;
-	private int offset;
-	private int physicalLength;
-	private int physicalOffset;
-	private int precision;
-	private int scale;
-	
-	@Builder.Default
-	private int columnSequence=0;
 	
 	@Builder.Default
 	private Boolean integrationIdFlag=false;
@@ -57,8 +35,12 @@ public class InfaSourceColumnDefinition extends AbstractEntity {
 	@Builder.Default
 	private Boolean ccFlag=false;
 
-	@Transient
-	@Builder.Default
-	private Boolean selected=false;
+	@Builder
+	public PTPInfaSourceColumnDefinition(Boolean integrationIdFlag,
+			Boolean pguidFlag,Boolean buidFlag,Boolean ccFlag){
+		
+		
+	}
+	
 	
 }

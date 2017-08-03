@@ -1,9 +1,9 @@
-package com.globi.infa.generator;
+package com.globi.infa.generator.ptp;
 
-import static com.globi.infa.generator.StaticObjectMother.getBuidColumn;
-import static com.globi.infa.generator.StaticObjectMother.getCCColumn;
-import static com.globi.infa.generator.StaticObjectMother.getIntegrationIdColumn;
-import static com.globi.infa.generator.StaticObjectMother.getNormalColumn;
+import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getBuidColumn;
+import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getCCColumn;
+import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getIntegrationIdColumn;
+import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getNormalColumn;
 import static org.junit.Assert.assertThat;
 import static org.xmlunit.matchers.HasXPathMatcher.hasXPath;
 
@@ -18,6 +18,9 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.test.annotation.Rollback;
 
 import com.globi.AbstractIntegrationTest;
+import com.globi.infa.generator.FileWriterEventListener;
+import com.globi.infa.generator.GitWriterEventListener;
+import com.globi.infa.generator.PTPRepositoryWriterEventListener;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.generator.ptp.PTPGenerationStrategy;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;

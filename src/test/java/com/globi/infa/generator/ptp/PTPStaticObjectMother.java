@@ -1,4 +1,4 @@
-package com.globi.infa.generator;
+package com.globi.infa.generator.ptp;
 
 import static com.globi.infa.generator.InfaGeneratorDefaults.DEFAULT_DESCRIPTION;
 
@@ -12,7 +12,7 @@ import xjc.SOURCE;
 import xjc.SOURCEFIELD;
 import xjc.TARGETFIELD;
 
-public class StaticObjectMother {
+public class PTPStaticObjectMother {
 
 	public static PTPWorkflowSourceColumn getIntegrationIdColumn(String colName) {
 
