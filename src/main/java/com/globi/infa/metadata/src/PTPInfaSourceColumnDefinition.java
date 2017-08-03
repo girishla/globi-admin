@@ -1,20 +1,13 @@
 package com.globi.infa.metadata.src;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Entity
+
 @ToString(callSuper = true)
 @Getter
 @Setter
-@NoArgsConstructor
-@Table(name = "M_INFA_SRC_PTP_COLS")
-
 public class PTPInfaSourceColumnDefinition extends InfaSourceColumnDefinition {
 
 	private Boolean integrationIdFlag = false;

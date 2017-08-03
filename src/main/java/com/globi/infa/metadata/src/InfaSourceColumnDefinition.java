@@ -1,8 +1,6 @@
 package com.globi.infa.metadata.src;
 
 import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -24,7 +22,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @Table(name = "M_INFA_SRC_DEFN_COLS")
 @AllArgsConstructor
-@Inheritance(strategy = InheritanceType.JOINED)
 public class InfaSourceColumnDefinition extends AbstractEntity {
 
 	@NonNull
@@ -147,11 +144,6 @@ public class InfaSourceColumnDefinition extends AbstractEntity {
 					offset, physicalLength, physicalOffset, precision, scale, columnSequence, selected);
 		}
 
-		@java.lang.Override
-		public String toString() {
-			return "InfaSourceColumnDefinition.Builder(columnName = " + this.columnName + ", columnDataType = "
-					+ this.columnDataType + ", columnNumber = " + this.columnNumber + ")";
-		}
 	}
 
 	protected InfaSourceColumnDefinition(Builder builder) {
