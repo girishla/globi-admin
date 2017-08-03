@@ -2,17 +2,9 @@ package com.globi.infa.metadata.src;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.Size;
 
-import com.globi.infa.AbstractEntity;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -25,22 +17,73 @@ import lombok.ToString;
 
 public class PTPInfaSourceColumnDefinition extends InfaSourceColumnDefinition {
 
-	
-	@Builder.Default
-	private Boolean integrationIdFlag=false;
-	@Builder.Default
-	private Boolean pguidFlag=false;
-	@Builder.Default
-	private Boolean buidFlag=false;
-	@Builder.Default
-	private Boolean ccFlag=false;
+	private Boolean integrationIdFlag = false;
+	private Boolean pguidFlag = false;
+	private Boolean buidFlag = false;
+	private Boolean ccFlag = false;
 
-	@Builder
-	public PTPInfaSourceColumnDefinition(Boolean integrationIdFlag,
-			Boolean pguidFlag,Boolean buidFlag,Boolean ccFlag){
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static class Builder extends InfaSourceColumnDefinition.Builder<Builder> {
+	
+
+		private Boolean integrationIdFlag = false;
+		private Boolean pguidFlag = false;
+		private Boolean buidFlag = false;
+		private Boolean ccFlag = false;
+
+		Builder() {
+			
+			
+		}
+
+		public Builder integrationIdFlag(Boolean integrationIdFlag) {
+			this.integrationIdFlag = integrationIdFlag;
+			return this;
+
+		}
+
+		public Builder pguidFlag(Boolean pguidFlag) {
+			this.pguidFlag = pguidFlag;
+			return this;
+
+		}
+		public Builder buidFlag(Boolean buidFlag) {
+			this.buidFlag = buidFlag;
+			return this;
+
+		}
 		
-		
+
+		public Builder ccFlag(Boolean ccFlag) {
+			this.ccFlag = ccFlag;
+			return this;
+
+		}
+
+		public PTPInfaSourceColumnDefinition build() {
+
+			return new PTPInfaSourceColumnDefinition(this); 
+			
+		}
+
+	
 	}
 	
 	
+	protected PTPInfaSourceColumnDefinition(Builder builder) {
+        
+		super(builder);
+		integrationIdFlag=builder.integrationIdFlag;
+		pguidFlag =builder.pguidFlag;
+		buidFlag =builder.buidFlag;
+		ccFlag=builder.ccFlag;
+
+    }
+	
+	
+	
+
 }

@@ -14,7 +14,7 @@ public abstract class AbstractGenerationStrategy {
 
 	protected final Jaxb2Marshaller marshaller;
 	protected final MetadataFactoryMapper metadataFactoryMapper;
-	protected DefaultGeneratorContext generatorContext;
+	protected PTPGeneratorContext generatorContext;
 
 	
 	protected final List<WorkflowCreatedEventListener> createdEventListeners = new ArrayList<>();;
@@ -49,7 +49,7 @@ public abstract class AbstractGenerationStrategy {
 	
 	public void setContext(String sourceName,String tblName,InfaWorkflow inputWF) {
 		
-		generatorContext=DefaultGeneratorContext.contextFor(sourceName,tblName, metadataFactoryMapper,inputWF);
+		generatorContext=PTPGeneratorContext.contextFor(sourceName,tblName, metadataFactoryMapper,inputWF);
 
 	}
 	

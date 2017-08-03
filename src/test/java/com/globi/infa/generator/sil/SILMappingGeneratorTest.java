@@ -1,4 +1,4 @@
-package com.globi.infa.generator.fsil;
+package com.globi.infa.generator.sil;
 
 import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getCCColumn;
 import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getInfaSourceColumnsFromSourceDefn;

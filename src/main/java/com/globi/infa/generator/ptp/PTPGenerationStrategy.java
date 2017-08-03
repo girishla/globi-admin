@@ -58,6 +58,7 @@ public class PTPGenerationStrategy extends AbstractGenerationStrategy implements
 		PTPPrimaryMappingGenerator primaryMappingGenerator=new PTPPrimaryMappingGenerator(//
 				(PTPWorkflow) generatorContext.getInputWF()//
 				,generatorContext.getAllSourceColumns(),//
+				generatorContext.getMatchedColumnsPTP(),//
 				generatorContext.getSource(),//
 				generatorContext.getSourceTable(),//
 				marshaller,//
@@ -67,6 +68,7 @@ public class PTPGenerationStrategy extends AbstractGenerationStrategy implements
 		PTPExtractMappingGenerator extractMappingGenerator=new PTPExtractMappingGenerator(//
 				(PTPWorkflow) generatorContext.getInputWF()//
 				,generatorContext.getAllSourceColumns(),//
+				generatorContext.getMatchedColumnsPTP(),//
 				generatorContext.getSource(),//
 				generatorContext.getSourceTable(),//
 				sourceTableAbbreviation,//

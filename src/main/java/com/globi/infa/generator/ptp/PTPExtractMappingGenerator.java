@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
@@ -29,6 +31,7 @@ import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.metadata.core.StringMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
+import com.globi.infa.metadata.src.PTPInfaSourceColumnDefinition;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
@@ -37,34 +40,36 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 
 	private final PTPWorkflow wfDefinition;
 	private final List<InfaSourceColumnDefinition> allSourceColumns;
+	private final List<PTPInfaSourceColumnDefinition> matchedColumnsPTP;
 	private final SourceSystem sourceSystem;
 	private final DataSourceTableDTO sourceTable;
 	private final StringMap sourceTableAbbreviation;
 	private final Jaxb2Marshaller marshaller;
 	private final DataTypeMapper dataTypeMapper;
 	private final DataTypeMapper sourceToTargetDatatypeMapper;
-	
-	public PTPExtractMappingGenerator(PTPWorkflow wfDefinition,//
-			List<InfaSourceColumnDefinition> allSourceColumns,//
-			SourceSystem sourceSystem,//
-			DataSourceTableDTO sourceTable,//
-			StringMap sourceTableAbbreviation,//
-			Jaxb2Marshaller marshaller,//
-			DataTypeMapper dataTypeMapper,//
-			DataTypeMapper sourceToTargetDatatypeMapper){
-		
-		this.wfDefinition=wfDefinition;
-		this.allSourceColumns=allSourceColumns;
-		this.sourceSystem=sourceSystem;
-		this.sourceTable=sourceTable;
-		this.marshaller=marshaller;
-		this.sourceTableAbbreviation=sourceTableAbbreviation;
-		this.dataTypeMapper=dataTypeMapper;
-		this.sourceToTargetDatatypeMapper=sourceToTargetDatatypeMapper;
-		
-		
+
+	public PTPExtractMappingGenerator(PTPWorkflow wfDefinition, //
+			List<InfaSourceColumnDefinition> allSourceColumns, //
+			List<PTPInfaSourceColumnDefinition> matchedColumnsPTP,//
+			SourceSystem sourceSystem, //
+			DataSourceTableDTO sourceTable, //
+			StringMap sourceTableAbbreviation, //
+			Jaxb2Marshaller marshaller, //
+			DataTypeMapper dataTypeMapper, //
+			DataTypeMapper sourceToTargetDatatypeMapper) {
+
+		this.wfDefinition = wfDefinition;
+		this.allSourceColumns = allSourceColumns;
+		this.matchedColumnsPTP=matchedColumnsPTP;
+		this.sourceSystem = sourceSystem;
+		this.sourceTable = sourceTable;
+		this.marshaller = marshaller;
+		this.sourceTableAbbreviation = sourceTableAbbreviation;
+		this.dataTypeMapper = dataTypeMapper;
+		this.sourceToTargetDatatypeMapper = sourceToTargetDatatypeMapper;
+
 	}
-	
+
 	InfaMappingObject getExtractMapping() throws IOException, SAXException, JAXBException {
 
 		String tblName = wfDefinition.getSourceTableName();
@@ -77,20 +82,31 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 		Map<String, String> commonValuesMap = new HashMap<>();
 		commonValuesMap.put("targetTableName", targetTableDefnName);
 		commonValuesMap.put("sourceName", dbName);
-		
-		
+
+
 		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
 
-		List<InfaSourceColumnDefinition> matchedColumns = this
-				.getFilteredSourceDefnColumns(allSourceColumns, inputSelectedColumns);
+//		List<PTPInfaSourceColumnDefinition> matchedColumnsPTP = this.getFilteredSourceDefnColumns(allSourceColumns,
+//				inputSelectedColumns);
+//		
+		
+		
+		//Build base versions without PTP specific metadata so we can pass it to generic methods
+//		List<InfaSourceColumnDefinition> allSourceColumns = allSourceColumns.stream()//
+//				.map(colDefnPTP -> (InfaSourceColumnDefinition) colDefnPTP)//
+//				.collect(Collectors.toList());
+//		List<InfaSourceColumnDefinition> matchedColumns = matchedColumnsPTP.stream()//
+//				.map(colDefnPTP -> (InfaSourceColumnDefinition) colDefnPTP)//
+//				.collect(Collectors.toList());
 
-
+		
+		
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
 				.simpleTableSyncClass("simpleTableSyncClass")//
 				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
 						.sourceDefnFromPrototype("SourceFromPrototype")//
-						.sourceDefn(sourceSystem,tblName,tableOwner)//
+						.sourceDefn(sourceSystem, tblName, tableOwner)//
 						.addFields(allSourceColumns)//
 						.name(tblName)//
 						.build())//
@@ -99,7 +115,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 						.marshaller(marshaller)//
 						.loadTargetFromSeed("Seed_PTP_PTPTargetTableSystemCols")//
 						.mapper(sourceToTargetDatatypeMapper)//
-						.addFields(matchedColumns)//
+						.addFields((List<InfaSourceColumnDefinition>)(List<?>)matchedColumnsPTP)//
 						.noMoreFields()//
 						.name(targetTableDefnName)//
 						.build())//
@@ -115,10 +131,8 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 						.marshaller(marshaller)//
 						.noMoreValues()//
 						.loadSourceQualifierFromSeed("Seed_PTP_SourceQualifier")//
-						.addFields(dataTypeMapper, matchedColumns)//
-						.addFilter(sourceFilter)
-						.addCCFilterFromColumns(inputSelectedColumns, tblName)
-						.noMoreFilters()
+						.addFields(dataTypeMapper, (List<InfaSourceColumnDefinition>)(List<?>)matchedColumnsPTP)//
+						.addFilter(sourceFilter).addCCFilterFromColumns(inputSelectedColumns, tblName).noMoreFilters()
 						.name("SQ_ExtractData")//
 						.build())//
 				.transformation(ExpressionXformBuilder.newBuilder()//
@@ -127,10 +141,10 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 						.mapper(dataTypeMapper).addEffectiveFromDateField()//
 						.addEtlProcWidField()//
 						.addDatasourceNumIdField()//
-						.addIntegrationIdField(matchedColumns)//
-						.addBUIDField(matchedColumns)//
-						.addPGUIDField(dbName, tblName, sourceTableAbbreviation, matchedColumns)//
-						.addMD5HashField(matchedColumns)//
+						.addIntegrationIdField(matchedColumnsPTP)//
+						.addBUIDField(matchedColumnsPTP)//
+						.addPGUIDField(dbName, tblName, sourceTableAbbreviation, matchedColumnsPTP)//
+						.addMD5HashField(matchedColumnsPTP)//
 						.addRowWidField()//
 						.noMoreFields()//
 						.nameAlreadySet()//
@@ -195,7 +209,31 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 		return mappingObjExtract;
 
 	}
-	
-	
-	
+
+//	private List<PTPInfaSourceColumnDefinition> getFilteredSourceDefnColumns(
+//			List<PTPInfaSourceColumnDefinition> allTableColumns, List<PTPWorkflowSourceColumn> inputSelectedColumns) {
+//
+//		Map<String, PTPInfaSourceColumnDefinition> allColsMap = allTableColumns.stream()
+//				.collect(Collectors.toMap(PTPInfaSourceColumnDefinition::getColumnName, Function.identity()));
+//
+//		inputSelectedColumns.stream().forEach(inputColumn -> {
+//			if (allColsMap.containsKey(inputColumn.getSourceColumnName())) {
+//				allColsMap.get(inputColumn.getSourceColumnName())
+//						.setIntegrationIdFlag(inputColumn.isIntegrationIdColumn());
+//				allColsMap.get(inputColumn.getSourceColumnName()).setColumnSequence(inputColumn.getColumnSequence());
+//				allColsMap.get(inputColumn.getSourceColumnName()).setBuidFlag(inputColumn.isBuidColumn());
+//				allColsMap.get(inputColumn.getSourceColumnName()).setCcFlag(inputColumn.isChangeCaptureColumn());
+//				allColsMap.get(inputColumn.getSourceColumnName()).setPguidFlag(inputColumn.isPguidColumn());
+//				allColsMap.get(inputColumn.getSourceColumnName()).setSelected(true);
+//			}
+//		});
+//
+//		List<PTPInfaSourceColumnDefinition> matchedColumnsPTP = allColsMap.values()//
+//				.stream()//
+//				.filter(column -> column.getSelected()).collect(Collectors.toList());
+//
+//		return matchedColumnsPTP;
+
+	//}
+
 }

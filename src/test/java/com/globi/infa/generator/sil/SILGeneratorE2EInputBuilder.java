@@ -1,4 +1,4 @@
-package com.globi.infa.generator.fsil;
+package com.globi.infa.generator.sil;
 
 
 
@@ -125,11 +125,10 @@ public class SILGeneratorE2EInputBuilder {
 //					}
 
 					SILWorkflowSourceColumn wfCol = SILWorkflowSourceColumn.builder()//
-							.autoColumn(column.)
-							.integrationIdColumn(column.getIntegrationIdFlag())//
-							.buidColumn(column.getBuidFlag()).pguidColumn(column.getPguidFlag())
-							.changeCaptureColumn(column.getCcFlag())//
-							.sourceColumnName(column.getColumnName())//
+//							.integrationIdColumn(column.getIntegrationIdFlag())//
+//							.buidColumn(column.getBuidFlag()).pguidColumn(column.getPguidFlag())
+//							.changeCaptureColumn(column.getCcFlag())//
+//							.sourceColumnName(column.getColumnName())//
 							.build();
 
 					return wfCol;

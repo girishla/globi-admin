@@ -15,12 +15,15 @@ import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import com.globi.infa.datasource.core.DataTypeMapper;
-import com.globi.infa.datasource.core.ObjectNameNormaliser;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 
+import lombok.extern.slf4j.Slf4j;
 import xjc.TARGET;
 import xjc.TARGETFIELD;
 
+
+
+@Slf4j
 public class TargetDefinitionBuilder {
 
 	public static SetMarshallerStep newBuilder() {
@@ -120,6 +123,7 @@ public class TargetDefinitionBuilder {
 
 			TARGETFIELD targetField = new TARGETFIELD();
 
+			
 			Integer fieldNumber = column.getColumnDataType().equals("long") ? 99 : column.getColumnNumber();
 			String precision= column.getColumnDataType().equals("datetime") ? "19" : Integer.toString(column.getPrecision());
 			String scale= column.getColumnDataType().equals("datetime") ? "0" : Integer.toString(column.getScale());

@@ -7,6 +7,8 @@ import static com.globi.infa.generator.builder.InfaObjectMother.getTablenameMapp
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
@@ -25,6 +27,7 @@ import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
+import com.globi.infa.metadata.src.PTPInfaSourceColumnDefinition;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
@@ -33,6 +36,7 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 
 	private final PTPWorkflow wfDefinition;
 	private final List<InfaSourceColumnDefinition> allSourceColumns;
+	private final List<PTPInfaSourceColumnDefinition> matchedColumnsPTP;
 	private final SourceSystem sourceSystem;
 	private final DataSourceTableDTO sourceTable;
 	private final Jaxb2Marshaller marshaller;
@@ -42,6 +46,7 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 	
 	public PTPPrimaryMappingGenerator(PTPWorkflow wfDefinition,//
 			List<InfaSourceColumnDefinition> allSourceColumns,//
+			List<PTPInfaSourceColumnDefinition> matchedColumnsPTP,//
 			SourceSystem sourceSystem,//
 			DataSourceTableDTO sourceTable,//
 			Jaxb2Marshaller marshaller,//
@@ -55,6 +60,7 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 		this.marshaller=marshaller;
 		this.dataTypeMapper=dataTypeMapper;
 		this.sourceToTargetDatatypeMapper=sourceToTargetDatatypeMapper;
+		this.matchedColumnsPTP=matchedColumnsPTP;
 
 		
 	}
@@ -70,13 +76,13 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 
 		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
 
-		List<InfaSourceColumnDefinition> matchedColumns = this
-				.getFilteredSourceDefnColumns(allSourceColumns, inputSelectedColumns);
+//		List<PTPInfaSourceColumnDefinition> matchedColumnsPTP = this
+//				.getFilteredSourceDefnColumns(allSourceColumns, inputSelectedColumns);
 
 
 
 		//Keep only Integration Id columns
-		List<InfaSourceColumnDefinition> columnsList = matchedColumns//
+		List<PTPInfaSourceColumnDefinition> columnsList = matchedColumnsPTP//
 				.stream()//
 				.filter(column -> column.getIntegrationIdFlag())//
 				.collect(Collectors.toList());
@@ -89,7 +95,7 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
 						.sourceDefnFromPrototype("SourceFromPrototype")//
 						.sourceDefn(sourceSystem,tblName,tableOwner)//
-						.addFields(allSourceColumns)//
+						.addFields((List<InfaSourceColumnDefinition>)(List<?>)allSourceColumns)//
 						.name(tblName)//
 						.build())
 				.noMoreSources()//
@@ -106,7 +112,7 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 						.marshaller(marshaller)//
 						.noMoreValues()
 						.loadSourceQualifierFromSeed("Seed_PTP_SourceQualifier")//
-						.addFields(dataTypeMapper, columnsList)//
+						.addFields(dataTypeMapper, (List<InfaSourceColumnDefinition>)(List<?>)columnsList)//
 						.addCCFilterFromColumns(inputSelectedColumns, tblName)
 						.addFilter(sourceFilter)
 						.noMoreFilters()
@@ -146,6 +152,33 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 
 	}
 	
+	
+	
+//	private List<PTPInfaSourceColumnDefinition> getFilteredSourceDefnColumns(
+//			List<PTPInfaSourceColumnDefinition> allTableColumns, List<PTPWorkflowSourceColumn> inputSelectedColumns) {
+//
+//		Map<String, PTPInfaSourceColumnDefinition> allColsMap = allTableColumns.stream()
+//				.collect(Collectors.toMap(PTPInfaSourceColumnDefinition::getColumnName, Function.identity()));
+//
+//		inputSelectedColumns.stream().forEach(inputColumn -> {
+//			if (allColsMap.containsKey(inputColumn.getSourceColumnName())) {
+//				allColsMap.get(inputColumn.getSourceColumnName())
+//						.setIntegrationIdFlag(inputColumn.isIntegrationIdColumn());
+//				allColsMap.get(inputColumn.getSourceColumnName()).setColumnSequence(inputColumn.getColumnSequence());
+//				allColsMap.get(inputColumn.getSourceColumnName()).setBuidFlag(inputColumn.isBuidColumn());
+//				allColsMap.get(inputColumn.getSourceColumnName()).setCcFlag(inputColumn.isChangeCaptureColumn());
+//				allColsMap.get(inputColumn.getSourceColumnName()).setPguidFlag(inputColumn.isPguidColumn());
+//				allColsMap.get(inputColumn.getSourceColumnName()).setSelected(true);
+//			}
+//		});
+//
+//		List<PTPInfaSourceColumnDefinition> matchedColumnsPTP = allColsMap.values()//
+//				.stream()//
+//				.filter(column -> column.getSelected()).collect(Collectors.toList());
+//
+//		return matchedColumnsPTP;
+//
+//	}
 	
 	
 }

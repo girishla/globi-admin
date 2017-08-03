@@ -57,7 +57,8 @@ public class OracleTableColumnMetadataVisitor implements TableColumnMetadataVisi
 		public InfaSourceColumnDefinition mapRow(ResultSet rs, int rowNum) throws SQLException {
 
 			
-			InfaSourceColumnDefinition colDefn = InfaSourceColumnDefinition.builder()//
+			InfaSourceColumnDefinition colDefn = InfaSourceColumnDefinition//
+					.builder()//
 					.columnName(ObjectNameNormaliser.normalise(rs.getString("COLUMN_NAME")))//
 					.columnLength(tryParse(rs.getString("COL_LENGTH")))//
 					.columnNumber(tryParse(rs.getString("COLUMN_NUMBER")))//
@@ -68,7 +69,7 @@ public class OracleTableColumnMetadataVisitor implements TableColumnMetadataVisi
 					.physicalOffset(tryParse(rs.getString("PHYSICAL_OFFSET")))//
 					.precision(tryParse(rs.getString("COL_PRECISION")))//
 					.scale(tryParse(rs.getString("COL_SCALE")))//
-					.integrationIdFlag(false).build();
+					.build();
 
 			return colDefn;
 		}

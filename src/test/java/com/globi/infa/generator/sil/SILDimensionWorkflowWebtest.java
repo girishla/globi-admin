@@ -1,4 +1,4 @@
-package com.globi.infa.generator.fsil;
+package com.globi.infa.generator.sil;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -44,15 +44,13 @@ public class SILDimensionWorkflowWebtest extends AbstractWebIntegrationTest {
 		
 		inputBuilder= new SILGeneratorE2EInputBuilder(colRepo,queryVisitor);
 		
-		ptpWorkflow= inputBuilder.start()//
-		.sourceName("CGL")//
-		.tableName("S_BU")//
-		.setIntegrationCol("ROW_ID")//
-//		.setChangeCaptureCol("LAST_UPD")
-//		.setBuidCol("BU_ID")//
-		.setNormalCol("NAME")
-		.sourceFilter("")
-		.build();
+//		ptpWorkflow= inputBuilder.start()//
+//		.sourceName("CGL")//
+//		.tableName("S_BU")//
+//		.setIntegrationCol("ROW_ID")//
+//		.setNormalCol("NAME")
+//		.sourceFilter("")
+//		.build();
 		
 	}
 

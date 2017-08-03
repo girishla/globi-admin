@@ -10,4 +10,6 @@ public interface TableColumnMetadataVisitor {
 	
 	public List<InfaSourceColumnDefinition>  getAllColumnsFor(JdbcTemplate jdbcT,String tableName);
 
+	
+	
 }

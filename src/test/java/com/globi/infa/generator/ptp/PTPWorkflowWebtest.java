@@ -37,7 +37,6 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 	private PTPGeneratorE2EInputBuilder inputBuilder;
 	
 	
-	
 	@Before
 	public void setup(){
 		

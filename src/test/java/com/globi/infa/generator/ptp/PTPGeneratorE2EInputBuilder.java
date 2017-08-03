@@ -1,21 +1,11 @@
 package com.globi.infa.generator.ptp;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.datasource.core.TableColumnRepository;
-import com.globi.infa.datasource.fbm.FBMTableColumnRepository;
-import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
-import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
-import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
@@ -94,39 +84,24 @@ public class PTPGeneratorE2EInputBuilder {
 
 	public PTPWorkflow build() {
 
-		List<InfaSourceColumnDefinition> columns = colRepo.accept(queryVisitor, tableName);
-		int colOrder=0;
+		
+		List<PTPWorkflowSourceColumn> workflowSourceColumnList=	allCols.stream()
+		.map(colName->{
+			
+			
+			return PTPWorkflowSourceColumn.builder()//
+					.integrationIdColumn(integrationIdCols.stream().anyMatch(col -> col.equals(colName)))//
+					.buidColumn(buidCols.stream().anyMatch(col -> col.equals(colName)))//
+					.pguidColumn(pguidCols.stream().anyMatch(col -> col.equals(colName)))//
+					.changeCaptureColumn(colName.equals(changeCaptureCol))//
+					.columnSequence(0)
+					.sourceColumnName(colName)//
+					.build();
+			
 
-		// Build workflow columns DTO from source columns
-		List<PTPWorkflowSourceColumn> workflowSourceColumnList = columns.stream()//
-				.filter(col -> allCols.stream().anyMatch(allColsColumn -> allColsColumn.equals(col.getColumnName())))
-				.map(column -> {
-
-					if (integrationIdCols.stream().anyMatch(col -> column.getColumnName().equals(col))) {
-						column.setIntegrationIdFlag(true);
-					}
-
-					if (pguidCols.stream().anyMatch(col -> column.getColumnName().equals(col))) {
-						column.setPguidFlag(true);
-					}
-
-					if (buidCols.stream().anyMatch(col -> column.getColumnName().equals(col))) {
-						column.setBuidFlag(true);
-					}
-
-					if (column.getColumnName().equals(changeCaptureCol)) {
-						column.setCcFlag(true);
-					}
-
-					PTPWorkflowSourceColumn wfCol = PTPWorkflowSourceColumn.builder()//
-							.integrationIdColumn(column.getIntegrationIdFlag())//
-							.buidColumn(column.getBuidFlag()).pguidColumn(column.getPguidFlag())
-							.changeCaptureColumn(column.getCcFlag())//
-							.sourceColumnName(column.getColumnName())//
-							.build();
-
-					return wfCol;
-				}).collect(Collectors.toList());
+			
+		}).collect(Collectors.toList());
+		
 
 		// Build definition to be passed as input to generator
 		ptpWorkflowGeneratorInput = PTPWorkflow.builder()//

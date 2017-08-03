@@ -21,6 +21,7 @@ import com.globi.infa.datasource.core.DataSourceTableDTO;
 import com.globi.infa.datasource.core.DataTypeMapper;
 import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaTargetTypeMapper;
 import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaXFormTypeMapper;
+import com.globi.infa.generator.PTPGeneratorContext;
 import com.globi.infa.generator.builder.InfaMappingObject;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.metadata.core.StringMap;
@@ -103,8 +104,12 @@ public class PTPExtractMappingGeneratorTest {
 
 	private InfaMappingObject generateMapping() throws Exception {
 
+		
+		PTPGeneratorContext.getFilteredSourceDefnColumns(allSourceColumns, ptpWorkflow.getColumns()).stream().forEach(col->System.out.println("Found Column"));
+		
 		mappingService = new PTPExtractMappingGenerator(ptpWorkflow, //
 				allSourceColumns, //
+				PTPGeneratorContext.getFilteredSourceDefnColumns(allSourceColumns, ptpWorkflow.getColumns()),//
 				sourceSystem, //
 				sourceTable, //
 				strMap, //
@@ -189,8 +194,9 @@ public class PTPExtractMappingGeneratorTest {
 				.flatMap(xform -> xform.getTRANSFORMFIELD().stream())//
 				.filter(tableAttr -> tableAttr.getNAME().equals("SYS_PGUID"))//
 				.findFirst();
-		assertThat(optPGUIDformField.get().getEXPRESSION()).isEqualTo(
-				"IIF(ISNULL(NAME) AND ISNULL(ROW_ID),IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID),'BUN' || IIF(ISNULL(NAME),'NOVAL',NAME)|| ':' ||IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID))");
+		assertThat(optPGUIDformField.get().getEXPRESSION()).isIn(
+				"IIF(ISNULL(NAME) AND ISNULL(ROW_ID),IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID),'BUN' || IIF(ISNULL(NAME),'NOVAL',NAME)|| ':' ||IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID))",//
+				"IIF(ISNULL(ROW_ID) AND ISNULL(NAME),IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID),'BUN' || IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID)|| ':' ||IIF(ISNULL(NAME),'NOVAL',NAME))");
 
 	}
 

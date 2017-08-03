@@ -4,13 +4,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
+
 
 @Component
 public class SQLServerTableColumnMetadataVisitor implements TableColumnMetadataVisitor {
@@ -85,7 +85,8 @@ public class SQLServerTableColumnMetadataVisitor implements TableColumnMetadataV
 	protected final RowMapper<InfaSourceColumnDefinition> tableColumnMapper = new RowMapper<InfaSourceColumnDefinition>() {
 		public InfaSourceColumnDefinition mapRow(ResultSet rs, int rowNum) throws SQLException {
 
-			InfaSourceColumnDefinition colDefn = InfaSourceColumnDefinition.builder()//
+			InfaSourceColumnDefinition colDefn = InfaSourceColumnDefinition//
+					.builder()//
 					.columnName(rs.getString("COL_NAME"))//
 					.columnLength(tryParse(rs.getString("COL_LENGTH")))//
 					.columnNumber(tryParse(rs.getString("COL_NUMBER")))//
@@ -96,7 +97,7 @@ public class SQLServerTableColumnMetadataVisitor implements TableColumnMetadataV
 					.physicalOffset(tryParse(rs.getString("PHYSICAL_OFFSET")))//
 					.precision(tryParse(rs.getString("COL_PRECISION")))//
 					.scale(tryParse(rs.getString("COL_SCALE")))//
-					.integrationIdFlag(false).build();
+					.build();
 
 			return colDefn;
 		}

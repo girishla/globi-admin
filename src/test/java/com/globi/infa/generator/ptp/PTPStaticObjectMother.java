@@ -145,12 +145,9 @@ public class PTPStaticObjectMother {
 
 		List<InfaSourceColumnDefinition> infaSourceCols = new ArrayList<>();
 
+		
 		for (SOURCEFIELD field : source.getSOURCEFIELD()) {
 			infaSourceCols.add(InfaSourceColumnDefinition.builder()//
-					.buidFlag(false)//
-					.ccFlag(false)//
-					.integrationIdFlag(false)//
-					.pguidFlag(false)//
 					.columnDataType(field.getDATATYPE())//
 					.columnLength(Integer.parseInt(field.getLENGTH()))//
 					.columnName(field.getNAME())//
