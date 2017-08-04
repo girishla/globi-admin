@@ -48,7 +48,7 @@ public class SILDimensionWorkflowWebtest extends AbstractWebIntegrationTest {
 		silWorkflow = SILWorkflow.builder()//
 				.columns(cols)//
 				.loadType("Dimension")//
-				.stageName("INVOICE_LN")//
+				.stageName("X_INVOICE_LN")//
 				.tableName("INVOICE_LN")//
 				.workflowName("SIL_INVOICE_LN_Dimension")//
 				.workflowStatus("Queued")//

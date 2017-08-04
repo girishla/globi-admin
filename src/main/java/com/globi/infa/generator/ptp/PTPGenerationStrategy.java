@@ -29,6 +29,7 @@ import com.globi.infa.workflow.PTPWorkflow;
 @Scope("prototype")
 public class PTPGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
+	private PTPGeneratorContext generatorContext;
 	private StringMap sourceTableAbbreviation;
 
 	PTPGenerationStrategy(Jaxb2Marshaller marshaller,//
@@ -37,6 +38,13 @@ public class PTPGenerationStrategy extends AbstractGenerationStrategy implements
 
 		super(marshaller, metadataFactoryMapper);
 		this.sourceTableAbbreviation = sourceTableAbbreviation;
+
+	}
+	
+	
+	private void setContext(String sourceName,String tblName,InfaWorkflow inputWF) {
+		
+		generatorContext=PTPGeneratorContext.contextFor(sourceName,tblName, metadataFactoryMapper,inputWF);
 
 	}
 	
@@ -93,7 +101,7 @@ public class PTPGenerationStrategy extends AbstractGenerationStrategy implements
 						.setValue("tableName", tblName)//
 						.setValue("tgtTableName", targetTableDefnName)//
 						.noMoreValues()//
-						.loadWorkflowFromSeed("Seed_PTP_WFPTP")//
+						.loadWorkflowFromSeed("Seed_PTP_WF")//
 						.nameAlreadySet()//
 						.build())//
 				.build();

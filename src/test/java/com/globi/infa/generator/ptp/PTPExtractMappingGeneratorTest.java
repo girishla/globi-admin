@@ -21,7 +21,6 @@ import com.globi.infa.datasource.core.DataSourceTableDTO;
 import com.globi.infa.datasource.core.DataTypeMapper;
 import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaTargetTypeMapper;
 import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaXFormTypeMapper;
-import com.globi.infa.generator.PTPGeneratorContext;
 import com.globi.infa.generator.builder.InfaMappingObject;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.metadata.core.StringMap;

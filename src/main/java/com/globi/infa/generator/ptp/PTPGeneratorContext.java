@@ -1,4 +1,4 @@
-package com.globi.infa.generator;
+package com.globi.infa.generator.ptp;
 
 import java.util.List;
 import java.util.Optional;
@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.globi.infa.datasource.core.DataSourceTableDTO;
 import com.globi.infa.datasource.core.MetadataFactoryMapper;
 import com.globi.infa.datasource.core.SourceMetadataFactory;
+import com.globi.infa.generator.BaseGeneratorContext;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.PTPInfaSourceColumnDefinition;
 import com.globi.infa.workflow.InfaWorkflow;
@@ -23,19 +24,16 @@ public class PTPGeneratorContext extends BaseGeneratorContext {
 	@Getter
 	PTPWorkflow ptpWorkflow;
 
+	
 	public static PTPGeneratorContext contextFor(String sourceName, String tblName, MetadataFactoryMapper mapper,
 			InfaWorkflow inputWF) {
 
 		PTPGeneratorContext context = new PTPGeneratorContext();
-
 		SourceMetadataFactory sourceMetadataFactory = mapper.getMetadataFactoryMap().get(sourceName);
 		
 		if(sourceMetadataFactory==null){
-
 			throw new IllegalArgumentException(String.format("Invalid datasource %s. Please ensure the datasource is configured correctly",sourceName));
-			
 		}
-		
 
 		context.dataTypeMapper = sourceMetadataFactory.createDatatypeMapper();
 		context.sourceToTargetDatatypeMapper = sourceMetadataFactory.createSourceToTargetDatatypeMapper();

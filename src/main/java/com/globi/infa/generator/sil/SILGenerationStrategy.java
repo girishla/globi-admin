@@ -19,6 +19,7 @@ import com.globi.infa.generator.WorkflowGenerationException;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.generator.builder.PowermartObjectBuilder;
 import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
+import com.globi.infa.generator.ptp.PTPGeneratorContext;
 import com.globi.infa.metadata.core.StringMap;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.InfaWorkflow;
@@ -30,6 +31,7 @@ import com.globi.infa.workflow.SILWorkflow;
 @Scope("prototype")
 public class SILGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
+	private SILGeneratorContext generatorContext;
 
 	SILGenerationStrategy(Jaxb2Marshaller marshaller,//
 			MetadataFactoryMapper metadataFactoryMapper,//
@@ -39,6 +41,12 @@ public class SILGenerationStrategy extends AbstractGenerationStrategy implements
 
 	}
 	
+	
+	private void setContext(String sourceName,String tblName,InfaWorkflow inputWF) {
+		
+		generatorContext=SILGeneratorContext.contextFor(sourceName,tblName, metadataFactoryMapper,inputWF);
+
+	}
 	
 
 	private InfaPowermartObject generateWorkflow(SILWorkflow wfDefinition) throws IOException, SAXException, JAXBException {
@@ -52,7 +60,7 @@ public class SILGenerationStrategy extends AbstractGenerationStrategy implements
 //		String targetTableDefnName = targetTableName.isEmpty() ? dbName + "_" + tblName : targetTableName;
 
 		
-		this.setContext("PDL",wfDefinition.getStageName(),wfDefinition);
+		this.setContext("LAW",wfDefinition.getStageName(),wfDefinition);
 		
 //		SILPrimaryMappingGenerator primaryMappingGenerator=new SILPrimaryMappingGenerator(//
 //				(SILWorkflow) generatorContext.getInputWF()//
@@ -87,7 +95,7 @@ public class SILGenerationStrategy extends AbstractGenerationStrategy implements
 				.workflow(WorkflowDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.noMoreValues()//
-						.loadWorkflowFromSeed("Seed_WF_SIL")//
+						.loadWorkflowFromSeed("Seed_SIL_WF")//
 						.nameAlreadySet()//
 						.build())//
 				.build();
