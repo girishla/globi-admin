@@ -55,6 +55,8 @@ public class SourceDefinitionBuilder {
 	
 	public interface NameStep {
 		BuildStep name(String name);
+		BuildStep nameAlreadySet();
+		
 	}
 
 	
@@ -208,6 +210,12 @@ public class SourceDefinitionBuilder {
 
 		@Override
 		public NameStep noFields() {
+			return this;
+		}
+
+		@Override
+		public BuildStep nameAlreadySet() {
+			
 			return this;
 		}
 

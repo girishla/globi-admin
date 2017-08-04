@@ -86,20 +86,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 
 		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
 
-//		List<PTPInfaSourceColumnDefinition> matchedColumnsPTP = this.getFilteredSourceDefnColumns(allSourceColumns,
-//				inputSelectedColumns);
-//		
-		
-		
-		//Build base versions without PTP specific metadata so we can pass it to generic methods
-//		List<InfaSourceColumnDefinition> allSourceColumns = allSourceColumns.stream()//
-//				.map(colDefnPTP -> (InfaSourceColumnDefinition) colDefnPTP)//
-//				.collect(Collectors.toList());
-//		List<InfaSourceColumnDefinition> matchedColumns = matchedColumnsPTP.stream()//
-//				.map(colDefnPTP -> (InfaSourceColumnDefinition) colDefnPTP)//
-//				.collect(Collectors.toList());
-
-		
+	
 		
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//

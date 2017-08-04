@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.globi.infa.generator.service.GeneratorRequestAsyncProcessor;
-import com.globi.infa.generator.sil.SILGenerationStrategy;
+import com.globi.infa.generator.sil.SILDimensionGenerationStrategy;
 
 @RestController
 public class InfaSILWorkflowController {
@@ -32,7 +32,7 @@ public class InfaSILWorkflowController {
 	
 	
 	@Lookup
-	public SILGenerationStrategy getSilGenerator() {
+	public SILDimensionGenerationStrategy getSilGenerator() {
 		return null; // This implementation will be overridden by dynamically
 						// generated subclass
 	}
@@ -43,7 +43,7 @@ public class InfaSILWorkflowController {
 			@RequestParam("sync") Optional<Boolean> sync, BindingResult result) throws Exception {
 
 		
-		SILGenerationStrategy silGenerator = getSilGenerator();
+		SILDimensionGenerationStrategy silGenerator = getSilGenerator();
 
 		SILWorkflow savedWorkflow = (SILWorkflow) requestProcessor.saveInput(silWorkflow);
 

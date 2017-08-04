@@ -1,12 +1,8 @@
-package com.globi.infa.generator.ptp;
+package com.globi.infa.generator.sil;
 
-import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getCCColumn;
 import static com.globi.infa.generator.CommonStaticObjectMother.getInfaSourceColumnsFromSourceDefn;
-import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getIntegrationIdAndPguidColumn;
-import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getPguidColumn;
+import static com.globi.infa.generator.sil.SILStaticObjectMother.getDimensionPKColumn;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,34 +19,33 @@ import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaTargetTypeMap
 import com.globi.infa.datasource.type.oracle.OracleInfaSourceToInfaXFormTypeMapper;
 import com.globi.infa.generator.builder.InfaMappingObject;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
-import com.globi.infa.metadata.core.StringMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
-import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowSourceColumn;
+import com.globi.infa.workflow.SILWorkflow;
+import com.globi.infa.workflow.SILWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
 
 import xjc.INSTANCE;
+import xjc.SOURCE;
 import xjc.TABLEATTRIBUTE;
 import xjc.TRANSFORMFIELD;
 
-public class PTPExtractMappingGeneratorTest {
+public class SILDimensionMappingGeneratorTest {
 
 	private DataTypeMapper sourcetoXformDataTypeMapper;
 	private DataTypeMapper sourceToTargetDatatypeMapper;
 	private SourceSystem sourceSystem;
 	private DataSourceTableDTO sourceTable;
 	private Jaxb2Marshaller marshaller;
-	private PTPWorkflow ptpWorkflow;
+	private SILWorkflow silWorkflow;
 	private List<InfaSourceColumnDefinition> allSourceColumns;
 
-	private static final String SOURCE_TABLE_SBU = "S_BU";
-	private static final String SOURCE_NAME_CGL = "CGL";
-	private static final String TABLE_OWNER_SIEBEL = "SIEBEL";
+	private static final String STG_TABLE_INVOICE_LN = "INVOICE_LN";
+	private static final String SOURCE_NAME_LAW = "LAW";
+	private static final String TABLE_OWNER_LAW = "LAW";
 	private static final String DB_TYPE_ORACLE = "Oracle";
-	private static final int SOURCE_NUM_CGL = 1;
+	private static final int SOURCE_NUM_LAW = 1;
 
-	private PTPExtractMappingGenerator mappingService;
-	private StringMap strMap;
+	private SILDimensionMappingGenerator mappingService;
 
 	@Before
 	public void setUp() throws Exception {
@@ -58,26 +53,23 @@ public class PTPExtractMappingGeneratorTest {
 		sourcetoXformDataTypeMapper = new OracleInfaSourceToInfaXFormTypeMapper();
 		sourceToTargetDatatypeMapper = new OracleInfaSourceToInfaTargetTypeMapper();
 		sourceSystem = SourceSystem.builder()//
-				.dbName(SOURCE_NAME_CGL)//
+				.dbName(SOURCE_NAME_LAW)//
 				.dbType(DB_TYPE_ORACLE)//
-				.name(SOURCE_NAME_CGL)//
-				.ownerName(TABLE_OWNER_SIEBEL)//
-				.sourceNum(SOURCE_NUM_CGL)//
+				.name(SOURCE_NAME_LAW)//
+				.ownerName(TABLE_OWNER_LAW)//
+				.sourceNum(SOURCE_NUM_LAW)//
 				.build();
 
 		marshaller = new InfaConfig().jaxb2Marshaller();
 
-		List<PTPWorkflowSourceColumn> cols = new ArrayList<>();
-		cols.add(getIntegrationIdAndPguidColumn("ROW_ID"));
-		cols.add(getCCColumn("LAST_UPD"));
-		cols.add(getPguidColumn("NAME"));
+		List<SILWorkflowSourceColumn> cols = new ArrayList<>();
+		cols.add(getDimensionPKColumn("ROW_WID"));
 
-		ptpWorkflow = PTPWorkflow.builder()//
-				.sourceName(SOURCE_NAME_CGL)//
-				.columns(cols)//
-				.sourceTableName(SOURCE_TABLE_SBU)//
-				.workflowUri("").workflowName("PTP_" + SOURCE_NAME_CGL + "_" + SOURCE_TABLE_SBU)//
-				.targetTableName(SOURCE_NAME_CGL + "_" + SOURCE_TABLE_SBU).build();
+		silWorkflow = SILWorkflow.builder()//
+				.loadType("Dimension").stageName(STG_TABLE_INVOICE_LN).columns(cols)//
+				.workflowUri("")//
+				.workflowName("SIL_" + STG_TABLE_INVOICE_LN + "_Dimension")//
+				.build();
 
 		allSourceColumns = getInfaSourceColumnsFromSourceDefn(SourceDefinitionBuilder//
 				.newBuilder()//
@@ -85,45 +77,59 @@ public class PTPExtractMappingGeneratorTest {
 				.marshaller(marshaller)//
 				.loadSourceFromSeed("TEST_SEED_SOURCE_SBU")//
 				.noFields()//
-				.name(SOURCE_TABLE_SBU)//
+				.name(STG_TABLE_INVOICE_LN)//
 				.build()//
 		);
 
 		sourceTable = DataSourceTableDTO.builder()//
-				.sourceName(SOURCE_NAME_CGL)//
-				.tableName(SOURCE_TABLE_SBU)//
-				.tableOwner(TABLE_OWNER_SIEBEL)//
+				.sourceName(SOURCE_NAME_LAW)//
+				.tableName(STG_TABLE_INVOICE_LN)//
+				.tableOwner(TABLE_OWNER_LAW)//
 				.build();
-
-		strMap = mock(StringMap.class);
-		String tableUniqueName = sourceSystem.getName() + "_" + SOURCE_TABLE_SBU;
-		when(strMap.map(tableUniqueName)).thenReturn("BUN");
 
 	}
 
 	private InfaMappingObject generateMapping() throws Exception {
 
-		
-		PTPGeneratorContext.getFilteredSourceDefnColumns(allSourceColumns, ptpWorkflow.getColumns()).stream().forEach(col->System.out.println("Found Column"));
-		
-		mappingService = new PTPExtractMappingGenerator(ptpWorkflow, //
+		SILGeneratorContext.getFilteredSourceDefnColumns(allSourceColumns, silWorkflow.getColumns()).stream()
+				.forEach(col -> System.out.println("Found Column"));
+
+		mappingService = new SILDimensionMappingGenerator(silWorkflow, //
 				allSourceColumns, //
-				PTPGeneratorContext.getFilteredSourceDefnColumns(allSourceColumns, ptpWorkflow.getColumns()),//
+				SILGeneratorContext.getFilteredSourceDefnColumns(allSourceColumns, silWorkflow.getColumns()), //
 				sourceSystem, //
 				sourceTable, //
-				strMap, //
 				marshaller, //
 				sourcetoXformDataTypeMapper, //
 				sourceToTargetDatatypeMapper);
 
-		return mappingService.getExtractMapping();
+		return mappingService.getMapping();
+	}
+
+	@Test
+	public void generatesCorrectSourceDefinitonForUnspecifiedVirtualTable() throws Exception{
+		
+		Optional<SOURCE> optSource = generateMapping()//
+				.getFolderObjects()
+				.stream()
+				.filter(fo->fo.getType().equals("SOURCE"))
+				.map(fo->{
+					return ((SOURCE)fo.getFolderObj());
+				})
+				.findFirst();
+				
+		assertThat(optSource.get().getNAME()).isEqualTo("VIRTUAL_EXP");
+		assertThat(optSource.get().getSOURCEFIELD().size()).isEqualTo(3);
+				
+		
 	}
 
 	@Test
 	public void generatesPtpMappingWithCorrectAssociatedSourceInstance() throws Exception {
 
 		// assert if the troublesome Associated instance is correctly set
-		Optional<INSTANCE> optInstance = generateMapping().getMapping()//
+		Optional<INSTANCE> optInstance = generateMapping()//
+				.getMapping()//
 				.getINSTANCE()//
 				.stream()//
 				.filter(instance -> instance.getNAME().equals("SQ_ExtractData"))//
@@ -153,8 +159,7 @@ public class PTPExtractMappingGeneratorTest {
 
 		InfaMappingObject mappingObj = generateMapping();
 
-		assertThat(mappingObj.getMapping().getNAME())
-				.isEqualTo("PTP_" + SOURCE_NAME_CGL + "_" + SOURCE_TABLE_SBU + "_Extract");
+		assertThat(mappingObj.getMapping().getNAME()).isEqualTo("SIL_" + STG_TABLE_INVOICE_LN + "_Dimension");
 		assertThat(mappingObj.getMapping().getTRANSFORMATION().size()).isEqualTo(7);
 		assertThat(mappingObj.getMapping().getINSTANCE().size()).isEqualTo(10);
 		assertThat(mappingObj.getMapping().getCONNECTOR().size()).isEqualTo(36);
@@ -194,7 +199,7 @@ public class PTPExtractMappingGeneratorTest {
 				.filter(tableAttr -> tableAttr.getNAME().equals("SYS_PGUID"))//
 				.findFirst();
 		assertThat(optPGUIDformField.get().getEXPRESSION()).isIn(
-				"IIF(ISNULL(NAME) AND ISNULL(ROW_ID),IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID),'BUN' || IIF(ISNULL(NAME),'NOVAL',NAME)|| ':' ||IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID))",//
+				"IIF(ISNULL(NAME) AND ISNULL(ROW_ID),IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID),'BUN' || IIF(ISNULL(NAME),'NOVAL',NAME)|| ':' ||IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID))", //
 				"IIF(ISNULL(ROW_ID) AND ISNULL(NAME),IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID),'BUN' || IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID)|| ':' ||IIF(ISNULL(NAME),'NOVAL',NAME))");
 
 	}
