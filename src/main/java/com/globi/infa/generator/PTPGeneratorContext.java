@@ -29,6 +29,13 @@ public class PTPGeneratorContext extends BaseGeneratorContext {
 		PTPGeneratorContext context = new PTPGeneratorContext();
 
 		SourceMetadataFactory sourceMetadataFactory = mapper.getMetadataFactoryMap().get(sourceName);
+		
+		if(sourceMetadataFactory==null){
+
+			throw new IllegalArgumentException(String.format("Invalid datasource %s. Please ensure the datasource is configured correctly",sourceName));
+			
+		}
+		
 
 		context.dataTypeMapper = sourceMetadataFactory.createDatatypeMapper();
 		context.sourceToTargetDatatypeMapper = sourceMetadataFactory.createSourceToTargetDatatypeMapper();

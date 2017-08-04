@@ -15,8 +15,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import com.globi.AbstractWebIntegrationTest;
-import com.globi.infa.datasource.gcrm.GCRMTableColumnRepository;
-import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
 
@@ -25,11 +23,6 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 	@Autowired
 	InfaPTPWorkflowRepository wfRepository;
 	
-	@Autowired
-	private GCRMTableColumnRepository colRepo;
-	
-	@Autowired
-	private OracleTableColumnMetadataVisitor queryVisitor; 
 	
 	
 	PTPWorkflow ptpWorkflow;
@@ -41,7 +34,7 @@ public class PTPWorkflowWebtest extends AbstractWebIntegrationTest {
 	public void setup(){
 		
 		
-		inputBuilder= new PTPGeneratorE2EInputBuilder(colRepo,queryVisitor);
+		inputBuilder= new PTPGeneratorE2EInputBuilder();
 		
 		ptpWorkflow= inputBuilder.start()//
 		.sourceName("CGL")//

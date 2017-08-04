@@ -28,20 +28,20 @@ public class PTPWorkflowSourceColumn extends AbstractEntity {
 
 	@NonNull
 	@NotBlank(message = "PTP Table source column name cannot be empty!")
-	@Column(name="col_name")
+	@Column(name="COL_NAME")
 	private String sourceColumnName;
 	
 	@Builder.Default
-	@Column(name="int_key_indicator")
+	@Column(name="INT_KEY_INDICATOR")
 	private boolean integrationIdColumn = false;
 	@Builder.Default
-	@Column(name="cc_indicator")
+	@Column(name="CC_INDICATOR")
 	private boolean changeCaptureColumn = false;
 	@Builder.Default
-	@Column(name="pguid_indicator")
+	@Column(name="PGUID_INDICATOR")
 	private boolean pguidColumn = false;
 	@Builder.Default
-	@Column(name="buid_indicator")
+	@Column(name="BUID_INDICATOR")
 	private boolean buidColumn = false;
 	
 	@Column(name="COLUMNSEQUENCE")

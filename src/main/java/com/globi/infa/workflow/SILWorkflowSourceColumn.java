@@ -37,22 +37,22 @@ public class SILWorkflowSourceColumn extends AbstractEntity {
 	private String columnType;
 
 	@Builder.Default
-	@Column(name="COL_TGT_IND")
+	@Column(name="COL_TGT_INDICATOR")
 	private boolean targetColumn = false;
 	
 	@Builder.Default
-	@Column(name="COL_LEGCY_IND")
+	@Column(name="COL_LEGCY_INDICATOR")
 	private boolean legacyColumn = false;
 	
 	@Builder.Default
-	@Column(name="COL_MINI_IND")
+	@Column(name="COL_MINI_INDICATOR")
 	private boolean miniDimColumn = false;
 	
 	@Builder.Default
-	@Column(name="COL_DOM_LKP_IND")
+	@Column(name="COL_DOM_LKP_INDICATOR")
 	private boolean domainLookupColumn = false;
 	
-	@Column(name="COL_AUTO_IND")
+	@Column(name="COL_AUTO_INDICATOR")
 	@Builder.Default
 	private boolean autoColumn = false;
 

@@ -45,13 +45,7 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 
 	private PTPGeneratorE2EInputBuilder inputBuilder;
 	
-	
-	@Autowired
-	private FBMTableColumnRepository colRepo;
-	
-	@Autowired
-	private OracleTableColumnMetadataVisitor queryVisitor; 
-	
+
 	
 
 	PTPWorkflow ptpWorkflowGeneratorInvoiceHDInput;
@@ -69,7 +63,7 @@ public class PTPExtractFBMGeneratorIntegrationTest extends AbstractIntegrationTe
 	public void setup() {
 
 		
-		inputBuilder=new PTPGeneratorE2EInputBuilder(colRepo,queryVisitor);
+		inputBuilder=new PTPGeneratorE2EInputBuilder();
 		
 		ptpWorkflowGeneratorInvoiceHDInput = inputBuilder.start()//
 				.sourceName("FBM")//

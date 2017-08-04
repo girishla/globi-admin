@@ -1,7 +1,9 @@
 package com.globi.infa.workflow;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -10,10 +12,12 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.globi.infa.AbstractEntity;
 import com.globi.infa.AbstractInfaWorkflowEntity;
 
 import lombok.AllArgsConstructor;
@@ -53,7 +57,8 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 	@Lob
 	@Column(name = "message")
 	private String message;
-
+	
+	
 	@Override
 	@JsonIgnore
 	public InfaWorkflow getWorkflow() {
@@ -76,9 +81,9 @@ public class InfaWorkflow extends AbstractInfaWorkflowEntity implements Generate
 		} else {
 			this.message = timeStamp + "  " + msg;
 		}
-
-
-
 	}
+	
+	
+	
 
 }

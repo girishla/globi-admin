@@ -68,7 +68,6 @@ public class PTPWorkflow extends InfaWorkflow {
 	private List<PTPWorkflowSourceColumn> columns = new ArrayList<>();
 
 
-
 	@Builder
 	public PTPWorkflow(String workflowName, String workflowUri, String workflowStatus, String sourceName,
 			String sourceTableName, String sourceFilter, List<PTPWorkflowSourceColumn> columns,String targetTableName) {

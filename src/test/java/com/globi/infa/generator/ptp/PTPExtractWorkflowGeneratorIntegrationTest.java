@@ -22,8 +22,6 @@ import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.PTPRepositoryWriterEventListener;
 import com.globi.infa.generator.builder.InfaPowermartObject;
-import com.globi.infa.generator.ptp.PTPGenerationStrategy;
-import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;

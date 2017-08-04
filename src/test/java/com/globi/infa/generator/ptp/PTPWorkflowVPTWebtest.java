@@ -9,30 +9,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import com.globi.AbstractWebIntegrationTest;
-import com.globi.infa.datasource.gcrm.GCRMTableColumnRepository;
-import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
-import com.globi.infa.datasource.type.sqlserver.SQLServerTableColumnMetadataVisitor;
-import com.globi.infa.datasource.vpt.VPTTableColumnRepository;
-import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;
 
 public class PTPWorkflowVPTWebtest extends AbstractWebIntegrationTest {
 
-	@Autowired
-	InfaPTPWorkflowRepository wfRepository;
-	
-	@Autowired
-	private VPTTableColumnRepository colRepo;
-	
-	@Autowired
-	private SQLServerTableColumnMetadataVisitor queryVisitor; 
-	
 	
 	PTPWorkflow ptpWorkflow;
 
@@ -41,7 +26,7 @@ public class PTPWorkflowVPTWebtest extends AbstractWebIntegrationTest {
 	
 	@Before
 	public void setup(){
-		inputBuilder= new PTPGeneratorE2EInputBuilder(colRepo,queryVisitor);
+		inputBuilder= new PTPGeneratorE2EInputBuilder();
 		
 		ptpWorkflow= inputBuilder.start()//
 		.sourceName("VPT")//

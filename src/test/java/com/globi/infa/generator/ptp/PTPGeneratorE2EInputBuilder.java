@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.globi.infa.datasource.core.TableColumnMetadataVisitor;
-import com.globi.infa.datasource.core.TableColumnRepository;
 import com.globi.infa.workflow.PTPWorkflow;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
@@ -15,9 +13,6 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 public class PTPGeneratorE2EInputBuilder {
 
-	private TableColumnRepository colRepo;
-
-	private TableColumnMetadataVisitor queryVisitor;
 
 	private PTPWorkflow ptpWorkflowGeneratorInput;
 
@@ -35,12 +30,6 @@ public class PTPGeneratorE2EInputBuilder {
 	List<String> buidCols = new ArrayList<>();
 	List<String> allCols = new ArrayList<>();
 
-	PTPGeneratorE2EInputBuilder(TableColumnRepository colRepo, TableColumnMetadataVisitor queryVisitor) {
-
-		this.colRepo = colRepo;
-		this.queryVisitor = queryVisitor;
-
-	}
 
 	public PTPGeneratorE2EInputBuilder setIntegrationCol(String columnName) {
 		integrationIdCols.add(columnName);

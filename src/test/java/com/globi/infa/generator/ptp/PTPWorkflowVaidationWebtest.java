@@ -1,6 +1,8 @@
 package com.globi.infa.generator.ptp;
 
-import static com.globi.infa.generator.ptp.PTPStaticObjectMother.*;
+import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getCCColumn;
+import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getIntegrationIdColumn;
+import static com.globi.infa.generator.ptp.PTPStaticObjectMother.getNormalColumn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -13,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import com.globi.AbstractWebIntegrationTest;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
@@ -25,11 +26,7 @@ import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
 public class PTPWorkflowVaidationWebtest extends AbstractWebIntegrationTest {
 
-	
-	
-	
-	@Autowired
-	InfaPTPWorkflowRepository wfRepository;
+
 	PTPWorkflow ptpWorkflow;
 	static final String sourceTable = "S_PARTY_PER";
 	static final String source = "CUK";
