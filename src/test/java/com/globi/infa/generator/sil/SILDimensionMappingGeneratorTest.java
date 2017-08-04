@@ -1,7 +1,7 @@
 package com.globi.infa.generator.sil;
 
 import static com.globi.infa.generator.CommonStaticObjectMother.getInfaSourceColumnsFromSourceDefn;
-import static com.globi.infa.generator.sil.SILStaticObjectMother.getDimensionPKColumn;
+import static com.globi.infa.generator.sil.SILStaticObjectMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
@@ -27,6 +27,7 @@ import com.globi.metadata.sourcesystem.SourceSystem;
 import xjc.INSTANCE;
 import xjc.SOURCE;
 import xjc.TABLEATTRIBUTE;
+import xjc.TRANSFORMATION;
 import xjc.TRANSFORMFIELD;
 
 public class SILDimensionMappingGeneratorTest {
@@ -39,7 +40,7 @@ public class SILDimensionMappingGeneratorTest {
 	private SILWorkflow silWorkflow;
 	private List<InfaSourceColumnDefinition> allSourceColumns;
 
-	private static final String STG_TABLE_INVOICE_LN = "INVOICE_LN";
+	private static final String STG_TABLE_INVOICE_LN = "X_INVOICE_LN";
 	private static final String SOURCE_NAME_LAW = "LAW";
 	private static final String TABLE_OWNER_LAW = "LAW";
 	private static final String DB_TYPE_ORACLE = "Oracle";
@@ -63,8 +64,18 @@ public class SILDimensionMappingGeneratorTest {
 		marshaller = new InfaConfig().jaxb2Marshaller();
 
 		List<SILWorkflowSourceColumn> cols = new ArrayList<>();
-		cols.add(getDimensionPKColumn("ROW_WID"));
+		cols.add(getDimensionAttribColumn("INTEGRATION_ID"));
+		cols.add(getDimensionAttribColumn("DATASOURCE_NUM_ID"));
+		cols.add(getDimensionAttribColumn("PGUID"));
+		cols.add(getDimensionAttribColumn("BU_PGUID"));
+		cols.add(getDimensionAttribColumn("ORIG_INV_NUM"));
+		cols.add(getDimensionAttribColumn("SRC_BILL_EVT"));
 
+		
+		
+		
+		
+		
 		silWorkflow = SILWorkflow.builder()//
 				.loadType("Dimension").stageName(STG_TABLE_INVOICE_LN).columns(cols)//
 				.workflowUri("")//
@@ -75,7 +86,7 @@ public class SILDimensionMappingGeneratorTest {
 				.newBuilder()//
 				.sourceFromSeed("seedClass")//
 				.marshaller(marshaller)//
-				.loadSourceFromSeed("TEST_SEED_SOURCE_SBU")//
+				.loadSourceFromSeed("TEST_SEED_SOURCE_INVOICELN")//
 				.noFields()//
 				.name(STG_TABLE_INVOICE_LN)//
 				.build()//
@@ -116,13 +127,76 @@ public class SILDimensionMappingGeneratorTest {
 				.map(fo->{
 					return ((SOURCE)fo.getFolderObj());
 				})
+				.filter(source->source.getNAME().equals("VIRTUAL_EXP"))
 				.findFirst();
 				
 		assertThat(optSource.get().getNAME()).isEqualTo("VIRTUAL_EXP");
 		assertThat(optSource.get().getSOURCEFIELD().size()).isEqualTo(3);
-				
+		
 		
 	}
+	
+	
+	
+	
+	
+	@Test
+	public void generatesCorrectSourceQualifierForVirtualUnspecified() throws Exception{
+		
+		
+		Optional<TRANSFORMATION> optObject = generateMapping()//
+				.getMapping()//
+				.getTRANSFORMATION()
+				.stream()
+				.filter(xform->xform.getTYPE().equals("Source Qualifier") && xform.getNAME().equals("SQ_ExtractUnspecified"))
+				.findFirst();
+		
+			assertThat(optObject.get().getNAME()).isEqualTo("SQ_ExtractUnspecified");
+			assertThat(optObject.get().getTRANSFORMFIELD().size()).isEqualTo(5);
+	}
+	
+	
+	
+	
+	@Test
+	public void generatesCorrectSourceDefinitonForStagingTable() throws Exception{
+		
+		Optional<SOURCE> optSource = generateMapping()//
+				.getFolderObjects()
+				.stream()
+				.filter(fo->fo.getType().equals("SOURCE"))
+				.map(fo->{
+					return ((SOURCE)fo.getFolderObj());
+				})
+				.filter(source->source.getNAME().equals(STG_TABLE_INVOICE_LN))
+				.findFirst();
+				
+		assertThat(optSource.get().getNAME()).isEqualTo(STG_TABLE_INVOICE_LN);
+	
+		
+	}
+	
+	
+	@Test
+	public void generatesCorrectSourceQualifierForStagingTable() throws Exception{
+		
+		
+		Optional<TRANSFORMATION> optObject = generateMapping()//
+				.getMapping()//
+				.getTRANSFORMATION()
+				.stream()
+				.filter(xform->xform.getTYPE().equals("Source Qualifier") && xform.getNAME().equals("SQ_ExtractData"))
+				.findFirst();
+		
+		assertThat(optObject.get().getNAME()).isEqualTo("SQ_ExtractData");
+		assertThat(optObject.get().getTRANSFORMFIELD().size()).isEqualTo(6);	
+			
+			
+	}
+	
+	
+	
+	
 
 	@Test
 	public void generatesPtpMappingWithCorrectAssociatedSourceInstance() throws Exception {
@@ -138,6 +212,9 @@ public class SILDimensionMappingGeneratorTest {
 
 	}
 
+	
+	
+	
 	@Test
 	public void generatesPtpMappingWithCorrectChangeCaptureFilter() throws Exception {
 

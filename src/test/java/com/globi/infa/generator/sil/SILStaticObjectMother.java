@@ -17,5 +17,20 @@ public class SILStaticObjectMother {
 				.build();
 
 	}
+	
+	
+	public static SILWorkflowSourceColumn getDimensionAttribColumn(String colName) {
+
+		return SILWorkflowSourceColumn.builder()//
+				.columnName(colName)//
+				.autoColumn(true)//
+				.columnType("Attribute")//
+				.domainLookupColumn(false)//
+				.legacyColumn(true)//
+				.miniDimColumn(true)//
+				.targetColumn(true)//
+				.build();
+
+	}
 
 }

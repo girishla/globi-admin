@@ -10,11 +10,16 @@ import com.globi.infa.generator.AbstractMappingGenerator;
 import com.globi.infa.generator.builder.InfaMappingObject;
 import com.globi.infa.generator.builder.MappingBuilder;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
+import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.SILInfaSourceColumnDefinition;
 import com.globi.infa.workflow.SILWorkflow;
 import com.globi.metadata.sourcesystem.SourceSystem;
 
+import lombok.extern.slf4j.Slf4j;
+
+
+@Slf4j
 public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 
 	
@@ -56,6 +61,8 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 		String dbName = sourceSystem.getDbName();
 		String tableOwner=sourceSystem.getOwnerName();
 		
+		log.info(matchedColumnsSIL.toString());
+		
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
 				.simpleTableSyncClass("simpleTableSyncClass")//
@@ -66,10 +73,32 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.noFields()
 						.nameAlreadySet()
 						.build())//
+				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
+						.sourceDefnFromPrototype("SourceFromPrototype")//
+						.sourceDefn(sourceSystem, stageTableName, tableOwner)//
+						.addFields(allSourceColumns)//
+						.name(stageTableName)//
+						.build())//
 				.noMoreSources()//
 				.noMoreTargets()
 				.noMoreMapplets()
 				.startMappingDefn("SIL_"+ stageTableName + "Dimension")
+				.transformation(SourceQualifierBuilder.newBuilder()//
+						.marshaller(marshaller)
+						.noMoreValues()
+						.loadSourceQualifierFromSeed("Seed_SIL_Xform_SQ_Unspecified")//
+						.noMoreFields()//
+						.noMoreFilters()//
+						.nameAlreadySet()//
+						.build())
+				.transformation(SourceQualifierBuilder.newBuilder()//
+						.marshaller(marshaller)//
+						.noMoreValues()//
+						.loadSourceQualifierFromSeed("Seed_CMN_SourceQualifier")//
+						.addFields(dataTypeMapper, (List<InfaSourceColumnDefinition>)(List<?>)matchedColumnsSIL)//
+						.noMoreFilters()
+						.name("SQ_ExtractData")//
+						.build())
 				.noMoreTransformations()
 				.noMoreConnectors()
 				.noMoreTargetLoadOrders()

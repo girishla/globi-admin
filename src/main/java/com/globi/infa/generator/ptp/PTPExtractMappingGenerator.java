@@ -117,7 +117,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.noMoreValues()//
-						.loadSourceQualifierFromSeed("Seed_PTP_SourceQualifier")//
+						.loadSourceQualifierFromSeed("Seed_CMN_SourceQualifier")//
 						.addFields(dataTypeMapper, (List<InfaSourceColumnDefinition>)(List<?>)matchedColumnsPTP)//
 						.addFilter(sourceFilter).addCCFilterFromColumns(inputSelectedColumns, tblName).noMoreFilters()
 						.name("SQ_ExtractData")//

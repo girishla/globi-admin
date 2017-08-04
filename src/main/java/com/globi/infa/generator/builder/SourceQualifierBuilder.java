@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -21,7 +20,6 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.FileCopyUtils;
 
 import com.globi.infa.datasource.core.DataTypeMapper;
-import com.globi.infa.datasource.core.ObjectNameNormaliser;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.workflow.PTPWorkflowSourceColumn;
 
@@ -51,6 +49,7 @@ public class SourceQualifierBuilder {
 
 	public interface AddFieldsStep {
 		AddFilterStep addFields(DataTypeMapper mapper, List<InfaSourceColumnDefinition> columns);
+		AddFilterStep noMoreFields();
 	}
 
 	public interface AddFilterStep {
@@ -63,6 +62,7 @@ public class SourceQualifierBuilder {
 
 	public interface NameStep {
 		BuildStep name(String name);
+		BuildStep nameAlreadySet();
 	}
 
 	public interface BuildStep {
@@ -214,6 +214,18 @@ public class SourceQualifierBuilder {
 				filterString = filterString + " AND ";
 
 			filterString += this.getCCFilterString(inputSelectedColumns, tableName);
+			return this;
+		}
+
+		@Override
+		public AddFilterStep noMoreFields() {
+
+			return this;
+		}
+
+		@Override
+		public BuildStep nameAlreadySet() {
+
 			return this;
 		}
 
