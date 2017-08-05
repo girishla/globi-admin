@@ -133,11 +133,11 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 						.loadLookupXformFromSeed("Seed_PTP_LKPPTPPrimaryRecordKeys")//
 						.nameAlreadySet()//
 						.build())
-				.noMoreTransformations()//
 				.autoConnectByName(tblName, "SQ_PrimaryData")//
 				.autoConnectByName("LKP_RecordKeys", targetTableDefnName)//
 				.autoConnectByName("EXP_Resolve", targetTableDefnName)//
 				.connector("EXP_Resolve", "SYS_INTEGRATION_ID", "LKP_RecordKeys", "SYS_INTEGRATION_ID_IN")//
+				.noMoreTransformations()//
 				.noMoreConnectors()//
 				.noMoreTargetLoadOrders()//
 				.mappingvariable(getEtlProcWidMappingVariable())//

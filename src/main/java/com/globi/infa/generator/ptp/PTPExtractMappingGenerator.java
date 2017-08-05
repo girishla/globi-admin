@@ -88,6 +88,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 
 	
 		
+		@SuppressWarnings("unchecked")
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
 				.simpleTableSyncClass("simpleTableSyncClass")//
@@ -125,13 +126,14 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 				.transformation(ExpressionXformBuilder.newBuilder()//
 						.expressionFromPrototype("ExpFromPrototype")//
 						.expression("EXP_Resolve")//
-						.mapper(dataTypeMapper).addEffectiveFromDateField()//
+						.mapper(dataTypeMapper)//
+						.addEffectiveFromDateField()//
 						.addEtlProcWidField()//
 						.addDatasourceNumIdField()//
 						.addIntegrationIdField(matchedColumnsPTP)//
 						.addBUIDField(matchedColumnsPTP)//
 						.addPGUIDField(dbName, tblName, sourceTableAbbreviation, matchedColumnsPTP)//
-						.addMD5HashField(matchedColumnsPTP)//
+						.addMD5HashField("SYS_HASH_RECORD",(List<InfaSourceColumnDefinition>)(List<?>)matchedColumnsPTP)//
 						.addRowWidField()//
 						.noMoreFields()//
 						.nameAlreadySet()//
@@ -173,7 +175,6 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 						.nameAlreadySet()//
 						.build())
 				.transformationCopyConnectAllFields("EXP_Resolve", "FIL_ChangesOnly")//
-				.noMoreTransformations()//
 				.autoConnectByName(tblName, "SQ_ExtractData")//
 				.autoConnectByName("FIL_ChangesOnly", targetTableDefnName)//
 				.connector("SEQ_WID", "NEXTVAL", "EXP_Resolve", "SYS_ROW_WID")
@@ -185,7 +186,8 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 				.connector("EXP_PrepBUDomLookup", "DL_01_DOMAIN_MAP", "MPL_DomainLookup", "IN_01_DOMAIN_MAP")//
 				.connector("EXP_PrepBUDomLookup", "DL_01_SRC_VAL", "MPL_DomainLookup", "IN_01_SRC_VAL")//
 				.connector("MPL_DomainLookup", "OUT_01_TGT_VAL", "FIL_ChangesOnly", "SYS_BU_PGUID")//
-				.noMoreConnectors()//
+				.noMoreTransformations()//
+				.noMoreConnectors()
 				.noMoreTargetLoadOrders()//
 				.mappingvariable(getEtlProcWidMappingVariable())//
 				.mappingvariable(getInitialExtractDateMappingVariable())//

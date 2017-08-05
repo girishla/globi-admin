@@ -21,6 +21,7 @@ import com.globi.infa.datasource.core.DataTypeMapper;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.rits.cloning.Cloner;
 
+import xjc.FIELDDEPENDENCY;
 import xjc.TRANSFORMATION;
 import xjc.TRANSFORMFIELD;
 
@@ -51,7 +52,12 @@ public class UnionXformBuilder {
 
 	public interface AddInputFieldsStep {
 		AddInputFieldsStep addInputFields(String groupName, int fieldSuffix);
-		NameStep noMoreInputFields();
+		AddFieldDepencenciesStep noMoreInputFields();
+	}
+	
+	public interface AddFieldDepencenciesStep {
+		AddFieldDepencenciesStep addFieldDependencies(int fieldSuffix);
+		NameStep noMoreFieldDependencies();
 	}
 
 	public interface NameStep {
@@ -65,7 +71,7 @@ public class UnionXformBuilder {
 	}
 
 	public static class UnionXformSteps implements NameStep, SetMarshallerStep, SetInterPolationValues,
-			LoadFromSeedStep, AddOutputFieldsStep, AddInputFieldsStep, BuildStep {
+			LoadFromSeedStep, AddOutputFieldsStep, AddInputFieldsStep,AddFieldDepencenciesStep, BuildStep {
 
 		private Jaxb2Marshaller marshaller;
 		private TRANSFORMATION unionXformDefn;
@@ -192,10 +198,39 @@ public class UnionXformBuilder {
 		}
 		
 		@Override
-		public NameStep noMoreInputFields() {
+		public AddFieldDepencenciesStep noMoreInputFields() {
 
 			return this;
 		}
+
+		@Override
+		public AddFieldDepencenciesStep addFieldDependencies(int fieldSuffix) {
+
+			List<FIELDDEPENDENCY> fieldDeps = this.unionXformDefn.getTRANSFORMFIELD().stream()//
+					.filter(field->field.getPORTTYPE().equals("OUTPUT"))
+					.map(field -> {
+						
+						FIELDDEPENDENCY fielddep=new FIELDDEPENDENCY();
+						fielddep.setINPUTFIELD(field.getNAME() + fieldSuffix);
+						fielddep.setOUTPUTFIELD(field.getNAME());
+						
+						return fielddep;
+					})//
+					.collect(Collectors.toList());
+
+			this.unionXformDefn.getFIELDDEPENDENCY().addAll(fieldDeps);
+	
+			
+			return this;
+		}
+
+		@Override
+		public NameStep noMoreFieldDependencies() {
+
+			return this;
+		}
+
+
 
 	}
 

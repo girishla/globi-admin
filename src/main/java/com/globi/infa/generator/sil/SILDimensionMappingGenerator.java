@@ -8,6 +8,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import com.globi.infa.datasource.core.DataSourceTableDTO;
 import com.globi.infa.datasource.core.DataTypeMapper;
 import com.globi.infa.generator.AbstractMappingGenerator;
+import com.globi.infa.generator.builder.ExpressionXformBuilder;
 import com.globi.infa.generator.builder.InfaMappingObject;
 import com.globi.infa.generator.builder.MappingBuilder;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
@@ -58,14 +59,22 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 		String dbName = sourceSystem.getDbName();
 		String tableOwner = sourceSystem.getOwnerName();
 
+		List<SILInfaSourceColumnDefinition> nonSysMatchedCols = matchedColumnsSIL.stream()//
+				.filter(col -> !col.getColumnType().equals("System"))//
+				.collect(Collectors.toList());
+
 		log.info(matchedColumnsSIL.toString());
 
+		@SuppressWarnings("unchecked")
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
 				.simpleTableSyncClass("simpleTableSyncClass")//
 				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
-						.sourceFromSeed("sourceFromSeedClass").marshaller(marshaller)
-						.loadSourceFromSeed("Seed_SIL_Source_UnspecifiedVirtual").noFields().nameAlreadySet().build())//
+						.sourceFromSeed("sourceFromSeedClass")//
+						.marshaller(marshaller).loadSourceFromSeed("Seed_SIL_Source_UnspecifiedVirtual")//
+						.noFields()//
+						.nameAlreadySet()//
+						.build())//
 				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
 						.sourceDefnFromPrototype("SourceFromPrototype")//
 						.sourceDefn(sourceSystem, stageTableName, tableOwner)//
@@ -75,8 +84,8 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 				.noMoreSources()//
 				.noMoreTargets().noMoreMapplets().startMappingDefn("SIL_" + stageTableName + "_Dimension")
 				.transformation(SourceQualifierBuilder.newBuilder()//
-						.marshaller(marshaller).noMoreValues()
-						.loadSourceQualifierFromSeed("Seed_SIL_Xform_SQ_Unspecified")//
+						.marshaller(marshaller)//
+						.noMoreValues().loadSourceQualifierFromSeed("Seed_SIL_Xform_SQ_Unspecified")//
 						.noMoreFields()//
 						.noMoreFilters()//
 						.nameAlreadySet()//
@@ -101,9 +110,33 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.addInputFields("DATA", 1)//
 						.addInputFields("UNSPEC", 2)//
 						.noMoreInputFields()//
-						.nameAlreadySet()//
+						.addFieldDependencies(1).addFieldDependencies(2).noMoreFieldDependencies().nameAlreadySet()//
 						.build())
-				.noMoreTransformations().noMoreConnectors().noMoreTargetLoadOrders().noMoreMappingVariables().build();
+				.autoConnectByName(stageTableName, "SQ_ExtractData")//
+				.autoConnectByName("VIRTUAL_EXP", "SQ_ExtractUnspecified")//
+				.autoConnectByTransformedName("SQ_ExtractData", "UNION_UnspecifiedData", str -> str + 1)
+				.connector("SQ_ExtractUnspecified", "UNSPEC_WID", "UNION_UnspecifiedData", "ROW_WID2")
+				.connector("SQ_ExtractUnspecified", "UNSPEC_PGUID", "UNION_UnspecifiedData", "DATASOURCE_NUM_ID2")
+				.connector("SQ_ExtractUnspecified", "UNSPEC_PGUID", "UNION_UnspecifiedData", "INTEGRATION_ID2")
+				.connector("SQ_ExtractUnspecified", "UNSPEC_PGUID", "UNION_UnspecifiedData", "PGUID2")
+				.connector("SQ_ExtractUnspecified", "UNSPEC_N_FLAG", "UNION_UnspecifiedData", "DELETE_FLG2")
+				.connector("SQ_ExtractUnspecified", "UNSPEC_Y_FLAG", "UNION_UnspecifiedData", "CURRENT_FLG2")
+				.connector("SQ_ExtractUnspecified", "UNSPEC_CREATED_DT", "UNION_UnspecifiedData", "S_CREATED_DT2")
+				.connector("SQ_ExtractUnspecified", "UNSPEC_CREATED_DT", "UNION_UnspecifiedData", "S_UPDATED_DT2")
+				.transformation(ExpressionXformBuilder.newBuilder()//
+						.expressionFromPrototype("ExpFromPrototype")//
+						.expression("EXP_CalculateHashes")//
+						.mapper(dataTypeMapper)//
+						.addFields((List<InfaSourceColumnDefinition>) (List<?>)nonSysMatchedCols)//
+						.addMD5HashField("HASH_RECORD",(List<InfaSourceColumnDefinition>) (List<?>)nonSysMatchedCols)//
+						.noMoreFields()//
+						.nameAlreadySet()//
+						.build())//
+				.noMoreTransformations()//
+				.noMoreConnectors()//
+				.noMoreTargetLoadOrders()//
+				.noMoreMappingVariables()//
+				.build();
 
 		return mappingObjExtract;
 

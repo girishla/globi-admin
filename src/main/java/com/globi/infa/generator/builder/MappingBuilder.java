@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import com.globi.infa.datasource.core.ObjectNameNormaliser;
@@ -79,6 +80,14 @@ public class MappingBuilder {
 
 		TransformationStep transformationField(String transformation, TRANSFORMFIELD field);
 
+		TransformationStep connector(CONNECTOR connector);
+
+		TransformationStep connector(String fromInstance, String fromField, String toInstance, String toField);
+
+		TransformationStep autoConnectByName(String fromInstanceName, String toInstanceName);
+		TransformationStep autoConnectByTransformedName(String fromInstanceName, String toInstanceName, UnaryOperator<String> op);
+
+		
 		ConnectorStep noMoreTransformations();
 	}
 
@@ -98,11 +107,6 @@ public class MappingBuilder {
 	}
 
 	public interface ConnectorStep {
-		ConnectorStep connector(CONNECTOR connector);
-
-		ConnectorStep connector(String fromInstance, String fromField, String toInstance, String toField);
-
-		ConnectorStep autoConnectByName(String fromInstanceName, String toInstanceName);
 
 		TargetLoadOrderStep noMoreConnectors();
 	}
@@ -234,7 +238,7 @@ public class MappingBuilder {
 		}
 
 		@Override
-		public ConnectorStep connector(CONNECTOR connector) {
+		public TransformationStep connector(CONNECTOR connector) {
 
 			return this;
 		}
@@ -282,6 +286,18 @@ public class MappingBuilder {
 		public MappletStep noMoreTargets() {
 
 			return this;
+		}
+		
+		
+		private List<String> extractInputFieldNamesForTransformation(String instanceName) {
+
+			return mapping.getTRANSFORMATION().stream()//
+					.filter(instance -> instance.getNAME().equals(instanceName))//
+					.map(TRANSFORMATION::getTRANSFORMFIELD)//
+					.flatMap(List::stream)//
+					.filter(transformField->transformField.getPORTTYPE().endsWith("INPUT") || transformField.getPORTTYPE().endsWith("INPUT/OUTPUT"))
+					.map(TRANSFORMFIELD::getNAME)//
+					.collect(Collectors.toList());
 		}
 
 		private List<String> extractFieldNamesForTransformation(String instanceName) {
@@ -354,7 +370,7 @@ public class MappingBuilder {
 		}
 
 		@Override
-		public ConnectorStep autoConnectByName(String fromInstanceName, String toInstanceName) {
+		public TransformationStep autoConnectByName(String fromInstanceName, String toInstanceName) {
 
 			List<String> fromInstanceFieldNames = new ArrayList<>();
 			List<String> toInstanceFieldNames = new ArrayList<>();
@@ -488,7 +504,7 @@ public class MappingBuilder {
 		}
 
 		@Override
-		public ConnectorStep connector(String fromInstance, String fromField, String toInstance, String toField) {
+		public TransformationStep connector(String fromInstance, String fromField, String toInstance, String toField) {
 
 			// remove connectors that have already been linked
 			Iterator<CONNECTOR> iter = this.connectors.iterator();
@@ -591,6 +607,70 @@ public class MappingBuilder {
 			this.folderObjects.add(mappingObject);
 			mappingObject.setFolderObjects(this.folderObjects);
 			return mappingObject;
+		}
+
+		@Override
+		public TransformationStep autoConnectByTransformedName(String fromInstanceName, String toInstanceName,
+				UnaryOperator<String> transformationFunction) {
+
+			
+			List<String> fromInstanceFieldNames = new ArrayList<>();
+			List<String> toInstanceFieldNames = new ArrayList<>();
+			Map<String,String> normalisedColumns= new HashMap<>();
+
+			log.debug("Auto-connecting instances " + fromInstanceName + " and " + toInstanceName);
+
+			fromInstanceFieldNames.addAll(extractFieldNamesForTransformation(fromInstanceName));
+			toInstanceFieldNames.addAll(extractInputFieldNamesForTransformation(toInstanceName));
+
+			toInstanceFieldNames.stream()//
+			.forEach(toField->log.info("--------" + toField));
+			
+			// It is sufficient to look for fromInstances only in the SourceMap
+			// as targets cannot be "From" in a connector.
+			fromInstanceFieldNames.addAll(extractFieldNamesForSources(fromInstanceName));
+
+			
+			
+			//save normalised column names as Hash to use later
+			fromInstanceFieldNames//
+					.stream()//
+					.forEach(col->normalisedColumns.put(ObjectNameNormaliser.normalise(col) , col));
+
+			
+			//collect normalise column names as list before comparing
+			fromInstanceFieldNames=fromInstanceFieldNames//
+					.stream()//
+					.map(ObjectNameNormaliser::normalise)//
+					.collect(Collectors.toList());
+			
+			toInstanceFieldNames.addAll(extractFieldNamesForTargets(toInstanceName));
+
+			
+			fromInstanceFieldNames.stream()//
+					.forEach(fromField->log.info("^^^^^^^^^^^^" + transformationFunction.apply(fromField)));
+			
+			
+			
+			List<String> matchingFieldNames = fromInstanceFieldNames.stream()//
+					.filter(fromField->  toInstanceFieldNames.indexOf(transformationFunction.apply(fromField))!=-1)//
+					.collect(Collectors.toList());
+			
+			
+
+
+			
+			// Add a connector for each matching field
+			matchingFieldNames.forEach(matchingField -> {
+				this.connector(fromInstanceName, normalisedColumns.get(matchingField), toInstanceName,  transformationFunction.apply(matchingField));
+
+			});
+
+			return this;
+
+			
+			
+			
 		}
 
 		

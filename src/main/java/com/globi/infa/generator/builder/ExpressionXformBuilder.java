@@ -80,7 +80,7 @@ public class ExpressionXformBuilder {
 		AddFieldsStep addPGUIDField(String sourceName, String tableName, StringMap sourceTableAbbr,
 				List<PTPInfaSourceColumnDefinition> columns);
 
-		AddFieldsStep addMD5HashField(List<PTPInfaSourceColumnDefinition> columns);
+		AddFieldsStep addMD5HashField(String name,List<InfaSourceColumnDefinition> columns);
 
 		NameStep noMoreFields();
 
@@ -411,7 +411,7 @@ public class ExpressionXformBuilder {
 		}
 
 		@Override
-		public AddFieldsStep addMD5HashField(List<PTPInfaSourceColumnDefinition> columns) {
+		public AddFieldsStep addMD5HashField(String name,List<InfaSourceColumnDefinition> columns) {
 
 			String MD5Value = columns.stream()//
 					.map(this::getInfaCastToStringExpression)//
@@ -423,7 +423,7 @@ public class ExpressionXformBuilder {
 			xformExpressionField.setDESCRIPTION("");
 			xformExpressionField.setEXPRESSION("MD5(" + MD5Value + ")");
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
-			xformExpressionField.setNAME("SYS_HASH_RECORD");
+			xformExpressionField.setNAME(name);
 			xformExpressionField.setPICTURETEXT("");
 			xformExpressionField.setPORTTYPE("OUTPUT");
 			xformExpressionField.setPRECISION("32");
