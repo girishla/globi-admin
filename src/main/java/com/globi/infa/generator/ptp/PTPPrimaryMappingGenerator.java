@@ -107,6 +107,7 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 						.build())//
 				.noMoreTargets()//
 				.noMoreMapplets()//
+				.noMoreReusableXforms()
 				.startMappingDefn("PTP_" + dbName + "_" + tblName + "_Primary")//
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//

@@ -9,7 +9,9 @@ import com.globi.infa.datasource.core.DataSourceTableDTO;
 import com.globi.infa.datasource.core.DataTypeMapper;
 import com.globi.infa.generator.AbstractMappingGenerator;
 import com.globi.infa.generator.builder.ExpressionXformBuilder;
+import com.globi.infa.generator.builder.FilterXformBuilder;
 import com.globi.infa.generator.builder.InfaMappingObject;
+import com.globi.infa.generator.builder.LookupXformBuilder;
 import com.globi.infa.generator.builder.MappingBuilder;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.generator.builder.SourceQualifierBuilder;
@@ -62,8 +64,12 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 		List<SILInfaSourceColumnDefinition> nonSysMatchedCols = matchedColumnsSIL.stream()//
 				.filter(col -> !col.getColumnType().equals("System"))//
 				.collect(Collectors.toList());
+		
+		List<SILInfaSourceColumnDefinition> attribCols = matchedColumnsSIL.stream()//
+				.filter(col -> col.getColumnType().equals("Attribute"))//
+				.collect(Collectors.toList());
 
-		log.info(matchedColumnsSIL.toString());
+		attribCols.stream().forEach(col->log.info("%%%%%%%" + col.getColumnName()));
 
 		@SuppressWarnings("unchecked")
 		InfaMappingObject mappingObjExtract = MappingBuilder//
@@ -82,7 +88,16 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.name(stageTableName)//
 						.build())//
 				.noMoreSources()//
-				.noMoreTargets().noMoreMapplets().startMappingDefn("SIL_" + stageTableName + "_Dimension")
+				.noMoreTargets()//
+				.noMoreMapplets()//
+				.reusableTransformation(LookupXformBuilder.newBuilder()//
+						.marshaller(marshaller)//
+						.noInterpolationValues()//
+						.loadLookupXformFromSeed("Seed_SIL_REUSE_LKP_Dim_PGUID")//
+						.nameAlreadySet()//
+						.build())
+				.noMoreReusableXforms()
+				.startMappingDefn("SIL_" + stageTableName + "_Dimension")
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.noMoreValues().loadSourceQualifierFromSeed("Seed_SIL_Xform_SQ_Unspecified")//
@@ -132,6 +147,29 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.noMoreFields()//
 						.nameAlreadySet()//
 						.build())//
+				.autoConnectByName("UNION_UnspecifiedData", "EXP_CalculateHashes")//
+				.transformation(ExpressionXformBuilder.newBuilder()//
+						.expressionFromPrototype("ExpFromPrototype")//
+						.expression("EXP_ETL_Parameters")//
+						.mapper(dataTypeMapper)//
+						.addInputField("PGUID", "string", "100", "0")//
+						.addEtlProcWidField("ETL_PROC_WID")//
+						.noMoreFields()//
+						.nameAlreadySet()//
+						.build())//
+				.connector("UNION_UnspecifiedData", "PGUID", "EXP_ETL_Parameters", "PGUID")
+				.transformation(FilterXformBuilder.newBuilder()//
+						.FilterFromSeed("SeedClass")//
+						.marshaller(marshaller)//
+						.noInterpolationValues()//
+						.loadFilterXformFromSeed("Seed_SIL_Xform_FIL")//
+						.addFields((List<InfaSourceColumnDefinition>) (List<?>)attribCols)//
+						.noMoreFields()//
+						.addCondition("(ISNULL(LKP_ETL_PROC_WID) OR LKP_ETL_PROC_WID != ETL_PROC_WID) AND (ISNULL(LKP_HASH_RECORD) OR LKP_HASH_RECORD != HASH_RECORD)")//
+						.noMoreConditions()//
+						.nameAlreadySet()//
+						.build())
+//				Seed_SIL_Xform_FIL
 				.noMoreTransformations()//
 				.noMoreConnectors()//
 				.noMoreTargetLoadOrders()//

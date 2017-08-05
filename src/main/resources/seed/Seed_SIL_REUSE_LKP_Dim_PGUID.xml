@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <TRANSFORMATION DESCRIPTION ="" NAME ="LKP_SYS_Dimension_PGUID" OBJECTVERSION ="1" REUSABLE ="YES" TYPE ="Lookup Procedure" VERSIONNUMBER ="1">
+        <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="IN_PGUID" PICTURETEXT ="" PORTTYPE ="INPUT" PRECISION ="100" SCALE ="0"/>
+        <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="PGUID" PICTURETEXT ="" PORTTYPE ="LOOKUP" PRECISION ="100" SCALE ="0"/>
+        <TRANSFORMFIELD DATATYPE ="decimal" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="ROW_WID" PICTURETEXT ="" PORTTYPE ="LOOKUP/OUTPUT" PRECISION ="10" SCALE ="0"/>
+        <TRANSFORMFIELD DATATYPE ="decimal" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="ETL_PROC_WID" PICTURETEXT ="" PORTTYPE ="LOOKUP/OUTPUT" PRECISION ="10" SCALE ="0"/>
+        <TRANSFORMFIELD DATATYPE ="date/time" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="CREATED_DT" PICTURETEXT ="" PORTTYPE ="LOOKUP/OUTPUT" PRECISION ="29" SCALE ="9"/>
+        <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="HASH_RECORD" PICTURETEXT ="" PORTTYPE ="LOOKUP/OUTPUT" PRECISION ="32" SCALE ="0"/>
+        <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="HASH_SCD" PICTURETEXT ="" PORTTYPE ="LOOKUP/OUTPUT" PRECISION ="32" SCALE ="0"/>
+        <TABLEATTRIBUTE NAME ="Lookup Sql Override" VALUE ="SELECT &#xD;&#xA;&#x9;TGT.PGUID as PGUID, &#xD;&#xA;&#x9;TGT.ROW_WID as ROW_WID,&#xD;&#xA;&#x9;TGT.ETL_PROC_WID as ETL_PROC_WID, &#xD;&#xA;&#x9;TGT.W_CREATED_DT as CREATED_DT,&#xD;&#xA;&#x9;TGT.HASH_RECORD as HASH_RECORD,&#xD;&#xA;&#x9;TGT.HASH_SCD as HASH_SCD&#xD;&#xA;FROM &#xD;&#xA;&#x9;D_$$TABLE_TARGET TGT&#xD;&#xA;WHERE&#xD;&#xA;&#x9;TGT.CURRENT_FLG=&apos;Y&apos;&#xD;&#xA;AND (TGT.ROW_WID=0 OR EXISTS (SELECT &apos;X&apos; FROM X_$$TABLE_STAGE STG WHERE STG.PGUID=TGT.PGUID))"/>
+        <TABLEATTRIBUTE NAME ="Lookup table name" VALUE =""/>
+        <TABLEATTRIBUTE NAME ="Lookup Source Filter" VALUE =""/>
+        <TABLEATTRIBUTE NAME ="Lookup caching enabled" VALUE ="YES"/>
+        <TABLEATTRIBUTE NAME ="Lookup policy on multiple match" VALUE ="Use First Value"/>
+        <TABLEATTRIBUTE NAME ="Lookup condition" VALUE ="PGUID = IN_PGUID"/>
+        <TABLEATTRIBUTE NAME ="Connection Information" VALUE ="$Target"/>
+        <TABLEATTRIBUTE NAME ="Source Type" VALUE ="Database"/>
+        <TABLEATTRIBUTE NAME ="Recache if Stale" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Tracing Level" VALUE ="Normal"/>
+        <TABLEATTRIBUTE NAME ="Lookup cache directory name" VALUE ="$PMCacheDir"/>
+        <TABLEATTRIBUTE NAME ="Lookup cache initialize" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Lookup cache persistent" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Lookup Data Cache Size" VALUE ="Auto"/>
+        <TABLEATTRIBUTE NAME ="Lookup Index Cache Size" VALUE ="Auto"/>
+        <TABLEATTRIBUTE NAME ="Dynamic Lookup Cache" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Synchronize Dynamic Cache" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Output Old Value On Update" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Update Dynamic Cache Condition" VALUE ="TRUE"/>
+        <TABLEATTRIBUTE NAME ="Cache File Name Prefix" VALUE =""/>
+        <TABLEATTRIBUTE NAME ="Re-cache from lookup source" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Insert Else Update" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Update Else Insert" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Datetime Format" VALUE =""/>
+        <TABLEATTRIBUTE NAME ="Thousand Separator" VALUE ="None"/>
+        <TABLEATTRIBUTE NAME ="Decimal Separator" VALUE ="."/>
+        <TABLEATTRIBUTE NAME ="Case Sensitive String Comparison" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Null ordering" VALUE ="Null Is Highest Value"/>
+        <TABLEATTRIBUTE NAME ="Sorted Input" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Lookup source is static" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Pre-build lookup cache" VALUE ="Auto"/>
+        <TABLEATTRIBUTE NAME ="Subsecond Precision" VALUE ="0"/>
+    </TRANSFORMATION>

@@ -117,9 +117,11 @@ public class SILDimensionMappingGeneratorTest {
 	public void generatesCorrectSourceDefinitonForUnspecifiedVirtualTable() throws Exception {
 
 		Optional<SOURCE> optSource = generateMapping()//
-				.getFolderObjects().stream().filter(fo -> fo.getType().equals("SOURCE")).map(fo -> {
+				.getFolderObjects().stream().filter(fo -> fo.getType().equals("SOURCE"))//
+				.map(fo -> {
 					return ((SOURCE) fo.getFolderObj());
-				}).filter(source -> source.getNAME().equals("VIRTUAL_EXP")).findFirst();
+				}).filter(source -> source.getNAME().equals("VIRTUAL_EXP"))//
+				.findFirst();
 
 		assertThat(optSource.get().getNAME()).isEqualTo("VIRTUAL_EXP");
 		assertThat(optSource.get().getSOURCEFIELD().size()).isEqualTo(3);
@@ -256,5 +258,54 @@ public class SILDimensionMappingGeneratorTest {
 				"MD5(IIF(ISNULL(INTEGRATION_ID),'NOVAL',INTEGRATION_ID)||IIF(ISNULL(PGUID),'NOVAL',PGUID)||IIF(ISNULL(ORIG_INV_NUM),'NOVAL',ORIG_INV_NUM)||IIF(ISNULL(SRC_BILL_EVT),'NOVAL',SRC_BILL_EVT))");
 
 	}
+	
+	
+	
+	@Test
+	public void generatesMappingWithUnionXformConnectsToHashExpression() throws Exception {
+		List<CONNECTOR> connectors = generateMapping()//
+				.getMapping()//
+				.getCONNECTOR()//
+				.stream()//
+				.filter(conn -> (conn.getFROMINSTANCE().equals("UNION_UnspecifiedData")
+						&& conn.getTOINSTANCE().equals("EXP_CalculateHashes")))
+				.collect(Collectors.toList());
+		//non system input columns
+		assertThat(connectors.size()).isEqualTo(4);
+
+	}
+	
+	@Test
+	public void generatesMappingWithReusableXformForPguidLookup() throws Exception{
+		
+		Optional<TRANSFORMATION> optSource = generateMapping()//
+				.getFolderObjects().stream().filter(fo -> fo.getType().equals("TRANSFORMATION"))//
+				.map(fo -> {
+					return ((TRANSFORMATION) fo.getFolderObj());
+				}).filter(source -> source.getNAME().equals("LKP_SYS_Dimension_PGUID"))//
+				.findFirst();
+
+		assertThat(optSource.get().getNAME()).isEqualTo("LKP_SYS_Dimension_PGUID");
+		assertThat(optSource.get().getTRANSFORMFIELD().size()).isEqualTo(7);
+		
+		
+	}
+	
+	@Test
+	public void generatesMappingWithFilterXform() throws Exception{
+		
+		
+		Optional<TRANSFORMATION> optObject = generateMapping()//
+				.getMapping()//
+				.getTRANSFORMATION().stream()
+				.filter(xform -> xform.getTYPE().equals("Filter") && xform.getNAME().equals("FIL_ExcludeRecords"))
+				.findFirst();
+
+		assertThat(optObject.get().getTRANSFORMFIELD().size()).isEqualTo(21);
+		
+		
+	}
+	
+	
 
 }

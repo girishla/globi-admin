@@ -114,6 +114,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 						.nameAlreadySet()//
 						.build())//
 				.noMoreMapplets()//
+				.noMoreReusableXforms()
 				.startMappingDefn("PTP_" + dbName + "_" + tblName + "_Extract")//
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
@@ -128,7 +129,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 						.expression("EXP_Resolve")//
 						.mapper(dataTypeMapper)//
 						.addEffectiveFromDateField()//
-						.addEtlProcWidField()//
+						.addEtlProcWidField("SYS_ETL_PROC_WID")//
 						.addDatasourceNumIdField()//
 						.addIntegrationIdField(matchedColumnsPTP)//
 						.addBUIDField(matchedColumnsPTP)//
@@ -199,30 +200,6 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 
 	}
 
-//	private List<PTPInfaSourceColumnDefinition> getFilteredSourceDefnColumns(
-//			List<PTPInfaSourceColumnDefinition> allTableColumns, List<PTPWorkflowSourceColumn> inputSelectedColumns) {
-//
-//		Map<String, PTPInfaSourceColumnDefinition> allColsMap = allTableColumns.stream()
-//				.collect(Collectors.toMap(PTPInfaSourceColumnDefinition::getColumnName, Function.identity()));
-//
-//		inputSelectedColumns.stream().forEach(inputColumn -> {
-//			if (allColsMap.containsKey(inputColumn.getSourceColumnName())) {
-//				allColsMap.get(inputColumn.getSourceColumnName())
-//						.setIntegrationIdFlag(inputColumn.isIntegrationIdColumn());
-//				allColsMap.get(inputColumn.getSourceColumnName()).setColumnSequence(inputColumn.getColumnSequence());
-//				allColsMap.get(inputColumn.getSourceColumnName()).setBuidFlag(inputColumn.isBuidColumn());
-//				allColsMap.get(inputColumn.getSourceColumnName()).setCcFlag(inputColumn.isChangeCaptureColumn());
-//				allColsMap.get(inputColumn.getSourceColumnName()).setPguidFlag(inputColumn.isPguidColumn());
-//				allColsMap.get(inputColumn.getSourceColumnName()).setSelected(true);
-//			}
-//		});
-//
-//		List<PTPInfaSourceColumnDefinition> matchedColumnsPTP = allColsMap.values()//
-//				.stream()//
-//				.filter(column -> column.getSelected()).collect(Collectors.toList());
-//
-//		return matchedColumnsPTP;
 
-	//}
 
 }

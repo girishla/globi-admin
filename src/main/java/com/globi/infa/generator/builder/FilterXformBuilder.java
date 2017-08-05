@@ -44,10 +44,12 @@ public class FilterXformBuilder {
 
 	public interface SetMarshallerStep {
 		SetInterPolationValues marshaller(Jaxb2Marshaller marshaller);
+		
 	}
 
 	public interface SetInterPolationValues {
 		LoadFromSeedStep setInterpolationValues(Map<String, String> values);
+		LoadFromSeedStep noInterpolationValues();
 
 	}
 
@@ -276,6 +278,13 @@ public class FilterXformBuilder {
 		@Override
 		public NameStep noMoreConditions() {
 
+			return this;
+		}
+
+
+
+		@Override
+		public LoadFromSeedStep noInterpolationValues() {
 			return this;
 		}
 

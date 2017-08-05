@@ -63,13 +63,16 @@ public class ExpressionXformBuilder {
 	}
 
 	public interface AddFieldsStep {
+		
+		AddFieldsStep addInputField(String name, String dataType,String precision,String scale);
+		
 		AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns);
 
 		AddFieldsStep addBUIDField(List<PTPInfaSourceColumnDefinition> columns);
 
 		AddFieldsStep addRowWidField();
 
-		AddFieldsStep addEtlProcWidField();
+		AddFieldsStep addEtlProcWidField(String name);
 
 		AddFieldsStep addEffectiveFromDateField();
 
@@ -262,15 +265,15 @@ public class ExpressionXformBuilder {
 		}
 
 		@Override
-		public AddFieldsStep addEtlProcWidField() {
+		public AddFieldsStep addEtlProcWidField(String name) {
 
 			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
 			xformExpressionField.setDATATYPE("decimal");
 			xformExpressionField.setDEFAULTVALUE("");
 			xformExpressionField.setDESCRIPTION("");
-			xformExpressionField.setEXPRESSION("$$SYS_ETL_PROC_WID");
+			xformExpressionField.setEXPRESSION("$$" + name);
 			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
-			xformExpressionField.setNAME("SYS_ETL_PROC_WID");
+			xformExpressionField.setNAME(name);
 			xformExpressionField.setPICTURETEXT("");
 			xformExpressionField.setPORTTYPE("OUTPUT");
 			xformExpressionField.setPRECISION("10");
@@ -470,6 +473,25 @@ public class ExpressionXformBuilder {
 
 			this.mapper = mapper;
 
+			return this;
+		}
+
+		@Override
+		public AddFieldsStep addInputField(String name, String dataType, String precision, String scale) {
+
+
+			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
+			xformExpressionField.setDATATYPE(dataType);
+			xformExpressionField.setDEFAULTVALUE("");
+			xformExpressionField.setDESCRIPTION("");
+			xformExpressionField.setNAME(name);
+			xformExpressionField.setPICTURETEXT("");
+			xformExpressionField.setPORTTYPE("INPUT");
+			xformExpressionField.setPRECISION(precision);
+			xformExpressionField.setSCALE(scale);
+
+			this.expressionXformDefn.getTRANSFORMFIELD().add(xformExpressionField);
+			
 			return this;
 		}
 

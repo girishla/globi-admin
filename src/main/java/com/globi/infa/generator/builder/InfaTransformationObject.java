@@ -12,7 +12,8 @@ public class InfaTransformationObject extends InfaFolderObject {
 	public InfaTransformationObject(TRANSFORMATION xForm){
 		this.xForm=xForm;		
 		this.folderObj=xForm;
-
+		this.name = xForm.getNAME();
+		this.type = "TRANSFORMATION";
 	}
 	
 	

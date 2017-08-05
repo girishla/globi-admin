@@ -64,7 +64,13 @@ public class MappingBuilder {
 	public interface MappletStep {
 		MappletStep mappletDefn(MAPPLET mapplet);
 
-		MappingStep noMoreMapplets();
+		ReusableTransformationStep noMoreMapplets();
+
+	}
+	
+	public interface ReusableTransformationStep {
+		ReusableTransformationStep reusableTransformation(TRANSFORMATION xform);
+		MappingStep noMoreReusableXforms();
 
 	}
 
@@ -131,7 +137,7 @@ public class MappingBuilder {
 
 	private static class InfaMappingSteps
 			implements  ClassStep, SourceTableStep, SourceSQLStep, TargetDefn,
-			MappletStep, BuildStep, MappingVariableStep, TargetLoadOrderStep, ConnectorStep, InstanceStep,
+			MappletStep, ReusableTransformationStep,BuildStep, MappingVariableStep, TargetLoadOrderStep, ConnectorStep, InstanceStep,
 			TransformationStep, MappingStep {
 
 		@SuppressWarnings("unused")
@@ -587,7 +593,7 @@ public class MappingBuilder {
 		
 
 		@Override
-		public MappingStep noMoreMapplets() {
+		public ReusableTransformationStep noMoreMapplets() {
 			return this;
 		}
 
@@ -623,8 +629,6 @@ public class MappingBuilder {
 			fromInstanceFieldNames.addAll(extractFieldNamesForTransformation(fromInstanceName));
 			toInstanceFieldNames.addAll(extractInputFieldNamesForTransformation(toInstanceName));
 
-			toInstanceFieldNames.stream()//
-			.forEach(toField->log.info("--------" + toField));
 			
 			// It is sufficient to look for fromInstances only in the SourceMap
 			// as targets cannot be "From" in a connector.
@@ -647,11 +651,6 @@ public class MappingBuilder {
 			toInstanceFieldNames.addAll(extractFieldNamesForTargets(toInstanceName));
 
 			
-			fromInstanceFieldNames.stream()//
-					.forEach(fromField->log.info("^^^^^^^^^^^^" + transformationFunction.apply(fromField)));
-			
-			
-			
 			List<String> matchingFieldNames = fromInstanceFieldNames.stream()//
 					.filter(fromField->  toInstanceFieldNames.indexOf(transformationFunction.apply(fromField))!=-1)//
 					.collect(Collectors.toList());
@@ -671,6 +670,21 @@ public class MappingBuilder {
 			
 			
 			
+		}
+
+		@Override
+		public ReusableTransformationStep reusableTransformation(TRANSFORMATION xform) {
+			this.folderObjects.add(new InfaTransformationObject(xform));
+			xformMap.put(xform.getNAME(), xform);
+			return this;
+			
+		}
+
+		@Override
+		public MappingStep noMoreReusableXforms() {
+
+			
+			return this;
 		}
 
 		
