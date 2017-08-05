@@ -39,7 +39,6 @@ public class SourceQualifierBuilder {
 
 	public interface SetInterpolationValueStep {
 		SetInterpolationValueStep setValue(String name, String value);
-
 		LoadFromSeedStep noMoreValues();
 	}
 

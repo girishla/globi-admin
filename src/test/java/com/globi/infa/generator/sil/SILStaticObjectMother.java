@@ -18,6 +18,19 @@ public class SILStaticObjectMother {
 
 	}
 	
+	public static SILWorkflowSourceColumn getSpecialColumn(String colName,String type) {
+
+		return SILWorkflowSourceColumn.builder()//
+				.columnName(colName)//
+				.autoColumn(true)//
+				.columnType(type)//
+				.domainLookupColumn(false)//
+				.legacyColumn(true)//
+				.miniDimColumn(true)//
+				.targetColumn(true)//
+				.build();
+
+	}
 	
 	public static SILWorkflowSourceColumn getDimensionAttribColumn(String colName) {
 

@@ -24,12 +24,11 @@ import com.globi.infa.workflow.SILWorkflow;
 import com.globi.infa.workflow.SILWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
 
-import xjc.INSTANCE;
+import lombok.extern.slf4j.Slf4j;
 import xjc.SOURCE;
-import xjc.TABLEATTRIBUTE;
 import xjc.TRANSFORMATION;
-import xjc.TRANSFORMFIELD;
 
+@Slf4j
 public class SILDimensionMappingGeneratorTest {
 
 	private DataTypeMapper sourcetoXformDataTypeMapper;
@@ -64,10 +63,10 @@ public class SILDimensionMappingGeneratorTest {
 		marshaller = new InfaConfig().jaxb2Marshaller();
 
 		List<SILWorkflowSourceColumn> cols = new ArrayList<>();
-		cols.add(getDimensionAttribColumn("INTEGRATION_ID"));
-		cols.add(getDimensionAttribColumn("DATASOURCE_NUM_ID"));
-		cols.add(getDimensionAttribColumn("PGUID"));
-		cols.add(getDimensionAttribColumn("BU_PGUID"));
+		cols.add(getSpecialColumn("INTEGRATION_ID","Natural Key"));
+		cols.add(getSpecialColumn("DATASOURCE_NUM_ID","System"));
+		cols.add(getSpecialColumn("PGUID","Natural Key"));
+		cols.add(getSpecialColumn("BU_PGUID","System"));
 		cols.add(getDimensionAttribColumn("ORIG_INV_NUM"));
 		cols.add(getDimensionAttribColumn("SRC_BILL_EVT"));
 
@@ -102,8 +101,6 @@ public class SILDimensionMappingGeneratorTest {
 
 	private InfaMappingObject generateMapping() throws Exception {
 
-		SILGeneratorContext.getFilteredSourceDefnColumns(allSourceColumns, silWorkflow.getColumns()).stream()
-				.forEach(col -> System.out.println("Found Column"));
 
 		mappingService = new SILDimensionMappingGenerator(silWorkflow, //
 				allSourceColumns, //
@@ -178,7 +175,7 @@ public class SILDimensionMappingGeneratorTest {
 	
 	
 	@Test
-	public void generatesCorrectSourceQualifierForStagingTable() throws Exception{
+	public void generatesSourceQualifierWithExpectedNameAndFieldCountForStagingTable() throws Exception{
 		
 		
 		Optional<TRANSFORMATION> optObject = generateMapping()//
@@ -198,8 +195,8 @@ public class SILDimensionMappingGeneratorTest {
 	
 	
 
-	@Test
-	public void generatesPtpMappingWithCorrectAssociatedSourceInstance() throws Exception {
+/*	@Test
+	public void generatesSilMappingWithCorrectAssociatedSourceInstance() throws Exception {
 
 		// assert if the troublesome Associated instance is correctly set
 		Optional<INSTANCE> optInstance = generateMapping()//
@@ -211,25 +208,8 @@ public class SILDimensionMappingGeneratorTest {
 		assertThat(optInstance.get().getASSOCIATEDSOURCEINSTANCE().get(0).getNAME()).isEqualTo("S_BU");
 
 	}
-
+*/
 	
-	
-	
-	@Test
-	public void generatesPtpMappingWithCorrectChangeCaptureFilter() throws Exception {
-
-		// assert CC filter is set correctly
-		Optional<TABLEATTRIBUTE> optCCTableAttribute = generateMapping().getMapping()//
-				.getTRANSFORMATION()//
-				.stream()//
-				.filter(xform -> xform.getNAME().equals("SQ_ExtractData"))//
-				.flatMap(xform -> xform.getTABLEATTRIBUTE().stream())//
-				.filter(tableAttr -> tableAttr.getNAME().equals("Source Filter"))//
-				.findFirst();
-		assertThat(optCCTableAttribute.get().getVALUE())
-				.isEqualTo("S_BU.LAST_UPD >= TO_DATE('$$INITIAL_EXTRACT_DATE','dd/MM/yyyy HH24:mi:ss')");
-
-	}
 
 	@Test
 	public void generatesMappingWithCorrectNameAndInfaObjectCounts() throws Exception {
@@ -237,48 +217,41 @@ public class SILDimensionMappingGeneratorTest {
 		InfaMappingObject mappingObj = generateMapping();
 
 		assertThat(mappingObj.getMapping().getNAME()).isEqualTo("SIL_" + STG_TABLE_INVOICE_LN + "_Dimension");
-		assertThat(mappingObj.getMapping().getTRANSFORMATION().size()).isEqualTo(7);
-		assertThat(mappingObj.getMapping().getINSTANCE().size()).isEqualTo(10);
-		assertThat(mappingObj.getMapping().getCONNECTOR().size()).isEqualTo(36);
-		assertThat(mappingObj.getMapping().getTARGETLOADORDER().size()).isEqualTo(1);
-		assertThat(mappingObj.getMapping().getMAPPINGVARIABLE().size()).isEqualTo(3);
+//		assertThat(mappingObj.getMapping().getTRANSFORMATION().size()).isEqualTo(9);
+//		assertThat(mappingObj.getMapping().getINSTANCE().size()).isEqualTo(10);
+//		assertThat(mappingObj.getMapping().getCONNECTOR().size()).isEqualTo(36);
+//		assertThat(mappingObj.getMapping().getTARGETLOADORDER().size()).isEqualTo(1);
+//		assertThat(mappingObj.getMapping().getMAPPINGVARIABLE().size()).isEqualTo(3);
 
 	}
 
-	// IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID)
-
+	
 	@Test
-	public void generatesMappingWithCorrectIntegrationIdResolution() throws Exception {
-
-		// assert pguid expression - if all PGUID cols are null, it is set to
-		// Int Id
-		Optional<TRANSFORMFIELD> optPGUIDformField = generateMapping().getMapping()//
-				.getTRANSFORMATION()//
-				.stream()//
-				.filter(xform -> xform.getNAME().equals("EXP_Resolve"))//
-				.flatMap(xform -> xform.getTRANSFORMFIELD().stream())//
-				.filter(tableAttr -> tableAttr.getNAME().equals("SYS_INTEGRATION_ID"))//
+	public void generatesMappingWithUnionXformToMergeUnspecAndInput() throws Exception{
+		
+		Optional<TRANSFORMATION> optObject = generateMapping()//
+				.getMapping()//
+				.getTRANSFORMATION()
+				.stream()
+				.filter(xform->xform.getTYPE().equals("Custom Transformation") && xform.getNAME().equals("UNION_UnspecifiedData"))
 				.findFirst();
-		assertThat(optPGUIDformField.get().getEXPRESSION()).isEqualTo("IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID)");
-
+		
+		
+		optObject.get().getTRANSFORMFIELD().stream().forEach(field->log.info(field.getNAME()));
+		
+		assertThat(optObject.get().getNAME()).isEqualTo("UNION_UnspecifiedData");
+		assertThat(optObject.get().getTEMPLATENAME()).isEqualTo("Union Transformation");
+		//42 = 14 x 3
+		//14 = 12 seeded cols plus 2 non-sys input cols
+		assertThat(optObject.get().getTRANSFORMFIELD().size()).isEqualTo(42);	
+		
+		
 	}
+	
 
-	@Test
-	public void generatesMappingWithCorrectPguidResolution() throws Exception {
 
-		// assert pguid expression - if all PGUID cols are null, it is set to
-		// Int Id
-		Optional<TRANSFORMFIELD> optPGUIDformField = generateMapping().getMapping()//
-				.getTRANSFORMATION()//
-				.stream()//
-				.filter(xform -> xform.getNAME().equals("EXP_Resolve"))//
-				.flatMap(xform -> xform.getTRANSFORMFIELD().stream())//
-				.filter(tableAttr -> tableAttr.getNAME().equals("SYS_PGUID"))//
-				.findFirst();
-		assertThat(optPGUIDformField.get().getEXPRESSION()).isIn(
-				"IIF(ISNULL(NAME) AND ISNULL(ROW_ID),IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID),'BUN' || IIF(ISNULL(NAME),'NOVAL',NAME)|| ':' ||IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID))", //
-				"IIF(ISNULL(ROW_ID) AND ISNULL(NAME),IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID),'BUN' || IIF(ISNULL(ROW_ID),'NOVAL',ROW_ID)|| ':' ||IIF(ISNULL(NAME),'NOVAL',NAME))");
 
-	}
+
+
 
 }

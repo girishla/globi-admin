@@ -1,6 +1,7 @@
 package com.globi.infa.generator.sil;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
@@ -11,6 +12,7 @@ import com.globi.infa.generator.builder.InfaMappingObject;
 import com.globi.infa.generator.builder.MappingBuilder;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.generator.builder.SourceQualifierBuilder;
+import com.globi.infa.generator.builder.UnionXformBuilder;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.SILInfaSourceColumnDefinition;
 import com.globi.infa.workflow.SILWorkflow;
@@ -18,11 +20,9 @@ import com.globi.metadata.sourcesystem.SourceSystem;
 
 import lombok.extern.slf4j.Slf4j;
 
-
 @Slf4j
 public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 
-	
 	private final SILWorkflow wfDefinition;
 	private final List<InfaSourceColumnDefinition> allSourceColumns;
 	private final List<SILInfaSourceColumnDefinition> matchedColumnsSIL;
@@ -31,48 +31,41 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 	private final Jaxb2Marshaller marshaller;
 	private final DataTypeMapper dataTypeMapper;
 	private final DataTypeMapper sourceToTargetDatatypeMapper;
-	
-	public SILDimensionMappingGenerator(SILWorkflow wfDefinition,//
-			List<InfaSourceColumnDefinition> allSourceColumns,//
-			List<SILInfaSourceColumnDefinition> matchedColumnsSIL,//
-			SourceSystem sourceSystem,//
-			DataSourceTableDTO sourceTable,//
-			Jaxb2Marshaller marshaller,//
-			DataTypeMapper dataTypeMapper,//
-			DataTypeMapper sourceToTargetDatatypeMapper){
-		
-		this.wfDefinition=wfDefinition;
-		this.allSourceColumns=allSourceColumns;
-		this.sourceSystem=sourceSystem;
-		this.sourceTable=sourceTable;
-		this.marshaller=marshaller;
-		this.dataTypeMapper=dataTypeMapper;
-		this.sourceToTargetDatatypeMapper=sourceToTargetDatatypeMapper;
-		this.matchedColumnsSIL=matchedColumnsSIL;
-		
-		
+
+	public SILDimensionMappingGenerator(SILWorkflow wfDefinition, //
+			List<InfaSourceColumnDefinition> allSourceColumns, //
+			List<SILInfaSourceColumnDefinition> matchedColumnsSIL, //
+			SourceSystem sourceSystem, //
+			DataSourceTableDTO sourceTable, //
+			Jaxb2Marshaller marshaller, //
+			DataTypeMapper dataTypeMapper, //
+			DataTypeMapper sourceToTargetDatatypeMapper) {
+
+		this.wfDefinition = wfDefinition;
+		this.allSourceColumns = allSourceColumns;
+		this.sourceSystem = sourceSystem;
+		this.sourceTable = sourceTable;
+		this.marshaller = marshaller;
+		this.dataTypeMapper = dataTypeMapper;
+		this.sourceToTargetDatatypeMapper = sourceToTargetDatatypeMapper;
+		this.matchedColumnsSIL = matchedColumnsSIL;
+
 	}
-	
-	
-	
+
 	InfaMappingObject getMapping() throws Exception {
-		
+
 		String stageTableName = wfDefinition.getStageName();
 		String dbName = sourceSystem.getDbName();
-		String tableOwner=sourceSystem.getOwnerName();
-		
+		String tableOwner = sourceSystem.getOwnerName();
+
 		log.info(matchedColumnsSIL.toString());
-		
+
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
 				.simpleTableSyncClass("simpleTableSyncClass")//
 				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
-						.sourceFromSeed("sourceFromSeedClass")
-						.marshaller(marshaller)
-						.loadSourceFromSeed("Seed_SIL_Source_UnspecifiedVirtual")
-						.noFields()
-						.nameAlreadySet()
-						.build())//
+						.sourceFromSeed("sourceFromSeedClass").marshaller(marshaller)
+						.loadSourceFromSeed("Seed_SIL_Source_UnspecifiedVirtual").noFields().nameAlreadySet().build())//
 				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
 						.sourceDefnFromPrototype("SourceFromPrototype")//
 						.sourceDefn(sourceSystem, stageTableName, tableOwner)//
@@ -80,12 +73,9 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.name(stageTableName)//
 						.build())//
 				.noMoreSources()//
-				.noMoreTargets()
-				.noMoreMapplets()
-				.startMappingDefn("SIL_"+ stageTableName + "Dimension")
+				.noMoreTargets().noMoreMapplets().startMappingDefn("SIL_" + stageTableName + "_Dimension")
 				.transformation(SourceQualifierBuilder.newBuilder()//
-						.marshaller(marshaller)
-						.noMoreValues()
+						.marshaller(marshaller).noMoreValues()
 						.loadSourceQualifierFromSeed("Seed_SIL_Xform_SQ_Unspecified")//
 						.noMoreFields()//
 						.noMoreFilters()//
@@ -95,19 +85,28 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.marshaller(marshaller)//
 						.noMoreValues()//
 						.loadSourceQualifierFromSeed("Seed_CMN_SourceQualifier")//
-						.addFields(dataTypeMapper, (List<InfaSourceColumnDefinition>)(List<?>)matchedColumnsSIL)//
-						.noMoreFilters()
-						.name("SQ_ExtractData")//
+						.addFields(dataTypeMapper, (List<InfaSourceColumnDefinition>) (List<?>) matchedColumnsSIL)//
+						.noMoreFilters().name("SQ_ExtractData")//
 						.build())
-				.noMoreTransformations()
-				.noMoreConnectors()
-				.noMoreTargetLoadOrders()
-				.noMoreMappingVariables()
-				.build();
-		
-		
+				.transformation(UnionXformBuilder.newBuilder()//
+						.marshaller(marshaller)//
+						.noMoreValues()//
+						.loadUnionXformFromSeed("Seed_SIL_Xform_UNION_Unspecified")//
+						.addOutputFields(dataTypeMapper,
+								(List<InfaSourceColumnDefinition>) (List<?>) matchedColumnsSIL.stream()//
+										.filter(col -> col.getColumnType().equals("Foreign Key")
+												|| col.getColumnType().equals("Attribute")
+												|| col.getColumnType().equals("Measure Attribute"))
+										.collect(Collectors.toList()))//
+						.addInputFields("DATA", 1)//
+						.addInputFields("UNSPEC", 2)//
+						.noMoreInputFields()//
+						.nameAlreadySet()//
+						.build())
+				.noMoreTransformations().noMoreConnectors().noMoreTargetLoadOrders().noMoreMappingVariables().build();
+
 		return mappingObjExtract;
-		
+
 	}
-		
+
 }

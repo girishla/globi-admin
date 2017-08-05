@@ -102,10 +102,7 @@ public class PTPExtractMappingGeneratorTest {
 	}
 
 	private InfaMappingObject generateMapping() throws Exception {
-
-		
-		PTPGeneratorContext.getFilteredSourceDefnColumns(allSourceColumns, ptpWorkflow.getColumns()).stream().forEach(col->System.out.println("Found Column"));
-		
+	
 		mappingService = new PTPExtractMappingGenerator(ptpWorkflow, //
 				allSourceColumns, //
 				PTPGeneratorContext.getFilteredSourceDefnColumns(allSourceColumns, ptpWorkflow.getColumns()),//
