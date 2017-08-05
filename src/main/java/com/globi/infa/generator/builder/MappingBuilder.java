@@ -38,10 +38,11 @@ public class MappingBuilder {
 		return new InfaMappingSteps();
 	}
 
-
 	public interface ClassStep {
 		SourceTableStep simpleTableSyncClass(String simpleTableSyncClass);
+
 		SourceTableStep primaryExtractClass(String primaryExtractClass);
+
 		SourceSQLStep sourceSQLSyncClass(String sourceSQLSyncClass);
 	}
 
@@ -67,9 +68,10 @@ public class MappingBuilder {
 		ReusableTransformationStep noMoreMapplets();
 
 	}
-	
+
 	public interface ReusableTransformationStep {
 		ReusableTransformationStep reusableTransformation(TRANSFORMATION xform);
+
 		MappingStep noMoreReusableXforms();
 
 	}
@@ -91,9 +93,10 @@ public class MappingBuilder {
 		TransformationStep connector(String fromInstance, String fromField, String toInstance, String toField);
 
 		TransformationStep autoConnectByName(String fromInstanceName, String toInstanceName);
-		TransformationStep autoConnectByTransformedName(String fromInstanceName, String toInstanceName, UnaryOperator<String> op);
 
-		
+		TransformationStep autoConnectByTransformedName(String fromInstanceName, String toInstanceName,
+				UnaryOperator<String> op);
+
 		ConnectorStep noMoreTransformations();
 	}
 
@@ -129,16 +132,14 @@ public class MappingBuilder {
 		BuildStep noMoreMappingVariables();
 	}
 
-
 	public interface BuildStep {
 		InfaMappingObject build();
 
 	}
 
-	private static class InfaMappingSteps
-			implements  ClassStep, SourceTableStep, SourceSQLStep, TargetDefn,
-			MappletStep, ReusableTransformationStep,BuildStep, MappingVariableStep, TargetLoadOrderStep, ConnectorStep, InstanceStep,
-			TransformationStep, MappingStep {
+	private static class InfaMappingSteps implements ClassStep, SourceTableStep, SourceSQLStep, TargetDefn, MappletStep,
+			ReusableTransformationStep, BuildStep, MappingVariableStep, TargetLoadOrderStep, ConnectorStep,
+			InstanceStep, TransformationStep, MappingStep {
 
 		@SuppressWarnings("unused")
 		private String name;
@@ -152,8 +153,7 @@ public class MappingBuilder {
 		private Map<String, TARGET> targetMap = new HashMap<>();
 		private Map<String, MAPPLET> mappletMap = new HashMap<>();
 		private List<InfaFolderObject> folderObjects = new ArrayList<>();
-		private List<Object> genericFolderChildren= new ArrayList<>();
-
+		private List<Object> genericFolderChildren = new ArrayList<>();
 
 		@Override
 		public SourceTableStep simpleTableSyncClass(String simpleTableSyncClass) {
@@ -202,7 +202,7 @@ public class MappingBuilder {
 			mapping.setOBJECTVERSION(DEFAULT_VERSION.getValue());
 			mapping.setVERSIONNUMBER(DEFAULT_VERSION.getValue());
 			mapping.setISVALID("YES");
-			
+
 			this.mapping = mapping;
 			this.connectors = mapping.getCONNECTOR();
 
@@ -216,7 +216,6 @@ public class MappingBuilder {
 			xformMap.put(transformation.getNAME(), transformation);
 			return this;
 		}
-
 
 		@Override
 		public ConnectorStep noMoreTransformations() {
@@ -261,8 +260,6 @@ public class MappingBuilder {
 			return this;
 		}
 
-
-
 		@Override
 		public TransformationStep sourceSQLName(String sourceSQLName) {
 
@@ -293,26 +290,48 @@ public class MappingBuilder {
 
 			return this;
 		}
-		
-		
+
 		private List<String> extractInputFieldNamesForTransformation(String instanceName) {
+
+			if (xformMap.containsKey(instanceName)) {
+
+				log.info("found TO instance -- " + instanceName);
+
+				return xformMap.get(instanceName).getTRANSFORMFIELD().stream()//
+						.filter(transformField -> (transformField.getPORTTYPE().equals("INPUT")
+								|| transformField.getPORTTYPE().equals("INPUT/OUTPUT")))
+						.map(TRANSFORMFIELD::getNAME)//
+						.collect(Collectors.toList());
+			}
 
 			return mapping.getTRANSFORMATION().stream()//
 					.filter(instance -> instance.getNAME().equals(instanceName))//
 					.map(TRANSFORMATION::getTRANSFORMFIELD)//
 					.flatMap(List::stream)//
-					.filter(transformField->transformField.getPORTTYPE().endsWith("INPUT") || transformField.getPORTTYPE().endsWith("INPUT/OUTPUT"))
+					.filter(transformField -> (transformField.getPORTTYPE().equals("INPUT")
+							|| transformField.getPORTTYPE().equals("INPUT/OUTPUT")))
 					.map(TRANSFORMFIELD::getNAME)//
 					.collect(Collectors.toList());
+
 		}
 
 		private List<String> extractFieldNamesForTransformation(String instanceName) {
 
+			if (xformMap.containsKey(instanceName)) {
+
+				log.info("found special from instance -- " + instanceName);
+				return xformMap.get(instanceName).getTRANSFORMFIELD().stream()//
+						.filter(transformField -> transformField.getPORTTYPE().endsWith("OUTPUT"))
+						.map(TRANSFORMFIELD::getNAME)//
+						.collect(Collectors.toList());
+
+			}
+
 			return mapping.getTRANSFORMATION().stream()//
 					.filter(instance -> instance.getNAME().equals(instanceName))//
 					.map(TRANSFORMATION::getTRANSFORMFIELD)//
 					.flatMap(List::stream)//
-					.filter(transformField->transformField.getPORTTYPE().endsWith("OUTPUT"))
+					.filter(transformField -> transformField.getPORTTYPE().endsWith("OUTPUT"))
 					.map(TRANSFORMFIELD::getNAME)//
 					.collect(Collectors.toList());
 		}
@@ -380,30 +399,31 @@ public class MappingBuilder {
 
 			List<String> fromInstanceFieldNames = new ArrayList<>();
 			List<String> toInstanceFieldNames = new ArrayList<>();
-			Map<String,String> normalisedColumns= new HashMap<>();
+			Map<String, String> normalisedColumns = new HashMap<>();
 
 			log.debug("Auto-connecting instances " + fromInstanceName + "and " + toInstanceName);
 
 			fromInstanceFieldNames.addAll(extractFieldNamesForTransformation(fromInstanceName));
 			toInstanceFieldNames.addAll(extractFieldNamesForTransformation(toInstanceName));
 
+			fromInstanceFieldNames.stream().forEach(field -> log.info("FROMFROM---" + field));
+			fromInstanceFieldNames.stream().forEach(field -> log.info("TOTOTOT---" + field));
+
 			// It is sufficient to look for fromInstances only in the SourceMap
 			// as targets cannot be "From" in a connector.
 			fromInstanceFieldNames.addAll(extractFieldNamesForSources(fromInstanceName));
-			
-			
-			//save normalised column names as Hash to use later
+
+			// save normalised column names as Hash to use later
 			fromInstanceFieldNames//
 					.stream()//
-					.forEach(col->normalisedColumns.put(ObjectNameNormaliser.normalise(col) , col));
+					.forEach(col -> normalisedColumns.put(ObjectNameNormaliser.normalise(col), col));
 
-			
-			//collect normalise column names as list before comparing
-			fromInstanceFieldNames=fromInstanceFieldNames//
+			// collect normalise column names as list before comparing
+			fromInstanceFieldNames = fromInstanceFieldNames//
 					.stream()//
 					.map(ObjectNameNormaliser::normalise)//
 					.collect(Collectors.toList());
-			
+
 			toInstanceFieldNames.addAll(extractFieldNamesForTargets(toInstanceName));
 
 			List<String> matchingFieldNames = fromInstanceFieldNames.stream()//
@@ -533,8 +553,6 @@ public class MappingBuilder {
 			return this;
 		}
 
-
-
 		private List<TRANSFORMATION> getAllSourceQualifiers() {
 
 			return this.xformMap.entrySet()//
@@ -582,21 +600,17 @@ public class MappingBuilder {
 
 		}
 
-	
 		@Override
 		public MappletStep mappletDefn(MAPPLET mapplet) {
 			this.folderObjects.add(new InfaMappletObject(mapplet));
 			mappletMap.put(mapplet.getNAME(), mapplet);
 			return this;
 		}
-		
-		
 
 		@Override
 		public ReusableTransformationStep noMoreMapplets() {
 			return this;
 		}
-
 
 		@Override
 		public BuildStep noMoreMappingVariables() {
@@ -619,57 +633,48 @@ public class MappingBuilder {
 		public TransformationStep autoConnectByTransformedName(String fromInstanceName, String toInstanceName,
 				UnaryOperator<String> transformationFunction) {
 
-			
 			List<String> fromInstanceFieldNames = new ArrayList<>();
 			List<String> toInstanceFieldNames = new ArrayList<>();
-			Map<String,String> normalisedColumns= new HashMap<>();
+			Map<String, String> normalisedColumns = new HashMap<>();
 
-			log.debug("Auto-connecting instances " + fromInstanceName + " and " + toInstanceName);
+			log.debug("Auto-connecting instances transformed " + fromInstanceName + " and " + toInstanceName);
 
 			fromInstanceFieldNames.addAll(extractFieldNamesForTransformation(fromInstanceName));
 			toInstanceFieldNames.addAll(extractInputFieldNamesForTransformation(toInstanceName));
 
-			
 			// It is sufficient to look for fromInstances only in the SourceMap
 			// as targets cannot be "From" in a connector.
 			fromInstanceFieldNames.addAll(extractFieldNamesForSources(fromInstanceName));
 
-			
-			
-			//save normalised column names as Hash to use later
+			fromInstanceFieldNames.stream().forEach(instance -> log.info("FROMFROM---" + instance));
+			toInstanceFieldNames.stream().forEach(instance -> log.info("TOTOTO---" + instance));
+
+			// save normalised column names as Hash to use later
 			fromInstanceFieldNames//
 					.stream()//
-					.forEach(col->normalisedColumns.put(ObjectNameNormaliser.normalise(col) , col));
+					.forEach(col -> normalisedColumns.put(ObjectNameNormaliser.normalise(col), col));
 
-			
-			//collect normalise column names as list before comparing
-			fromInstanceFieldNames=fromInstanceFieldNames//
+			// collect normalise column names as list before comparing
+			fromInstanceFieldNames = fromInstanceFieldNames//
 					.stream()//
 					.map(ObjectNameNormaliser::normalise)//
 					.collect(Collectors.toList());
-			
+
 			toInstanceFieldNames.addAll(extractFieldNamesForTargets(toInstanceName));
 
-			
 			List<String> matchingFieldNames = fromInstanceFieldNames.stream()//
-					.filter(fromField->  toInstanceFieldNames.indexOf(transformationFunction.apply(fromField))!=-1)//
+					.filter(fromField -> toInstanceFieldNames.indexOf(transformationFunction.apply(fromField)) != -1)//
 					.collect(Collectors.toList());
-			
-			
 
-
-			
 			// Add a connector for each matching field
 			matchingFieldNames.forEach(matchingField -> {
-				this.connector(fromInstanceName, normalisedColumns.get(matchingField), toInstanceName,  transformationFunction.apply(matchingField));
+				this.connector(fromInstanceName, normalisedColumns.get(matchingField), toInstanceName,
+						transformationFunction.apply(matchingField));
 
 			});
 
 			return this;
 
-			
-			
-			
 		}
 
 		@Override
@@ -677,19 +682,15 @@ public class MappingBuilder {
 			this.folderObjects.add(new InfaTransformationObject(xform));
 			xformMap.put(xform.getNAME(), xform);
 			return this;
-			
+
 		}
 
 		@Override
 		public MappingStep noMoreReusableXforms() {
 
-			
 			return this;
 		}
 
-		
 	}
 
-	
-	
 }

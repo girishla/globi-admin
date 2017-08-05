@@ -169,7 +169,12 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.noMoreConditions()//
 						.nameAlreadySet()//
 						.build())
-//				Seed_SIL_Xform_FIL
+				.autoConnectByTransformedName("LKP_SYS_Dimension_PGUID", "FIL_ExcludeRecords", name -> "LKP_" + name)
+				.autoConnectByName("UNION_UnspecifiedData", "FIL_ExcludeRecords")//
+				.connector("EXP_CalculateHashes", "HASH_RECORD", "FIL_ExcludeRecords", "HASH_RECORD")
+				.connector("EXP_ETL_Parameters", "ETL_PROC_WID", "FIL_ExcludeRecords", "ETL_PROC_WID")
+
+				//Seed_SIL_MPL_GenerateCCAttributes
 				.noMoreTransformations()//
 				.noMoreConnectors()//
 				.noMoreTargetLoadOrders()//

@@ -307,5 +307,21 @@ public class SILDimensionMappingGeneratorTest {
 	}
 	
 	
+	@Test
+	public void generatesMappingWithExpectedConnectorsIntoFilterXform() throws Exception{
+		
+		
+		List<CONNECTOR> connectors = generateMapping()//
+				.getMapping()//
+				.getCONNECTOR()//
+				.stream()//
+				.filter(conn -> conn.getTOINSTANCE().equals("FIL_ExcludeRecords"))
+				.collect(Collectors.toList());
+		
+		//non system input columns
+		assertThat(connectors.size()).isEqualTo(18);
+		
+	}
+	
 
 }
