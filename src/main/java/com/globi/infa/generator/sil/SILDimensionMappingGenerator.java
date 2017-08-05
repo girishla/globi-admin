@@ -13,9 +13,13 @@ import com.globi.infa.generator.builder.FilterXformBuilder;
 import com.globi.infa.generator.builder.InfaMappingObject;
 import com.globi.infa.generator.builder.LookupXformBuilder;
 import com.globi.infa.generator.builder.MappingBuilder;
+import com.globi.infa.generator.builder.MappletBuilder;
+import com.globi.infa.generator.builder.SequenceXformBuilder;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.generator.builder.SourceQualifierBuilder;
+import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.generator.builder.UnionXformBuilder;
+import com.globi.infa.generator.builder.UpdateStrategyXformBuilder;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.SILInfaSourceColumnDefinition;
 import com.globi.infa.workflow.SILWorkflow;
@@ -58,7 +62,6 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 	InfaMappingObject getMapping() throws Exception {
 
 		String stageTableName = wfDefinition.getStageName();
-		String dbName = sourceSystem.getDbName();
 		String tableOwner = sourceSystem.getOwnerName();
 
 		List<SILInfaSourceColumnDefinition> nonSysMatchedCols = matchedColumnsSIL.stream()//
@@ -69,7 +72,6 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 				.filter(col -> col.getColumnType().equals("Attribute"))//
 				.collect(Collectors.toList());
 
-		attribCols.stream().forEach(col->log.info("%%%%%%%" + col.getColumnName()));
 
 		@SuppressWarnings("unchecked")
 		InfaMappingObject mappingObjExtract = MappingBuilder//
@@ -88,7 +90,20 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.name(stageTableName)//
 						.build())//
 				.noMoreSources()//
+				.targetDefn(TargetDefinitionBuilder.newBuilder()//
+						.marshaller(marshaller)//
+						.loadTargetFromSeed("Seed_SIL_Target_Dim")//
+						.mapper(sourceToTargetDatatypeMapper)//
+						.addFields((List<InfaSourceColumnDefinition>)(List<?>)attribCols)//
+						.noMoreFields()//
+						.name("D_" + stageTableName)//
+						.build())//
 				.noMoreTargets()//
+				.mappletDefn(MappletBuilder.newBuilder()//
+						.marshaller(marshaller)//
+						.loadMappletFromSeed("Seed_SIL_MPL_GenerateCCAttributes")//
+						.nameAlreadySet()//
+						.build())//
 				.noMoreMapplets()//
 				.reusableTransformation(LookupXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
@@ -173,8 +188,34 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 				.autoConnectByName("UNION_UnspecifiedData", "FIL_ExcludeRecords")//
 				.connector("EXP_CalculateHashes", "HASH_RECORD", "FIL_ExcludeRecords", "HASH_RECORD")
 				.connector("EXP_ETL_Parameters", "ETL_PROC_WID", "FIL_ExcludeRecords", "ETL_PROC_WID")
-
-				//Seed_SIL_MPL_GenerateCCAttributes
+				.transformation(SequenceXformBuilder.newBuilder()//
+						.marshaller(marshaller)//
+						.noInterpolationValues()
+						.loadExpressionXformFromSeed("Seed_PTP_WidSequence")//
+						.nameAlreadySet()//
+						.build())
+				.connector("SEQ_WID", "NEXTVAL", "MPL_GenerateCCAttributes", "ROW_WID_NEW")
+				.transformation(ExpressionXformBuilder.newBuilder()
+						.expressionFromSeed("seedClass")
+						.marshaller(marshaller)
+						.noInterpolationValues()
+						.loadExpressionXformFromSeed("Seed_SIL_Xform_EXP_Collect")
+						.mapper(dataTypeMapper)
+						.addFields((List<InfaSourceColumnDefinition>) (List<?>)attribCols)//
+						.noMoreFields()
+						.nameAlreadySet()
+						.build()
+						)
+				.autoConnectByName("FIL_ExcludeRecords", "EXP_Collect")
+				.autoConnectByName("MPL_GenerateCCAttributes", "EXP_Collect")
+				.transformation(UpdateStrategyXformBuilder.newBuilder()//
+						.marshaller(marshaller)//
+						.noInterpolationValues()
+						.loadUpdateStrategyXformFromSeed("Seed_SIL_Xform_UPD_Strategy")//
+						.nameAlreadySet()//
+						.build())
+				.transformationCopyConnectAllFields("EXP_Collect", "UPD_Dimension")
+				.autoConnectByName("UPD_Dimension", "D_" + stageTableName)
 				.noMoreTransformations()//
 				.noMoreConnectors()//
 				.noMoreTargetLoadOrders()//

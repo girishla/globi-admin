@@ -159,7 +159,7 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 						.nameAlreadySet()//
 						.build())
 				.transformation(ExpressionXformBuilder.newBuilder()//
-						.ExpressionFromSeed("Prepare BU Domain Lookup")//
+						.expressionFromSeed("Prepare BU Domain Lookup")//
 						.marshaller(marshaller)//
 						.setInterpolationValues(commonValuesMap)//
 						.loadExpressionXformFromSeed("Seed_PTP_EXPPrepDomLookup")//

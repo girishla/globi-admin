@@ -37,7 +37,7 @@ public class ExpressionXformBuilder {
 	public interface ClassStep {
 		ExpressionStep expressionFromPrototype(String className);
 
-		SetMarshallerStep ExpressionFromSeed(String className);
+		SetMarshallerStep expressionFromSeed(String className);
 	}
 
 	public interface ExpressionStep {
@@ -50,7 +50,8 @@ public class ExpressionXformBuilder {
 
 	public interface SetInterPolationValues {
 		LoadFromSeedStep setInterpolationValues(Map<String, String> values);
-
+		
+		LoadFromSeedStep noInterpolationValues();
 	}
 
 	public interface LoadFromSeedStep {
@@ -202,7 +203,7 @@ public class ExpressionXformBuilder {
 		}
 
 		@Override
-		public SetMarshallerStep ExpressionFromSeed(String className) {
+		public SetMarshallerStep expressionFromSeed(String className) {
 			this.className = className;
 			return this;
 		}
@@ -492,6 +493,11 @@ public class ExpressionXformBuilder {
 
 			this.expressionXformDefn.getTRANSFORMFIELD().add(xformExpressionField);
 			
+			return this;
+		}
+
+		@Override
+		public LoadFromSeedStep noInterpolationValues() {
 			return this;
 		}
 
