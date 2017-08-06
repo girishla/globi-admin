@@ -36,7 +36,7 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 	private final SourceSystem sourceSystem;
 	private final DataSourceTableDTO sourceTable;
 	private final Jaxb2Marshaller marshaller;
-	private final DataTypeMapper dataTypeMapper;
+	private final DataTypeMapper sourceToXformDataTypeMapper;
 	private final DataTypeMapper sourceToTargetDatatypeMapper;
 
 	public SILDimensionMappingGenerator(SILWorkflow wfDefinition, //
@@ -45,7 +45,7 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 			SourceSystem sourceSystem, //
 			DataSourceTableDTO sourceTable, //
 			Jaxb2Marshaller marshaller, //
-			DataTypeMapper dataTypeMapper, //
+			DataTypeMapper sourceToXformDataTypeMapper, //
 			DataTypeMapper sourceToTargetDatatypeMapper) {
 
 		this.wfDefinition = wfDefinition;
@@ -53,7 +53,7 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 		this.sourceSystem = sourceSystem;
 		this.sourceTable = sourceTable;
 		this.marshaller = marshaller;
-		this.dataTypeMapper = dataTypeMapper;
+		this.sourceToXformDataTypeMapper = sourceToXformDataTypeMapper;
 		this.sourceToTargetDatatypeMapper = sourceToTargetDatatypeMapper;
 		this.matchedColumnsSIL = matchedColumnsSIL;
 
@@ -62,6 +62,8 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 	InfaMappingObject getMapping() throws Exception {
 
 		String stageTableName = wfDefinition.getStageName();
+		String tableName = wfDefinition.getTableBaseName();
+
 		String tableOwner = sourceSystem.getOwnerName();
 
 		List<SILInfaSourceColumnDefinition> nonSysMatchedCols = matchedColumnsSIL.stream()//
@@ -96,7 +98,7 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.mapper(sourceToTargetDatatypeMapper)//
 						.addFields((List<InfaSourceColumnDefinition>)(List<?>)attribCols)//
 						.noMoreFields()//
-						.name("D_" + stageTableName)//
+						.name("D_" + tableName)//
 						.build())//
 				.noMoreTargets()//
 				.mappletDefn(MappletBuilder.newBuilder()//
@@ -112,7 +114,7 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.nameAlreadySet()//
 						.build())
 				.noMoreReusableXforms()
-				.startMappingDefn("SIL_" + stageTableName + "_Dimension")
+				.startMappingDefn("SIL_" + tableName + "_Dimension")
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.noMoreValues().loadSourceQualifierFromSeed("Seed_SIL_Xform_SQ_Unspecified")//
@@ -124,14 +126,14 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.marshaller(marshaller)//
 						.noMoreValues()//
 						.loadSourceQualifierFromSeed("Seed_CMN_SourceQualifier")//
-						.addFields(dataTypeMapper, (List<InfaSourceColumnDefinition>) (List<?>) matchedColumnsSIL)//
+						.addFields(sourceToXformDataTypeMapper, (List<InfaSourceColumnDefinition>) (List<?>) matchedColumnsSIL)//
 						.noMoreFilters().name("SQ_ExtractData")//
 						.build())
 				.transformation(UnionXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.noMoreValues()//
 						.loadUnionXformFromSeed("Seed_SIL_Xform_UNION_Unspecified")//
-						.addOutputFields(dataTypeMapper,
+						.addOutputFields(sourceToXformDataTypeMapper,
 								(List<InfaSourceColumnDefinition>) (List<?>) matchedColumnsSIL.stream()//
 										.filter(col -> col.getColumnType().equals("Foreign Key")
 												|| col.getColumnType().equals("Attribute")
@@ -140,10 +142,17 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.addInputFields("DATA", 1)//
 						.addInputFields("UNSPEC", 2)//
 						.noMoreInputFields()//
-						.addFieldDependencies(1).addFieldDependencies(2).noMoreFieldDependencies().nameAlreadySet()//
+						.addFieldDependencies(1)//
+						.addFieldDependencies(2)//
+						.noMoreFieldDependencies()//
+						.nameAlreadySet()//
 						.build())
 				.autoConnectByName(stageTableName, "SQ_ExtractData")//
-				.autoConnectByName("VIRTUAL_EXP", "SQ_ExtractUnspecified")//
+				.connector("VIRTUAL_EXP", "NUMERIC_EXPRESSION", "SQ_ExtractUnspecified", "UNSPEC_WID")
+				.connector("VIRTUAL_EXP", "VARCHAR_EXPRESSION", "SQ_ExtractUnspecified", "UNSPEC_PGUID")
+				.connector("VIRTUAL_EXP", "VARCHAR_EXPRESSION", "SQ_ExtractUnspecified", "UNSPEC_N_FLAG")
+				.connector("VIRTUAL_EXP", "VARCHAR_EXPRESSION", "SQ_ExtractUnspecified", "UNSPEC_Y_FLAG")
+				.connector("VIRTUAL_EXP", "DATE_EXPRESSION", "SQ_ExtractUnspecified", "UNSPEC_CREATED_DT")
 				.autoConnectByTransformedName("SQ_ExtractData", "UNION_UnspecifiedData", str -> str + 1)
 				.connector("SQ_ExtractUnspecified", "UNSPEC_WID", "UNION_UnspecifiedData", "ROW_WID2")
 				.connector("SQ_ExtractUnspecified", "UNSPEC_PGUID", "UNION_UnspecifiedData", "DATASOURCE_NUM_ID2")
@@ -156,7 +165,7 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 				.transformation(ExpressionXformBuilder.newBuilder()//
 						.expressionFromPrototype("ExpFromPrototype")//
 						.expression("EXP_CalculateHashes")//
-						.mapper(dataTypeMapper)//
+						.mapper(sourceToXformDataTypeMapper)//
 						.addFields((List<InfaSourceColumnDefinition>) (List<?>)nonSysMatchedCols)//
 						.addMD5HashField("HASH_RECORD",(List<InfaSourceColumnDefinition>) (List<?>)nonSysMatchedCols)//
 						.noMoreFields()//
@@ -166,7 +175,7 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 				.transformation(ExpressionXformBuilder.newBuilder()//
 						.expressionFromPrototype("ExpFromPrototype")//
 						.expression("EXP_ETL_Parameters")//
-						.mapper(dataTypeMapper)//
+						.mapper(sourceToXformDataTypeMapper)//
 						.addInputField("PGUID", "string", "100", "0")//
 						.addEtlProcWidField("ETL_PROC_WID")//
 						.noMoreFields()//
@@ -184,6 +193,7 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.noMoreConditions()//
 						.nameAlreadySet()//
 						.build())
+				.connector("UNION_UnspecifiedData", "PGUID", "LKP_SYS_Dimension_PGUID", "IN_PGUID")
 				.autoConnectByTransformedName("LKP_SYS_Dimension_PGUID", "FIL_ExcludeRecords", name -> "LKP_" + name)
 				.autoConnectByName("UNION_UnspecifiedData", "FIL_ExcludeRecords")//
 				.connector("EXP_CalculateHashes", "HASH_RECORD", "FIL_ExcludeRecords", "HASH_RECORD")
@@ -192,22 +202,37 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.marshaller(marshaller)//
 						.noInterpolationValues()
 						.loadExpressionXformFromSeed("Seed_PTP_WidSequence")//
-						.nameAlreadySet()//
+						.name("SEQ_" + tableName)
 						.build())
-				.connector("SEQ_WID", "NEXTVAL", "MPL_GenerateCCAttributes", "ROW_WID_NEW")
+				.connector("SEQ_" + tableName, "NEXTVAL", "MPL_Resolve_ChangeCapture", "ROW_WID_NEW")
 				.transformation(ExpressionXformBuilder.newBuilder()
 						.expressionFromSeed("seedClass")
 						.marshaller(marshaller)
 						.noInterpolationValues()
 						.loadExpressionXformFromSeed("Seed_SIL_Xform_EXP_Collect")
-						.mapper(dataTypeMapper)
+						.mapper(sourceToXformDataTypeMapper)
 						.addFields((List<InfaSourceColumnDefinition>) (List<?>)attribCols)//
 						.noMoreFields()
 						.nameAlreadySet()
 						.build()
 						)
 				.autoConnectByName("FIL_ExcludeRecords", "EXP_Collect")
-				.autoConnectByName("MPL_GenerateCCAttributes", "EXP_Collect")
+				.connector("MPL_Resolve_ChangeCapture", "UPDATE_FLG", "EXP_Collect", "UPDATE_FLG")
+				.connector("MPL_Resolve_ChangeCapture", "ROW_WID", "EXP_Collect", "ROW_WID")
+				.connector("MPL_Resolve_ChangeCapture", "W_CREATED_DT", "EXP_Collect", "W_CREATED_DT")
+				.connector("MPL_Resolve_ChangeCapture", "W_UPDATED_DT", "EXP_Collect", "W_UPDATED_DT")
+				.connector("MPL_Resolve_ChangeCapture", "EFF_START_DT", "EXP_Collect", "EFF_START_DT")
+				.connector("MPL_Resolve_ChangeCapture", "EFF_END_DT", "EXP_Collect", "EFF_END_DT")
+
+				
+				.connector("FIL_ExcludeRecords", "LKP_CREATED_DT", "MPL_Resolve_ChangeCapture", "W_CREATED_DT_LKP")
+				.connector("FIL_ExcludeRecords", "LKP_HASH_SCD", "MPL_Resolve_ChangeCapture", "SCD_HASH_LKP")
+				.connector("FIL_ExcludeRecords", "UNSPEC_ROW_WID", "MPL_Resolve_ChangeCapture", "ROW_WID_UNSPEC")
+				.connector("FIL_ExcludeRecords", "HASH_SCD", "MPL_Resolve_ChangeCapture", "SCD_HASH_IN")
+				.connector("FIL_ExcludeRecords", "S_UPDATED_DT", "MPL_Resolve_ChangeCapture", "S_UPDATED_DT_IN")
+				.connector("FIL_ExcludeRecords", "LKP_ROW_WID", "MPL_Resolve_ChangeCapture", "ROW_WID_LKP")
+
+				
 				.transformation(UpdateStrategyXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.noInterpolationValues()
@@ -215,7 +240,9 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.nameAlreadySet()//
 						.build())
 				.transformationCopyConnectAllFields("EXP_Collect", "UPD_Dimension")
-				.autoConnectByName("UPD_Dimension", "D_" + stageTableName)
+				.autoConnectByName("UPD_Dimension", "D_" + tableName)
+				.connector("UPD_Dimension", "RECORD_HASH", "D_" + tableName, "HASH_RECORD")
+	
 				.noMoreTransformations()//
 				.noMoreConnectors()//
 				.noMoreTargetLoadOrders()//

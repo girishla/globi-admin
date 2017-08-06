@@ -319,7 +319,7 @@ public class MappingBuilder {
 
 			if (xformMap.containsKey(instanceName)) {
 
-				log.info("found special from instance -- " + instanceName);
+				//to deal with reusable xforms - defn wont be part of mapping
 				return xformMap.get(instanceName).getTRANSFORMFIELD().stream()//
 						.filter(transformField -> transformField.getPORTTYPE().endsWith("OUTPUT"))
 						.map(TRANSFORMFIELD::getNAME)//
@@ -404,7 +404,7 @@ public class MappingBuilder {
 			log.debug("Auto-connecting instances " + fromInstanceName + "and " + toInstanceName);
 
 			fromInstanceFieldNames.addAll(extractFieldNamesForTransformation(fromInstanceName));
-			toInstanceFieldNames.addAll(extractFieldNamesForTransformation(toInstanceName));
+			toInstanceFieldNames.addAll(extractInputFieldNamesForTransformation(toInstanceName));
 
 			fromInstanceFieldNames.stream().forEach(field -> log.info("FROMFROM---" + field));
 			fromInstanceFieldNames.stream().forEach(field -> log.info("TOTOTOT---" + field));

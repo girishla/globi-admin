@@ -1,5 +1,7 @@
 package com.globi.infa.generator.sil;
 
+import static com.globi.infa.generator.sil.SILStaticObjectMother.getDimensionAttribColumn;
+import static com.globi.infa.generator.sil.SILStaticObjectMother.getSpecialColumn;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -34,15 +36,12 @@ public class SILDimensionWorkflowWebtest extends AbstractWebIntegrationTest {
 
 		List<SILWorkflowSourceColumn> cols = new ArrayList<>();
 
-		cols.add(SILWorkflowSourceColumn.builder()//
-				.columnName("ROW_WID")//
-				.columnType("Primary Key")//
-				.domainLookupColumn(false)//
-				.autoColumn(true)//
-				.legacyColumn(true)//
-				.miniDimColumn(true)//
-				.targetColumn(true)
-				.build());
+		cols.add(getSpecialColumn("INTEGRATION_ID", "Natural Key"));
+		cols.add(getSpecialColumn("DATASOURCE_NUM_ID", "System"));
+		cols.add(getSpecialColumn("PGUID", "Natural Key"));
+		cols.add(getSpecialColumn("BU_PGUID", "System"));
+		cols.add(getDimensionAttribColumn("ORIG_INV_NUM"));
+		cols.add(getDimensionAttribColumn("SRC_BILL_EVT"));
 
 		
 		silWorkflow = SILWorkflow.builder()//

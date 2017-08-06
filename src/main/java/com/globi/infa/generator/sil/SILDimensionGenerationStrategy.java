@@ -49,6 +49,7 @@ public class SILDimensionGenerationStrategy extends AbstractGenerationStrategy i
 
 		
 		String stageTableName=wfDefinition.getStageName();
+		String tableName = wfDefinition.getTableBaseName();
 		String dbName = "LAW";
 
 		
@@ -77,14 +78,14 @@ public class SILDimensionGenerationStrategy extends AbstractGenerationStrategy i
 				.setdefaultConfigFromSeed("Seed_SIL_DefaultSessionConfig")//
 				.workflow(WorkflowDefinitionBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.setValue("stageTableName", stageTableName)
+						.setValue("tableName", tableName)
 						.noMoreValues()//
 						.loadWorkflowFromSeed("Seed_SIL_WF_Dimension")//
 						.nameAlreadySet()//
 						.build())//
 				.build();
 
-		pmObj.pmObjectName = "SIL_" + stageTableName + "_Dimension";
+		pmObj.pmObjectName = "SIL_" + tableName + "_Dimension";
 
 		return pmObj;
 	}

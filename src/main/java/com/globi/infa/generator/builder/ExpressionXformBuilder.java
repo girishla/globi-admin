@@ -165,7 +165,7 @@ public class ExpressionXformBuilder {
 		private static TRANSFORMFIELD expressionXformFieldFrom(InfaSourceColumnDefinition column) {
 
 			TRANSFORMFIELD field = new TRANSFORMFIELD();
-			field.setDATATYPE("String");
+			field.setDATATYPE("string");
 			field.setDEFAULTVALUE("");
 			field.setDESCRIPTION("");
 			field.setNAME(column.getColumnName());

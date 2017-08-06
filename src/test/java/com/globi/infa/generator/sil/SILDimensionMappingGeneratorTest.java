@@ -45,6 +45,7 @@ public class SILDimensionMappingGeneratorTest {
 	private List<InfaSourceColumnDefinition> allSourceColumns;
 
 	private static final String STG_TABLE_INVOICE_LN = "X_INVOICE_LN";
+	private static final String TABLE_INVOICE_LN = "INVOICE_LN";
 	private static final String SOURCE_NAME_LAW = "LAW";
 	private static final String TABLE_OWNER_LAW = "LAW";
 	private static final String DB_TYPE_ORACLE = "Oracle";
@@ -76,7 +77,9 @@ public class SILDimensionMappingGeneratorTest {
 		cols.add(getDimensionAttribColumn("SRC_BILL_EVT"));
 
 		silWorkflow = SILWorkflow.builder()//
-				.loadType("Dimension").stageName(STG_TABLE_INVOICE_LN).columns(cols)//
+				.loadType("Dimension")//
+				.stageName(STG_TABLE_INVOICE_LN)//
+				.tableName(TABLE_INVOICE_LN).columns(cols)//
 				.workflowUri("")//
 				.workflowName("SIL_" + STG_TABLE_INVOICE_LN + "_Dimension")//
 				.build();
@@ -187,7 +190,7 @@ public class SILDimensionMappingGeneratorTest {
 
 		InfaMappingObject mappingObj = generateMapping();
 
-		assertThat(mappingObj.getMapping().getNAME()).isEqualTo("SIL_" + STG_TABLE_INVOICE_LN + "_Dimension");
+		assertThat(mappingObj.getMapping().getNAME()).isEqualTo("SIL_" + TABLE_INVOICE_LN + "_Dimension");
 		// assertThat(mappingObj.getMapping().getTRANSFORMATION().size()).isEqualTo(9);
 		// assertThat(mappingObj.getMapping().getINSTANCE().size()).isEqualTo(10);
 		// assertThat(mappingObj.getMapping().getCONNECTOR().size()).isEqualTo(36);
@@ -258,9 +261,7 @@ public class SILDimensionMappingGeneratorTest {
 				"MD5(IIF(ISNULL(INTEGRATION_ID),'NOVAL',INTEGRATION_ID)||IIF(ISNULL(PGUID),'NOVAL',PGUID)||IIF(ISNULL(ORIG_INV_NUM),'NOVAL',ORIG_INV_NUM)||IIF(ISNULL(SRC_BILL_EVT),'NOVAL',SRC_BILL_EVT))");
 
 	}
-	
-	
-	
+
 	@Test
 	public void generatesMappingWithUnionXformConnectsToHashExpression() throws Exception {
 		List<CONNECTOR> connectors = generateMapping()//
@@ -270,14 +271,14 @@ public class SILDimensionMappingGeneratorTest {
 				.filter(conn -> (conn.getFROMINSTANCE().equals("UNION_UnspecifiedData")
 						&& conn.getTOINSTANCE().equals("EXP_CalculateHashes")))
 				.collect(Collectors.toList());
-		//non system input columns
+		// non system input columns
 		assertThat(connectors.size()).isEqualTo(4);
 
 	}
-	
+
 	@Test
-	public void generatesMappingWithReusableXformForPguidLookup() throws Exception{
-		
+	public void generatesMappingWithReusableXformForPguidLookup() throws Exception {
+
 		Optional<TRANSFORMATION> optSource = generateMapping()//
 				.getFolderObjects().stream().filter(fo -> fo.getType().equals("TRANSFORMATION"))//
 				.map(fo -> {
@@ -287,14 +288,12 @@ public class SILDimensionMappingGeneratorTest {
 
 		assertThat(optSource.get().getNAME()).isEqualTo("LKP_SYS_Dimension_PGUID");
 		assertThat(optSource.get().getTRANSFORMFIELD().size()).isEqualTo(7);
-		
-		
+
 	}
-	
+
 	@Test
-	public void generatesMappingWithFilterXform() throws Exception{
-		
-		
+	public void generatesMappingWithFilterXform() throws Exception {
+
 		Optional<TRANSFORMATION> optObject = generateMapping()//
 				.getMapping()//
 				.getTRANSFORMATION().stream()
@@ -302,26 +301,53 @@ public class SILDimensionMappingGeneratorTest {
 				.findFirst();
 
 		assertThat(optObject.get().getTRANSFORMFIELD().size()).isEqualTo(21);
-		
-		
+
 	}
-	
-	
+
 	@Test
-	public void generatesMappingWithExpectedConnectorsIntoFilterXform() throws Exception{
-		
-		
+	public void generatesMappingWithExpectedConnectorsIntoFilterXform() throws Exception {
+
 		List<CONNECTOR> connectors = generateMapping()//
 				.getMapping()//
 				.getCONNECTOR()//
 				.stream()//
-				.filter(conn -> conn.getTOINSTANCE().equals("FIL_ExcludeRecords"))
-				.collect(Collectors.toList());
-		
-		//non system input columns
+				.filter(conn -> conn.getTOINSTANCE().equals("FIL_ExcludeRecords")).collect(Collectors.toList());
+
+		// non system input columns
 		assertThat(connectors.size()).isEqualTo(18);
-		
+
+	}
+
+	@Test
+	public void generatesMappingWithExpectedConnectorsIntoExpCollect() throws Exception {
+
+		List<CONNECTOR> connectors = generateMapping()//
+				.getMapping()//
+				.getCONNECTOR()//
+				.stream()//
+				.filter(conn -> conn.getTOINSTANCE().equals("EXP_Collect")
+						&& conn.getFROMINSTANCE().equals("MPL_Resolve_ChangeCapture"))
+				.collect(Collectors.toList());
+
+		// non system input columns
+		assertThat(connectors.size()).isEqualTo(6);
+
 	}
 	
+	@Test
+	public void generatesMappingWithExpectedConnectorsIntoMappletCC() throws Exception {
+
+		List<CONNECTOR> connectors = generateMapping()//
+				.getMapping()//
+				.getCONNECTOR()//
+				.stream()//
+				.filter(conn -> conn.getTOINSTANCE().equals("MPL_Resolve_ChangeCapture")
+						&& conn.getFROMINSTANCE().equals("FIL_ExcludeRecords"))
+				.collect(Collectors.toList());
+
+		// non system input columns
+		assertThat(connectors.size()).isEqualTo(6);
+
+	}
 
 }
