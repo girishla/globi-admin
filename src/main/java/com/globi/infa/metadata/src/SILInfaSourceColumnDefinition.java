@@ -16,7 +16,8 @@ public class SILInfaSourceColumnDefinition extends InfaSourceColumnDefinition {
 	private Boolean miniDimColumnFlag = false;
 	private Boolean domainLookupColumnFlag = false;
 	private Boolean autoColumnFlag = false;
-
+	private String dimTableName="";
+	
 	public static Builder builder() {
 		return new Builder();
 	}
@@ -30,6 +31,7 @@ public class SILInfaSourceColumnDefinition extends InfaSourceColumnDefinition {
 		private Boolean miniDimColumnFlag = false;
 		private Boolean domainLookupColumnFlag = false;
 		private Boolean autoColumnFlag = false;
+		private String dimTableName="";
 
 		Builder() {
 			
@@ -72,7 +74,11 @@ public class SILInfaSourceColumnDefinition extends InfaSourceColumnDefinition {
 			return this;
 
 		}
-		
+		public Builder dimTableName(String  dimTableName) {
+			this.dimTableName = dimTableName;
+			return this;
+
+		}
 		
 		public SILInfaSourceColumnDefinition build() {
 
@@ -93,6 +99,7 @@ public class SILInfaSourceColumnDefinition extends InfaSourceColumnDefinition {
 		domainLookupColumnFlag=builder.domainLookupColumnFlag;
 		autoColumnFlag=builder.autoColumnFlag;
 		columnType=builder.columnType;
+		dimTableName=builder.dimTableName;
 
     }
 	

@@ -4,6 +4,8 @@ import static com.globi.infa.generator.InfaGeneratorDefaults.DEFAULT_DESCRIPTION
 import static com.globi.infa.generator.InfaGeneratorDefaults.DEFAULT_VERSION;
 import static com.globi.infa.generator.builder.InfaObjectMother.getInstanceFor;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,7 +15,10 @@ import java.util.Map.Entry;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+
 import com.globi.infa.datasource.core.ObjectNameNormaliser;
+import com.globi.infa.metadata.src.SILInfaSourceColumnDefinition;
 import com.rits.cloning.Cloner;
 
 import lombok.extern.slf4j.Slf4j;
@@ -71,6 +76,8 @@ public class MappingBuilder {
 
 	public interface ReusableTransformationStep {
 		ReusableTransformationStep reusableTransformation(TRANSFORMATION xform);
+
+		ReusableTransformationStep reusableTransformations(List<TRANSFORMATION> xforms);
 
 		MappingStep noMoreReusableXforms();
 
@@ -319,7 +326,7 @@ public class MappingBuilder {
 
 			if (xformMap.containsKey(instanceName)) {
 
-				//to deal with reusable xforms - defn wont be part of mapping
+				// to deal with reusable xforms - defn wont be part of mapping
 				return xformMap.get(instanceName).getTRANSFORMFIELD().stream()//
 						.filter(transformField -> transformField.getPORTTYPE().endsWith("OUTPUT"))
 						.map(TRANSFORMFIELD::getNAME)//
@@ -679,8 +686,23 @@ public class MappingBuilder {
 
 		}
 
+		
+
 		@Override
 		public MappingStep noMoreReusableXforms() {
+
+			return this;
+		}
+
+		@Override
+		public ReusableTransformationStep reusableTransformations(List<TRANSFORMATION> xforms) {
+
+			xforms.forEach(xform -> {
+
+						this.folderObjects.add(new InfaTransformationObject(xform));
+						xformMap.put(xform.getNAME(), xform);
+
+					});
 
 			return this;
 		}

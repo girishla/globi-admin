@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <TRANSFORMATION DESCRIPTION ="" NAME ="LKP_H_FX" OBJECTVERSION ="1" REUSABLE ="YES" TYPE ="Lookup Procedure" VERSIONNUMBER ="1">
+        <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="IN_EXCH_CD" PICTURETEXT ="" PORTTYPE ="INPUT" PRECISION ="30" SCALE ="0"/>
+        <TRANSFORMFIELD DATATYPE ="decimal" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="IN_EXCH_DT_WID_1" PICTURETEXT ="" PORTTYPE ="INPUT" PRECISION ="10" SCALE ="0"/>
+        <TRANSFORMFIELD DATATYPE ="decimal" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="IN_EXCH_DT_WID_2" PICTURETEXT ="" PORTTYPE ="INPUT" PRECISION ="10" SCALE ="0"/>
+        <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="IN_CURCY_CD_FROM" PICTURETEXT ="" PORTTYPE ="INPUT" PRECISION ="3" SCALE ="0"/>
+        <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="EXCH_CD" PICTURETEXT ="" PORTTYPE ="LOOKUP" PRECISION ="30" SCALE ="0"/>
+        <TRANSFORMFIELD DATATYPE ="decimal" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="EXCH_DT_FROM_WID" PICTURETEXT ="" PORTTYPE ="LOOKUP" PRECISION ="10" SCALE ="0"/>
+        <TRANSFORMFIELD DATATYPE ="decimal" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="EXCH_DT_TO_WID" PICTURETEXT ="" PORTTYPE ="LOOKUP" PRECISION ="10" SCALE ="0"/>
+        <TRANSFORMFIELD DATATYPE ="string" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="CURCY_CD_FROM" PICTURETEXT ="" PORTTYPE ="LOOKUP" PRECISION ="3" SCALE ="0"/>
+        <TRANSFORMFIELD DATATYPE ="decimal" DEFAULTVALUE ="" DESCRIPTION ="" NAME ="ROW_WID" PICTURETEXT ="" PORTTYPE ="LOOKUP/RETURN/OUTPUT" PRECISION ="10" SCALE ="0"/>
+        <TABLEATTRIBUTE NAME ="Lookup Sql Override" VALUE =""/>
+        <TABLEATTRIBUTE NAME ="Lookup table name" VALUE ="H_FX"/>
+        <TABLEATTRIBUTE NAME ="Lookup Source Filter" VALUE =""/>
+        <TABLEATTRIBUTE NAME ="Lookup caching enabled" VALUE ="YES"/>
+        <TABLEATTRIBUTE NAME ="Lookup policy on multiple match" VALUE ="Use Any Value"/>
+        <TABLEATTRIBUTE NAME ="Lookup condition" VALUE ="EXCH_CD = IN_EXCH_CD AND CURCY_CD_FROM = IN_CURCY_CD_FROM AND EXCH_DT_FROM_WID &lt;= IN_EXCH_DT_WID_1 AND EXCH_DT_TO_WID &gt;= IN_EXCH_DT_WID_2"/>
+        <TABLEATTRIBUTE NAME ="Connection Information" VALUE ="$Target"/>
+        <TABLEATTRIBUTE NAME ="Source Type" VALUE ="Database"/>
+        <TABLEATTRIBUTE NAME ="Recache if Stale" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Tracing Level" VALUE ="Normal"/>
+        <TABLEATTRIBUTE NAME ="Lookup cache directory name" VALUE ="$PMCacheDir"/>
+        <TABLEATTRIBUTE NAME ="Lookup cache initialize" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Lookup cache persistent" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Lookup Data Cache Size" VALUE ="Auto"/>
+        <TABLEATTRIBUTE NAME ="Lookup Index Cache Size" VALUE ="Auto"/>
+        <TABLEATTRIBUTE NAME ="Dynamic Lookup Cache" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Synchronize Dynamic Cache" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Output Old Value On Update" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Update Dynamic Cache Condition" VALUE ="TRUE"/>
+        <TABLEATTRIBUTE NAME ="Cache File Name Prefix" VALUE =""/>
+        <TABLEATTRIBUTE NAME ="Re-cache from lookup source" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Insert Else Update" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Update Else Insert" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Datetime Format" VALUE =""/>
+        <TABLEATTRIBUTE NAME ="Thousand Separator" VALUE ="None"/>
+        <TABLEATTRIBUTE NAME ="Decimal Separator" VALUE ="."/>
+        <TABLEATTRIBUTE NAME ="Case Sensitive String Comparison" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Null ordering" VALUE ="Null Is Highest Value"/>
+        <TABLEATTRIBUTE NAME ="Sorted Input" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Lookup source is static" VALUE ="NO"/>
+        <TABLEATTRIBUTE NAME ="Pre-build lookup cache" VALUE ="Auto"/>
+        <TABLEATTRIBUTE NAME ="Subsecond Precision" VALUE ="6"/>
+    </TRANSFORMATION>

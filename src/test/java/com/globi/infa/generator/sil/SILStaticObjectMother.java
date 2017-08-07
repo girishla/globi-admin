@@ -90,7 +90,7 @@ public class SILStaticObjectMother {
 				.miniDimColumn(false)//
 				.stageTableColumn(false)
 				.targetColumn(true)//
-				.columnDimTable(dimTable)
+				.dimTableName(dimTable)
 				.build();
 
 	}
