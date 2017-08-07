@@ -65,7 +65,7 @@ public class SILGeneratorContext extends BaseGeneratorContext {
 	public static SILInfaSourceColumnDefinition getSILColDefinitionFrom(InfaSourceColumnDefinition column,
 			List<SILWorkflowSourceColumn> inputSelectedColumns) {
 
-		SILInfaSourceColumnDefinition silCol = (SILInfaSourceColumnDefinition) SILInfaSourceColumnDefinition.builder()//
+		SILInfaSourceColumnDefinition silCol = SILInfaSourceColumnDefinition.builder()//
 				.autoColumnFlag(false)
 				.domainLookupColumnFlag(false)
 				.legacyColumnFlag(false)

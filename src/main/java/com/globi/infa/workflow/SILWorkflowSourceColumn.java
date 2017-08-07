@@ -36,6 +36,18 @@ public class SILWorkflowSourceColumn extends AbstractEntity {
 	@Column(name="COL_TYPE")
 	private String columnType;
 
+	@Column(name="COL_D_TABLE")
+	private String columnDimTable;
+
+	
+	@Column(name="COL_ORDER")
+	private int columnOrder;
+
+	
+	@Builder.Default
+	@Column(name="COL_STAGING_INDICATOR")
+	private boolean stageTableColumn = false;
+	
 	@Builder.Default
 	@Column(name="COL_TGT_INDICATOR")
 	private boolean targetColumn = false;

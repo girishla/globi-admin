@@ -27,7 +27,7 @@ public class SILStaticObjectMother {
 				.domainLookupColumn(false)//
 				.legacyColumn(true)//
 				.miniDimColumn(true)//
-				.targetColumn(true)//
+				.targetColumn(false)//
 				.build();
 
 	}
@@ -45,5 +45,54 @@ public class SILStaticObjectMother {
 				.build();
 
 	}
+	
+	
+	public static SILWorkflowSourceColumn getMeasureAttribColumn(String colName) {
 
+		return SILWorkflowSourceColumn.builder()//
+				.columnName(colName)//
+				.autoColumn(false)//
+				.columnType("Measure Attribute")//
+				.domainLookupColumn(false)//
+				.legacyColumn(false)//
+				.miniDimColumn(false)//
+				.stageTableColumn(true)
+				.targetColumn(true)//
+				.build();
+
+	}
+	
+	
+	public static SILWorkflowSourceColumn getMeasureColumn(String colName) {
+
+		return SILWorkflowSourceColumn.builder()//
+				.columnName(colName)//
+				.autoColumn(false)//
+				.columnType("Measure")//
+				.domainLookupColumn(false)//
+				.legacyColumn(false)//
+				.miniDimColumn(false)//
+				.stageTableColumn(true)
+				.targetColumn(true)//
+				.build();
+
+	}
+
+	
+	public static SILWorkflowSourceColumn getFKWIDColumn(String colName,String dimTable) {
+
+		return SILWorkflowSourceColumn.builder()//
+				.columnName(colName)//
+				.autoColumn(false)//
+				.columnType("Foreign Key")//
+				.domainLookupColumn(false)//
+				.legacyColumn(false)//
+				.miniDimColumn(false)//
+				.stageTableColumn(false)
+				.targetColumn(true)//
+				.columnDimTable(dimTable)
+				.build();
+
+	}
+	
 }

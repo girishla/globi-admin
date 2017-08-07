@@ -406,9 +406,6 @@ public class MappingBuilder {
 			fromInstanceFieldNames.addAll(extractFieldNamesForTransformation(fromInstanceName));
 			toInstanceFieldNames.addAll(extractInputFieldNamesForTransformation(toInstanceName));
 
-			fromInstanceFieldNames.stream().forEach(field -> log.info("FROMFROM---" + field));
-			fromInstanceFieldNames.stream().forEach(field -> log.info("TOTOTOT---" + field));
-
 			// It is sufficient to look for fromInstances only in the SourceMap
 			// as targets cannot be "From" in a connector.
 			fromInstanceFieldNames.addAll(extractFieldNamesForSources(fromInstanceName));
@@ -645,9 +642,6 @@ public class MappingBuilder {
 			// It is sufficient to look for fromInstances only in the SourceMap
 			// as targets cannot be "From" in a connector.
 			fromInstanceFieldNames.addAll(extractFieldNamesForSources(fromInstanceName));
-
-			fromInstanceFieldNames.stream().forEach(instance -> log.info("FROMFROM---" + instance));
-			toInstanceFieldNames.stream().forEach(instance -> log.info("TOTOTO---" + instance));
 
 			// save normalised column names as Hash to use later
 			fromInstanceFieldNames//
