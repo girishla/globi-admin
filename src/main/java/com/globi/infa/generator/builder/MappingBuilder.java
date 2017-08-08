@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -93,10 +94,9 @@ public class MappingBuilder {
 
 		TransformationStep transformationCopyConnectAllFields(String fromTransformation, String toTransformation);
 
+		TransformationStep transformationCopyMapConnectAllFields(String fromTransformation, String toTransformation,
+				UnaryOperator<TRANSFORMFIELD> op);
 
-		TransformationStep transformationCopyMapConnectAllFields(String fromTransformation, String toTransformation,UnaryOperator<TRANSFORMFIELD> op);
-
-		
 		TransformationStep transformationField(String transformation, TRANSFORMFIELD field);
 
 		TransformationStep connector(CONNECTOR connector);
@@ -104,6 +104,9 @@ public class MappingBuilder {
 		TransformationStep connector(String fromInstance, String fromField, String toInstance, String toField);
 
 		TransformationStep autoConnectByName(String fromInstanceName, String toInstanceName);
+
+		TransformationStep autoConnectByNameCheckingPredicate(String fromInstanceName, String toInstanceName,
+				Predicate<TRANSFORMFIELD> op);
 
 		TransformationStep autoConnectByTransformedName(String fromInstanceName, String toInstanceName,
 				UnaryOperator<String> op);
@@ -132,7 +135,9 @@ public class MappingBuilder {
 	}
 
 	public interface TargetLoadOrderStep {
-		TargetLoadOrderStep targetLoadOrderName(TARGETLOADORDER targetLoadOrder);
+		TargetLoadOrderStep targetLoadOrder(TARGETLOADORDER targetLoadOrder);
+
+		TargetLoadOrderStep targetLoadOrderFrom(String order, String instanceName);
 
 		MappingVariableStep noMoreTargetLoadOrders();
 	}
@@ -223,8 +228,9 @@ public class MappingBuilder {
 		@Override
 		public TransformationStep transformation(TRANSFORMATION transformation) {
 
-			if(transformation==null) return this;
-			
+			if (transformation == null)
+				return this;
+
 			this.mapping.getTRANSFORMATION().add(transformation);
 			xformMap.put(transformation.getNAME(), transformation);
 			return this;
@@ -285,7 +291,7 @@ public class MappingBuilder {
 		}
 
 		@Override
-		public TargetLoadOrderStep targetLoadOrderName(TARGETLOADORDER targetLoadOrder) {
+		public TargetLoadOrderStep targetLoadOrder(TARGETLOADORDER targetLoadOrder) {
 
 			return this;
 		}
@@ -328,13 +334,14 @@ public class MappingBuilder {
 
 		}
 
-		private List<String> extractFieldNamesForTransformation(String instanceName) {
+		private List<String> extractFieldNamesForTransformation(String instanceName,
+				Predicate<TRANSFORMFIELD> predicate) {
 
 			if (xformMap.containsKey(instanceName)) {
 
 				// to deal with reusable xforms - defn wont be part of mapping
 				return xformMap.get(instanceName).getTRANSFORMFIELD().stream()//
-						.filter(transformField -> transformField.getPORTTYPE().endsWith("OUTPUT"))
+						.filter(predicate).filter(transformField -> transformField.getPORTTYPE().endsWith("OUTPUT"))
 						.map(TRANSFORMFIELD::getNAME)//
 						.collect(Collectors.toList());
 
@@ -344,7 +351,7 @@ public class MappingBuilder {
 					.filter(instance -> instance.getNAME().equals(instanceName))//
 					.map(TRANSFORMATION::getTRANSFORMFIELD)//
 					.flatMap(List::stream)//
-					.filter(transformField -> transformField.getPORTTYPE().endsWith("OUTPUT"))
+					.filter(predicate).filter(transformField -> transformField.getPORTTYPE().endsWith("OUTPUT"))
 					.map(TRANSFORMFIELD::getNAME)//
 					.collect(Collectors.toList());
 		}
@@ -416,7 +423,7 @@ public class MappingBuilder {
 
 			log.debug("Auto-connecting instances " + fromInstanceName + "and " + toInstanceName);
 
-			fromInstanceFieldNames.addAll(extractFieldNamesForTransformation(fromInstanceName));
+			fromInstanceFieldNames.addAll(extractFieldNamesForTransformation(fromInstanceName, xform -> true));
 			toInstanceFieldNames.addAll(extractInputFieldNamesForTransformation(toInstanceName));
 
 			// It is sufficient to look for fromInstances only in the SourceMap
@@ -507,14 +514,13 @@ public class MappingBuilder {
 			Cloner cloner = Cloner.shared();
 
 			xformMap.get(fromTransformation).getTRANSFORMFIELD().stream()
-			.filter(field->field.getPORTTYPE().endsWith("OUTPUT"))
-			.forEach(field -> {
-				TRANSFORMFIELD toField = cloner.deepClone(field);
-				toField.setPORTTYPE("INPUT/OUTPUT");
-				xformMap.get(toTransformation).getTRANSFORMFIELD().add(toField);
-				this.connector(fromTransformation, field.getNAME(), toTransformation, toField.getNAME());
+					.filter(field -> field.getPORTTYPE().endsWith("OUTPUT")).forEach(field -> {
+						TRANSFORMFIELD toField = cloner.deepClone(field);
+						toField.setPORTTYPE("INPUT/OUTPUT");
+						xformMap.get(toTransformation).getTRANSFORMFIELD().add(toField);
+						this.connector(fromTransformation, field.getNAME(), toTransformation, toField.getNAME());
 
-			});
+					});
 
 			// If the target is an expression transform, set the field as an
 			// expression by default
@@ -651,7 +657,7 @@ public class MappingBuilder {
 
 			log.debug("Auto-connecting instances transformed " + fromInstanceName + " and " + toInstanceName);
 
-			fromInstanceFieldNames.addAll(extractFieldNamesForTransformation(fromInstanceName));
+			fromInstanceFieldNames.addAll(extractFieldNamesForTransformation(fromInstanceName, xform -> true));
 			toInstanceFieldNames.addAll(extractInputFieldNamesForTransformation(toInstanceName));
 
 			// It is sufficient to look for fromInstances only in the SourceMap
@@ -688,17 +694,16 @@ public class MappingBuilder {
 
 		@Override
 		public ReusableTransformationStep reusableTransformation(TRANSFORMATION xform) {
-			
-			if(xform==null) return this;
-			
+
+			if (xform == null)
+				return this;
+
 			this.folderObjects.add(new InfaTransformationObject(xform));
 			xformMap.put(xform.getNAME(), xform);
-			
+
 			return this;
 
 		}
-
-		
 
 		@Override
 		public MappingStep noMoreReusableXforms() {
@@ -711,10 +716,10 @@ public class MappingBuilder {
 
 			xforms.forEach(xform -> {
 
-						this.folderObjects.add(new InfaTransformationObject(xform));
-						xformMap.put(xform.getNAME(), xform);
+				this.folderObjects.add(new InfaTransformationObject(xform));
+				xformMap.put(xform.getNAME(), xform);
 
-					});
+			});
 
 			return this;
 		}
@@ -723,17 +728,15 @@ public class MappingBuilder {
 		public TransformationStep transformationCopyMapConnectAllFields(String fromTransformation,
 				String toTransformation, UnaryOperator<TRANSFORMFIELD> op) {
 
-			
 			xformMap.get(fromTransformation).getTRANSFORMFIELD().stream()
-			.filter(field->field.getPORTTYPE().endsWith("OUTPUT"))
-			.forEach(field -> {
-				
-				TRANSFORMFIELD toField=op.apply(field);
-				
-				xformMap.get(toTransformation).getTRANSFORMFIELD().add(op.apply(field));
-				this.connector(fromTransformation, field.getNAME(), toTransformation, toField.getNAME());
+					.filter(field -> field.getPORTTYPE().endsWith("OUTPUT")).forEach(field -> {
 
-			});
+						TRANSFORMFIELD toField = op.apply(field);
+
+						xformMap.get(toTransformation).getTRANSFORMFIELD().add(op.apply(field));
+						this.connector(fromTransformation, field.getNAME(), toTransformation, toField.getNAME());
+
+					});
 
 			// If the target is an expression transform, set the field as an
 			// expression by default
@@ -748,7 +751,60 @@ public class MappingBuilder {
 				});
 
 			}
-			
+
+			return this;
+		}
+
+		@Override
+		public TransformationStep autoConnectByNameCheckingPredicate(String fromInstanceName, String toInstanceName,
+				Predicate<TRANSFORMFIELD> predicate) {
+
+			List<String> fromInstanceFieldNames = new ArrayList<>();
+			List<String> toInstanceFieldNames = new ArrayList<>();
+			Map<String, String> normalisedColumns = new HashMap<>();
+
+			log.debug("Auto-connecting instances " + fromInstanceName + "and " + toInstanceName);
+
+			fromInstanceFieldNames.addAll(extractFieldNamesForTransformation(fromInstanceName, predicate));
+			toInstanceFieldNames.addAll(extractInputFieldNamesForTransformation(toInstanceName));
+
+			// It is sufficient to look for fromInstances only in the SourceMap
+			// as targets cannot be "From" in a connector.
+			fromInstanceFieldNames.addAll(extractFieldNamesForSources(fromInstanceName));
+
+			// save normalised column names as Hash to use later
+			fromInstanceFieldNames//
+					.stream()//
+					.forEach(col -> normalisedColumns.put(ObjectNameNormaliser.normalise(col), col));
+
+			// collect normalise column names as list before comparing
+			fromInstanceFieldNames = fromInstanceFieldNames//
+					.stream()//
+					.map(ObjectNameNormaliser::normalise)//
+					.collect(Collectors.toList());
+
+			toInstanceFieldNames.addAll(extractFieldNamesForTargets(toInstanceName));
+
+			List<String> matchingFieldNames = fromInstanceFieldNames.stream()//
+					.filter(toInstanceFieldNames::contains).collect(Collectors.toList());
+
+			// Add a connector for each matching field
+			matchingFieldNames.forEach(matchingField -> {
+				this.connector(fromInstanceName, normalisedColumns.get(matchingField), toInstanceName, matchingField);
+
+			});
+
+			return this;
+
+		}
+
+		@Override
+		public TargetLoadOrderStep targetLoadOrderFrom(String order, String instanceName) {
+
+			TARGETLOADORDER loadOrder = new TARGETLOADORDER();
+			loadOrder.setTARGETINSTANCE(instanceName);
+			loadOrder.setORDER(order);
+			mapping.getTARGETLOADORDER().add(loadOrder);
 			
 			return this;
 		}

@@ -444,7 +444,7 @@ public class SILFactMappingGeneratorTest {
 				.findFirst();
 
 
-		assertThat(optSource.get().getTRANSFORMFIELD().size()).isEqualTo(10);
+		assertThat(optSource.get().getTRANSFORMFIELD().size()).isEqualTo(11);
 
 	}
 
@@ -459,7 +459,7 @@ public class SILFactMappingGeneratorTest {
 				.filter(source -> source.getNAME().equals("UPD_Fact"))//
 				.findFirst();
 
-		assertThat(optSource.get().getTRANSFORMFIELD().size()).isEqualTo(9);
+		assertThat(optSource.get().getTRANSFORMFIELD().size()).isEqualTo(10);
 
 		assertThat(optSource.get().getTRANSFORMFIELD().stream().filter(field -> field.getNAME().equals("AGR_WID")).findFirst()
 				.get().getDEFAULTVALUE()).isEqualTo("$$UNSPEC_NUM");

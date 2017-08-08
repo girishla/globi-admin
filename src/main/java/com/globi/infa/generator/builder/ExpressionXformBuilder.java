@@ -70,6 +70,8 @@ public class ExpressionXformBuilder {
 		
 		AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns);
 		
+		AddFieldsStep addField(TRANSFORMFIELD field);
+		
 		AddFieldsStep addTransformFields(List<TRANSFORMFIELD> fields);
 
 		AddFieldsStep addBUIDField(List<PTPInfaSourceColumnDefinition> columns);
@@ -511,6 +513,17 @@ public class ExpressionXformBuilder {
 			fields.stream().forEach(f->log.info("addTransformFields:-" + f.getNAME()));
 						
 			this.expressionXformDefn.getTRANSFORMFIELD().addAll(fields);
+			
+			return this;
+		}
+
+		@Override
+		public AddFieldsStep addField(TRANSFORMFIELD field) {
+
+			
+			if(field==null) return this;
+			
+			this.expressionXformDefn.getTRANSFORMFIELD().add(field);
 			
 			return this;
 		}

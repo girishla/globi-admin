@@ -161,7 +161,95 @@ public class InfaObjectMother {
 		return mappingVariable;
 
 	}
+	
+	
+	public static MAPPINGVARIABLE getTargetTableMappingVariable(String tableName) {
 
+		MAPPINGVARIABLE mappingVariable = new MAPPINGVARIABLE();
+		mappingVariable.setDATATYPE("string");
+		mappingVariable.setDEFAULTVALUE(tableName);
+		mappingVariable.setDESCRIPTION("");
+		mappingVariable.setISEXPRESSIONVARIABLE("NO");
+		mappingVariable.setISPARAM("YES");
+		mappingVariable.setNAME("$$TABLE_TARGET");
+		mappingVariable.setPRECISION("15");
+		mappingVariable.setSCALE("0");
+		mappingVariable.setUSERDEFINED("YES");
+		return mappingVariable;
+
+	}
+
+	
+	
+	public static MAPPINGVARIABLE getUnspecifiedStringMappingVariable() {
+
+		MAPPINGVARIABLE mappingVariable = new MAPPINGVARIABLE();
+		mappingVariable.setDATATYPE("string");
+		mappingVariable.setDEFAULTVALUE("Unspecified");
+		mappingVariable.setDESCRIPTION("");
+		mappingVariable.setISEXPRESSIONVARIABLE("NO");
+		mappingVariable.setISPARAM("YES");
+		mappingVariable.setNAME("$$UNSPEC_STR");
+		mappingVariable.setPRECISION("15");
+		mappingVariable.setSCALE("0");
+		mappingVariable.setUSERDEFINED("YES");
+		return mappingVariable;
+
+	}
+
+
+	
+	public static MAPPINGVARIABLE getUnspecifiedFlagMappingVariable() {
+
+		MAPPINGVARIABLE mappingVariable = new MAPPINGVARIABLE();
+		mappingVariable.setDATATYPE("string");
+		mappingVariable.setDEFAULTVALUE("U");
+		mappingVariable.setDESCRIPTION("");
+		mappingVariable.setISEXPRESSIONVARIABLE("NO");
+		mappingVariable.setISPARAM("YES");
+		mappingVariable.setNAME("$$UNSPEC_FLG");
+		mappingVariable.setPRECISION("1");
+		mappingVariable.setSCALE("0");
+		mappingVariable.setUSERDEFINED("YES");
+		return mappingVariable;
+
+	}
+
+	
+	public static MAPPINGVARIABLE getUnspecifiedNumMappingVariable() {
+
+		MAPPINGVARIABLE mappingVariable = new MAPPINGVARIABLE();
+		mappingVariable.setDATATYPE("decimal");
+		mappingVariable.setDEFAULTVALUE("0");
+		mappingVariable.setDESCRIPTION("");
+		mappingVariable.setISEXPRESSIONVARIABLE("NO");
+		mappingVariable.setISPARAM("YES");
+		mappingVariable.setNAME("$$UNSPEC_NUM");
+		mappingVariable.setPRECISION("10");
+		mappingVariable.setSCALE("0");
+		mappingVariable.setUSERDEFINED("YES");
+		return mappingVariable;
+
+	}
+	
+	
+	public static MAPPINGVARIABLE getUnspecifiedDateMappingVariable() {
+
+		MAPPINGVARIABLE mappingVariable = new MAPPINGVARIABLE();
+		mappingVariable.setDATATYPE("date/time");
+		mappingVariable.setDEFAULTVALUE("01/01/1900");
+		mappingVariable.setDESCRIPTION("");
+		mappingVariable.setISEXPRESSIONVARIABLE("NO");
+		mappingVariable.setISPARAM("YES");
+		mappingVariable.setNAME("$$UNSPEC_DT");
+		mappingVariable.setPRECISION("29");
+		mappingVariable.setSCALE("9");
+		mappingVariable.setUSERDEFINED("YES");
+		return mappingVariable;
+
+	}
+
+	
 	
 	public static MAPPINGVARIABLE getDataSourceNumIdMappingVariable(String defaultValue) {
 
