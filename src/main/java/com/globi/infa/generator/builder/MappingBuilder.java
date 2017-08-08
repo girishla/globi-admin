@@ -93,6 +93,10 @@ public class MappingBuilder {
 
 		TransformationStep transformationCopyConnectAllFields(String fromTransformation, String toTransformation);
 
+
+		TransformationStep transformationCopyMapConnectAllFields(String fromTransformation, String toTransformation,UnaryOperator<TRANSFORMFIELD> op);
+
+		
 		TransformationStep transformationField(String transformation, TRANSFORMFIELD field);
 
 		TransformationStep connector(CONNECTOR connector);
@@ -219,6 +223,8 @@ public class MappingBuilder {
 		@Override
 		public TransformationStep transformation(TRANSFORMATION transformation) {
 
+			if(transformation==null) return this;
+			
 			this.mapping.getTRANSFORMATION().add(transformation);
 			xformMap.put(transformation.getNAME(), transformation);
 			return this;
@@ -500,7 +506,9 @@ public class MappingBuilder {
 
 			Cloner cloner = Cloner.shared();
 
-			xformMap.get(fromTransformation).getTRANSFORMFIELD().forEach(field -> {
+			xformMap.get(fromTransformation).getTRANSFORMFIELD().stream()
+			.filter(field->field.getPORTTYPE().endsWith("OUTPUT"))
+			.forEach(field -> {
 				TRANSFORMFIELD toField = cloner.deepClone(field);
 				toField.setPORTTYPE("INPUT/OUTPUT");
 				xformMap.get(toTransformation).getTRANSFORMFIELD().add(toField);
@@ -708,6 +716,40 @@ public class MappingBuilder {
 
 					});
 
+			return this;
+		}
+
+		@Override
+		public TransformationStep transformationCopyMapConnectAllFields(String fromTransformation,
+				String toTransformation, UnaryOperator<TRANSFORMFIELD> op) {
+
+			
+			xformMap.get(fromTransformation).getTRANSFORMFIELD().stream()
+			.filter(field->field.getPORTTYPE().endsWith("OUTPUT"))
+			.forEach(field -> {
+				
+				TRANSFORMFIELD toField=op.apply(field);
+				
+				xformMap.get(toTransformation).getTRANSFORMFIELD().add(op.apply(field));
+				this.connector(fromTransformation, field.getNAME(), toTransformation, toField.getNAME());
+
+			});
+
+			// If the target is an expression transform, set the field as an
+			// expression by default
+			if (xformMap.get(toTransformation).getTYPE().equals("Expression")) {
+				xformMap.get(toTransformation).getTRANSFORMFIELD().forEach(field -> {
+
+					if (field.getEXPRESSION() == null || field.getEXPRESSION().isEmpty()) {
+						field.setEXPRESSION(field.getNAME());
+						field.setEXPRESSIONTYPE("GENERAL");
+					}
+
+				});
+
+			}
+			
+			
 			return this;
 		}
 

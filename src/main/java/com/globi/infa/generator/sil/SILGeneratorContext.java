@@ -96,6 +96,7 @@ public class SILGeneratorContext extends BaseGeneratorContext {
 					silCol.setMiniDimColumnFlag(selectedCol.isMiniDimColumn());
 					silCol.setTargetColumnFlag(selectedCol.isTargetColumn());
 					silCol.setSelected(true);
+				    silCol.setDimTableName(selectedCol.getDimTableName());
 
 				});
 

@@ -24,6 +24,7 @@ import com.globi.infa.metadata.core.StringMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.PTPInfaSourceColumnDefinition;
 
+import lombok.extern.slf4j.Slf4j;
 import xjc.TABLEATTRIBUTE;
 import xjc.TRANSFORMATION;
 import xjc.TRANSFORMFIELD;
@@ -102,6 +103,7 @@ public class ExpressionXformBuilder {
 		TRANSFORMATION build();
 	}
 
+	@Slf4j
 	public static class ExpressionXformSteps implements ClassStep, ExpressionStep, NameStep, SetMarshallerStep,
 			SetInterPolationValues, LoadFromSeedStep, AddFieldsStep, BuildStep, SetMapperStep {
 
@@ -505,6 +507,9 @@ public class ExpressionXformBuilder {
 
 		@Override
 		public AddFieldsStep addTransformFields(List<TRANSFORMFIELD> fields) {
+			
+			fields.stream().forEach(f->log.info("addTransformFields:-" + f.getNAME()));
+						
 			this.expressionXformDefn.getTRANSFORMFIELD().addAll(fields);
 			
 			return this;

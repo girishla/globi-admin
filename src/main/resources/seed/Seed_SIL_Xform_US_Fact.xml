@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <TRANSFORMATION DESCRIPTION ="" NAME ="UPD_Fact" OBJECTVERSION ="1" REUSABLE ="NO" TYPE ="Update Strategy" VERSIONNUMBER ="1">
+            <TABLEATTRIBUTE NAME ="Update Strategy Expression" VALUE ="DECODE(UPDATE_FLG,&#xD;&#xA;&apos;I&apos;,DD_INSERT,&#xD;&#xA;&apos;U&apos;,DD_UPDATE,&#xD;&#xA;&apos;B&apos;,DD_INSERT,&#xD;&#xA;&apos;D&apos;,DD_UPDATE,&#xD;&#xA;DD_REJECT)"/>
+            <TABLEATTRIBUTE NAME ="Forward Rejected Rows" VALUE ="YES"/>
+            <TABLEATTRIBUTE NAME ="Tracing Level" VALUE ="Normal"/>
+        </TRANSFORMATION>

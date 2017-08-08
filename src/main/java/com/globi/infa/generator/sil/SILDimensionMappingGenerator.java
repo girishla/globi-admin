@@ -24,8 +24,10 @@ import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.SILInfaSourceColumnDefinition;
 import com.globi.infa.workflow.SILWorkflow;
 import com.globi.metadata.sourcesystem.SourceSystem;
+import com.rits.cloning.Cloner;
 
 import lombok.extern.slf4j.Slf4j;
+import xjc.TRANSFORMFIELD;
 
 @Slf4j
 public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
@@ -239,7 +241,8 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 						.loadUpdateStrategyXformFromSeed("Seed_SIL_Xform_UPD_Strategy")//
 						.nameAlreadySet()//
 						.build())
-				.transformationCopyConnectAllFields("EXP_Collect", "UPD_Dimension")
+//				.transformationCopyConnectAllFields("EXP_Collect", "UPD_Dimension")
+				.transformationCopyMapConnectAllFields("EXP_Collect", "UPD_Dimension", this::mapToUpdateStrategyField)
 				.autoConnectByName("UPD_Dimension", "D_" + tableName)
 				.connector("UPD_Dimension", "RECORD_HASH", "D_" + tableName, "HASH_RECORD")
 	
@@ -250,6 +253,26 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 				.build();
 
 		return mappingObjExtract;
+
+	}
+	
+	private TRANSFORMFIELD mapToUpdateStrategyField(TRANSFORMFIELD field) {
+		Cloner cloner = Cloner.shared();
+		TRANSFORMFIELD toField = cloner.deepClone(field);
+
+		if (toField.getDATATYPE().equals("decimal")) {
+			toField.setDEFAULTVALUE("$$UNSPEC_NUM");
+		} else if (toField.getDATATYPE().equals("string") && toField.getPRECISION().equals("1")) {
+			toField.setDEFAULTVALUE("$$UNSPEC_FLG");
+		} else if (toField.getDATATYPE().equals("date/time")) {
+			toField.setDEFAULTVALUE("$$UNSPEC_DT");
+		} else if (toField.getDATATYPE().equals("string")) {
+			toField.setDEFAULTVALUE("$$UNSPEC_STR");
+		}
+
+		toField.setPORTTYPE("INPUT/OUTPUT");
+
+		return toField;
 
 	}
 

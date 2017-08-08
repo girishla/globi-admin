@@ -98,6 +98,8 @@ public class SILFactMappingGeneratorTest {
 		cols.add(getMeasureColumn("DOC_AMT"));
 		cols.add(getFKWIDColumn("AGR_WID", "AGREE_REV"));
 		cols.add(getFKWIDColumn("BU_WID", "BU"));
+		cols.add(getFKWIDColumn("DT_INV_WID", "DATE"));
+		cols.add(getFKWIDColumn("FX_WID", "FX_RATE"));
 		cols.add(SILWorkflowSourceColumn.builder()//
 				.columnName("ORIG_INV_NUM")//
 				.autoColumn(true)//
@@ -129,7 +131,7 @@ public class SILFactMappingGeneratorTest {
 				.columnName("AGR_PGUID")//
 				.autoColumn(true)//
 				.columnType("Foreign Key")//
-				.domainLookupColumn(false)//
+				.dimTableName("AGREE_REV").domainLookupColumn(false)//
 				.legacyColumn(true)//
 				.miniDimColumn(true)//
 				.stageTableColumn(true)//
@@ -239,8 +241,8 @@ public class SILFactMappingGeneratorTest {
 				.getFolderObjects()//
 				.stream()//
 				.filter(fo -> fo.getType().equals("SOURCE"))//
-				.map(fo -> ((SOURCE) fo.getFolderObj()))
-				.filter(source -> source.getNAME().equals(STG_TABLE_INVOICE_LN)).findFirst();
+				.map(fo -> ((SOURCE) fo.getFolderObj())).filter(source -> source.getNAME().equals(STG_TABLE_INVOICE_LN))
+				.findFirst();
 
 		assertThat(optSource.get().getNAME()).isEqualTo(STG_TABLE_INVOICE_LN);
 
@@ -271,7 +273,7 @@ public class SILFactMappingGeneratorTest {
 				.findFirst();
 
 		assertThat(optObject.get().getNAME()).isEqualTo("F_" + TABLE_INVOICE_LN);
-		assertThat(optObject.get().getTARGETFIELD().size()).isEqualTo(5);
+		assertThat(optObject.get().getTARGETFIELD().size()).isEqualTo(7);
 
 	}
 
@@ -284,10 +286,8 @@ public class SILFactMappingGeneratorTest {
 				.filter(xform -> xform.getTYPE().equals("Source Qualifier") && xform.getNAME().equals("SQ_ExtractData"))
 				.findFirst();
 
-		optObject.get().getTRANSFORMFIELD().stream().forEach(col -> log.debug(":::::::::::::::" + col.getNAME()));
-
 		assertThat(optObject.get().getNAME()).isEqualTo("SQ_ExtractData");
-		assertThat(optObject.get().getTRANSFORMFIELD().size()).isEqualTo(6);
+		assertThat(optObject.get().getTRANSFORMFIELD().size()).isEqualTo(7);
 
 	}
 
@@ -326,7 +326,7 @@ public class SILFactMappingGeneratorTest {
 						&& conn.getTOINSTANCE().equals("SQ_ExtractData")))
 				.collect(Collectors.toList());
 
-		assertThat(connectors.size()).isEqualTo(5);
+		assertThat(connectors.size()).isEqualTo(6);
 
 	}
 
@@ -335,8 +335,7 @@ public class SILFactMappingGeneratorTest {
 
 		Optional<TRANSFORMATION> optSource = generateMapping()//
 				.getFolderObjects().stream().filter(fo -> fo.getType().equals("TRANSFORMATION"))//
-				.map(fo -> ((TRANSFORMATION) fo.getFolderObj()))
-				.filter(source -> source.getNAME().equals("LKP_D_BU"))//
+				.map(fo -> ((TRANSFORMATION) fo.getFolderObj())).filter(source -> source.getNAME().equals("LKP_D_BU"))//
 				.findFirst();
 
 		assertThat(optSource.get().getNAME()).isEqualTo("LKP_D_BU");
@@ -345,54 +344,126 @@ public class SILFactMappingGeneratorTest {
 	}
 
 	@Test
-	public void generatesMappingWithReusableXformForDateWidLookup() throws Exception {
-
-		Optional<TRANSFORMATION> optSource = generateMapping()//
-				.getFolderObjects().stream().filter(fo -> fo.getType().equals("TRANSFORMATION"))//
-				.map(fo -> ((TRANSFORMATION) fo.getFolderObj()))
-				.filter(source -> source.getNAME().equals("EXP_DT_WID_Generation"))//
-				.findFirst();
-
-		assertThat(optSource.get().getNAME()).isEqualTo("EXP_DT_WID_Generation");
-		assertThat(optSource.get().getTRANSFORMFIELD().size()).isEqualTo(20);
-
-	}
-
-	
-
-	@Test
 	public void generatesMappingWithReusableXformForFXLookup() throws Exception {
 
 		Optional<TRANSFORMATION> optSource = generateMapping()//
 				.getFolderObjects().stream().filter(fo -> fo.getType().equals("TRANSFORMATION"))//
-				.map(fo -> ((TRANSFORMATION) fo.getFolderObj()))
-				.filter(source -> source.getNAME().equals("LKP_H_FX"))//
+				.map(fo -> ((TRANSFORMATION) fo.getFolderObj())).filter(source -> source.getNAME().equals("LKP_H_FX"))//
 				.findFirst();
 
 		assertThat(optSource.get().getNAME()).isEqualTo("LKP_H_FX");
 		assertThat(optSource.get().getTRANSFORMFIELD().size()).isEqualTo(9);
 
 	}
-	
-	
-	
+
 	@Test
-	public void generatesMappingWithFKResolutionExpressionForAllFKFields() throws Exception{
-		
-		
+	public void generatesMappingWithFKResolutionExpressionForAllFKFields() throws Exception {
+
 		Optional<TRANSFORMATION> optSource = generateMapping()//
-				.getFolderObjects().stream().filter(fo -> fo.getType().equals("TRANSFORMATION"))//
-				.map(fo -> ((TRANSFORMATION) fo.getFolderObj()))
+				.getMapping()//
+				.getTRANSFORMATION()//
+				.stream()//
 				.filter(source -> source.getNAME().equals("EXP_FK_Resolution"))//
 				.findFirst();
 
 		assertThat(optSource.get().getNAME()).isEqualTo("EXP_FK_Resolution");
-		
-		
+
 	}
-	
-	
-	
-	
+
+	@Test
+	public void genereratesMappingWithCorrectWidResolutionExpressionUsingDisconnectedLookupXform() throws Exception {
+
+		Optional<TRANSFORMFIELD> optSource = generateMapping()//
+				.getMapping()//
+				.getTRANSFORMATION()//
+				.stream()//
+				.filter(source -> source.getNAME().equals("EXP_FK_Resolution"))//
+				.flatMap(xform -> xform.getTRANSFORMFIELD().stream())
+				.filter(field -> field.getPORTTYPE().equals("OUTPUT") && field.getNAME().equals("AGR_WID")).findFirst();
+
+		assertThat(optSource.get().getEXPRESSION()).isEqualTo(":LKP.LKP_D_AGREE_REV(AGR_PGUID)");
+
+	}
+
+	@Test
+	public void genereratesMappingWithCorrectWidResolutionExpressionForDates() throws Exception {
+
+		Optional<TRANSFORMFIELD> optSource = generateMapping()//
+				.getMapping()//
+				.getTRANSFORMATION()//
+				.stream()//
+				.filter(source -> source.getNAME().equals("EXP_FK_Resolution"))//
+				.flatMap(xform -> xform.getTRANSFORMFIELD().stream())
+				.filter(field -> field.getPORTTYPE().equals("OUTPUT") && field.getNAME().equals("DT_INV_WID"))
+				.findFirst();
+
+		assertThat(optSource.get().getEXPRESSION()).isEqualTo("TO_INTEGER(TO_CHAR(DT_INV,'YYYYMMDD'))");
+
+	}
+
+	@Test
+	public void genereratesMappingWithCorrectExpressionForLocalAmounts() throws Exception {
+
+		Optional<TRANSFORMFIELD> optSource = generateMapping()//
+				.getMapping()//
+				.getTRANSFORMATION()//
+				.stream()//
+				.filter(source -> source.getNAME().equals("EXP_Amounts"))//
+				.flatMap(xform -> xform.getTRANSFORMFIELD().stream())
+				.filter(field -> field.getPORTTYPE().equals("INPUT/OUTPUT") && field.getNAME().equals("DOC_AMT"))
+				.findFirst();
+
+		assertThat(optSource.get().getEXPRESSION()).isEqualTo("DOC_AMT");
+
+	}
+
+	@Test
+	public void genereratesMappingWithCorrectExpressionForGlobalAmounts() throws Exception {
+
+		Optional<TRANSFORMFIELD> optSource = generateMapping()//
+				.getMapping()//
+				.getTRANSFORMATION()//
+				.stream()//
+				.filter(source -> source.getNAME().equals("EXP_Amounts"))//
+				.flatMap(xform -> xform.getTRANSFORMFIELD().stream())
+				.filter(field -> field.getPORTTYPE().equals("OUTPUT") && field.getNAME().equals("GBL_AMT")).findFirst();
+
+		assertThat(optSource.get().getEXPRESSION()).isEqualTo("DOC_AMT*GBL_RATE_V");
+
+	}
+
+	@Test
+	public void genereratesMappingWithCorrectExpressionCollect() throws Exception {
+
+		InfaMappingObject mapping = generateMapping();
+
+		Optional<TRANSFORMATION> optSource = mapping.getMapping()//
+				.getTRANSFORMATION()//
+				.stream()//
+				.filter(source -> source.getNAME().equals("EXP_Collect"))//
+				.findFirst();
+
+
+		assertThat(optSource.get().getTRANSFORMFIELD().size()).isEqualTo(10);
+
+	}
+
+	@Test
+	public void genereratesMappingWithCorrectUpdateStrategy() throws Exception {
+
+		InfaMappingObject mapping = generateMapping();
+
+		Optional<TRANSFORMATION> optSource = mapping.getMapping()//
+				.getTRANSFORMATION()//
+				.stream()//
+				.filter(source -> source.getNAME().equals("UPD_Fact"))//
+				.findFirst();
+
+		assertThat(optSource.get().getTRANSFORMFIELD().size()).isEqualTo(9);
+
+		assertThat(optSource.get().getTRANSFORMFIELD().stream().filter(field -> field.getNAME().equals("AGR_WID")).findFirst()
+				.get().getDEFAULTVALUE()).isEqualTo("$$UNSPEC_NUM");
+
+	}
 
 }
