@@ -17,7 +17,6 @@ import com.globi.infa.datasource.fbm.FBMTableColumnRepository;
 import com.globi.infa.datasource.type.oracle.OracleTableColumnMetadataVisitor;
 import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
-import com.globi.infa.generator.PTPRepositoryWriterEventListener;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.generator.ptp.PTPGenerationStrategy;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;

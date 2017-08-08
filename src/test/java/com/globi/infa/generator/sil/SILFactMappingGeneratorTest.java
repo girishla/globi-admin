@@ -218,11 +218,12 @@ public class SILFactMappingGeneratorTest {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private InfaMappingObject generateMapping() throws Exception {
 
 		mappingService = new SILFactMappingGenerator(silWorkflow, //
 				allSourceColumns, //
-				allOneToOneDimColumns, //
+				(List<InfaSourceColumnDefinition>) (List<?>)allOneToOneDimColumns, //
 				allTargetColumns, //
 				matchedColumnsSIL, //
 				sourceSystem, //

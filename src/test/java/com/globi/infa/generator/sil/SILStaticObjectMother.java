@@ -22,11 +22,11 @@ public class SILStaticObjectMother {
 
 		return SILWorkflowSourceColumn.builder()//
 				.columnName(colName)//
-				.autoColumn(true)//
+				.autoColumn(false)//
 				.columnType(type)//
 				.domainLookupColumn(false)//
-				.legacyColumn(true)//
-				.miniDimColumn(true)//
+				.legacyColumn(false)//
+				.miniDimColumn(false)//
 				.targetColumn(false)//
 				.build();
 

@@ -37,7 +37,7 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 	private final List<InfaSourceColumnDefinition> allSourceColumns;
 	private final List<SILInfaSourceColumnDefinition> matchedColumnsSIL;
 	private final List<SILInfaSourceColumnDefinition> allTargetColumns;
-	private final List<SILInfaSourceColumnDefinition> allOneToOneDimColumns;
+	private final List<InfaSourceColumnDefinition> allOneToOneDimColumns;
 	private final SourceSystem sourceSystem;
 	private final DataSourceTableDTO sourceTable;
 	private final Jaxb2Marshaller marshaller;
@@ -46,7 +46,7 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 
 	public SILFactMappingGenerator(SILWorkflow wfDefinition, //
 			List<InfaSourceColumnDefinition> allSourceColumns, //
-			List<SILInfaSourceColumnDefinition> allOneToOneDimColumns, //
+			List<InfaSourceColumnDefinition> allOneToOneDimColumns, //
 			List<SILInfaSourceColumnDefinition> allTargetColumns, //
 			List<SILInfaSourceColumnDefinition> matchedColumnsSIL, //
 			SourceSystem sourceSystem, //
@@ -162,7 +162,7 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 						.noInterpolationValues()
 						.loadExpressionXformFromSeed("Seed_SIL_Xform_EXP_Fact_Collect")
 						.mapper(sourceToXformDataTypeMapper)//
-						.addField(hasAmountFields?getFxWidColumn():null)
+//						.addField(hasAmountFields?getFxWidColumn():null)
 						.noMoreFields()//
 						.name("EXP_Collect")//
 						.build())//
@@ -207,6 +207,8 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 		return widColumns.stream()//
 				.map(widCol -> {
 					try {
+						
+						
 						return getLkpWidXformFor(marshaller, widCol.getDimTableName());
 					} catch (Exception e) {
 						throw new RuntimeException("An unexpected error occured " + e.getStackTrace());
@@ -229,6 +231,8 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 	}
 
 	private boolean hasAmountFields() {
+		
+		
 
 		return matchedColumnsSIL.stream()//
 				.anyMatch(col -> col.getColumnName().startsWith("DOC_") && col.getColumnType().equals("Measure"));
@@ -374,28 +378,26 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 		return toField;
 
 	}
-
 	
-	
-	
-	private TRANSFORMFIELD getFxWidColumn() {
-
-					TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
-					xformExpressionField.setDATATYPE("decimal");
-					xformExpressionField.setDEFAULTVALUE("");
-					xformExpressionField.setDESCRIPTION("");
-					xformExpressionField.setEXPRESSION("FX_WID");
-					xformExpressionField.setEXPRESSIONTYPE("GENERAL");
-					xformExpressionField.setNAME("FX_WID");
-					xformExpressionField.setPICTURETEXT("");
-					xformExpressionField.setPORTTYPE("INPUT/OUTPUT");
-					xformExpressionField.setPRECISION("10");
-					xformExpressionField.setSCALE("0");
-
-					return xformExpressionField;
-
-
-	}
+//	
+//	private TRANSFORMFIELD getFxWidColumn() {
+//
+//					TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
+//					xformExpressionField.setDATATYPE("decimal");
+//					xformExpressionField.setDEFAULTVALUE("");
+//					xformExpressionField.setDESCRIPTION("");
+//					xformExpressionField.setEXPRESSION("FX_WID");
+//					xformExpressionField.setEXPRESSIONTYPE("GENERAL");
+//					xformExpressionField.setNAME("FX_WID");
+//					xformExpressionField.setPICTURETEXT("");
+//					xformExpressionField.setPORTTYPE("INPUT/OUTPUT");
+//					xformExpressionField.setPRECISION("10");
+//					xformExpressionField.setSCALE("0");
+//
+//					return xformExpressionField;
+//
+//
+//	}
 	
 
 

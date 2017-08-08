@@ -20,7 +20,6 @@ import org.springframework.test.annotation.Rollback;
 import com.globi.AbstractIntegrationTest;
 import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
-import com.globi.infa.generator.PTPRepositoryWriterEventListener;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.PTPWorkflow;

@@ -1,10 +1,11 @@
-package com.globi.infa.generator;
+package com.globi.infa.generator.ptp;
 
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.globi.infa.generator.WorkflowCreatedEventListener;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.InfaPTPWorkflowRepository;

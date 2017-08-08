@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.globi.infa.generator.service.GeneratorRequestAsyncProcessor;
 import com.globi.infa.generator.sil.SILDimensionGenerationStrategy;
+import com.globi.infa.generator.sil.SILFactGenerationStrategy;
 
 @RestController
 public class InfaSILWorkflowController {
@@ -32,18 +33,26 @@ public class InfaSILWorkflowController {
 	
 	
 	@Lookup
-	public SILDimensionGenerationStrategy getSilGenerator() {
+	public SILDimensionGenerationStrategy getSilDimensionGenerator() {
+		return null; // This implementation will be overridden by dynamically
+						// generated subclass
+	}
+	
+	
+	
+	@Lookup
+	public SILFactGenerationStrategy getSilFactGenerator() {
 		return null; // This implementation will be overridden by dynamically
 						// generated subclass
 	}
 
 
-	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/sil")
-	public @ResponseBody ResponseEntity<?> createSILExtractWorkflow(@RequestBody @Valid SILWorkflow silWorkflow,
+	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/sil/dimension")
+	public @ResponseBody ResponseEntity<?> createSILDimensionWorkflow(@RequestBody @Valid SILWorkflow silWorkflow,
 			@RequestParam("sync") Optional<Boolean> sync, BindingResult result) throws Exception {
 
 		
-		SILDimensionGenerationStrategy silGenerator = getSilGenerator();
+		SILDimensionGenerationStrategy silGenerator = getSilDimensionGenerator();
 
 		SILWorkflow savedWorkflow = (SILWorkflow) requestProcessor.saveInput(silWorkflow);
 
@@ -56,4 +65,25 @@ public class InfaSILWorkflowController {
 		return new ResponseEntity<SILWorkflow>(savedWorkflow, HttpStatus.CREATED);
 	}
 
+	
+	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/infagen/workflows/sil/fact")
+	public @ResponseBody ResponseEntity<?> createSILFactWorkflow(@RequestBody @Valid SILWorkflow silWorkflow,
+			@RequestParam("sync") Optional<Boolean> sync, BindingResult result) throws Exception {
+
+		
+		SILFactGenerationStrategy silGenerator = getSilFactGenerator();
+
+		SILWorkflow savedWorkflow = (SILWorkflow) requestProcessor.saveInput(silWorkflow);
+
+		if (sync.isPresent() && sync.get()) {
+			savedWorkflow = (SILWorkflow) requestProcessor.process(savedWorkflow,silGenerator);
+		} else {
+			requestProcessor.processAsync(savedWorkflow,silGenerator);
+		}
+
+		return new ResponseEntity<SILWorkflow>(savedWorkflow, HttpStatus.CREATED);
+	}
+
+	
+	
 }
