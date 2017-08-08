@@ -49,6 +49,7 @@ public class SILFactMappingGeneratorTest {
 	private List<SILInfaSourceColumnDefinition> matchedColumnsSIL;
 	private List<SILInfaSourceColumnDefinition> allTargetColumns;
 	private List<SILInfaSourceColumnDefinition> allOneToOneDimColumns;
+	private List<SILWorkflowSourceColumn> cols;
 
 	private static final String STG_TABLE_INVOICE_LN = "X_INVOICE_LN";
 	private static final String TABLE_INVOICE_LN = "INVOICE_LN";
@@ -74,7 +75,7 @@ public class SILFactMappingGeneratorTest {
 
 		marshaller = new InfaConfig().jaxb2Marshaller();
 
-		List<SILWorkflowSourceColumn> cols = new ArrayList<>();
+		cols = new ArrayList<>();
 		cols.add(SILWorkflowSourceColumn.builder()//
 				.columnName("ROW_WID")//
 				.autoColumn(true)//
@@ -135,6 +136,16 @@ public class SILFactMappingGeneratorTest {
 				.targetColumn(false)//
 				.build());
 
+		cols.add(SILWorkflowSourceColumn.builder()//
+				.columnName("DT_INV")//
+				.autoColumn(true)//
+				.columnType("Foreign Key")//
+				.domainLookupColumn(false)//
+				.legacyColumn(true)//
+				.miniDimColumn(true)//
+				.stageTableColumn(true)//
+				.targetColumn(false)//
+				.build());
 
 		silWorkflow = SILWorkflow.builder()//
 				.loadType("Fact")//
@@ -162,7 +173,8 @@ public class SILFactMappingGeneratorTest {
 						|| col.getColumnType().equals("Measure Attribute"))//
 				.collect(Collectors.toList());
 
-		//Remove dimension cols that were only added to build the Dim Source definition that is joined to the SQ
+		// Remove dimension cols that were only added to build the Dim Source
+		// definition that is joined to the SQ
 		matchedColumnsSIL = matchedColumnsSIL.stream()//
 				.filter(col -> !col.getColumnType().equals("Attribute"))//
 				.collect(Collectors.toList());
@@ -170,7 +182,7 @@ public class SILFactMappingGeneratorTest {
 		allTargetColumns = matchedColumnsSIL.stream()//
 				.filter(col -> col.getTargetColumnFlag())//
 				.collect(Collectors.toList());
-		
+
 		allTargetColumns.addAll(silWorkflow.getColumns().stream()//
 				.filter(col -> col.isTargetColumn() && col.getColumnType().equals("Foreign Key"))//
 				.map(col -> {
@@ -178,8 +190,7 @@ public class SILFactMappingGeneratorTest {
 					return SILInfaSourceColumnDefinition.builder()//
 							.autoColumnFlag(false)//
 							.domainLookupColumnFlag(false)//
-							.legacyColumnFlag(false)
-							.targetColumnFlag(true)//
+							.legacyColumnFlag(false).targetColumnFlag(true)//
 							.miniDimColumnFlag(false)//
 							.columnType("Foreign Key")//
 							.columnDataType("NUMBER")//
@@ -227,9 +238,8 @@ public class SILFactMappingGeneratorTest {
 		Optional<SOURCE> optSource = generateMapping()//
 				.getFolderObjects()//
 				.stream()//
-				.filter(fo -> fo.getType().equals("SOURCE")).map(fo -> {
-					return ((SOURCE) fo.getFolderObj());
-				})//
+				.filter(fo -> fo.getType().equals("SOURCE"))//
+				.map(fo -> ((SOURCE) fo.getFolderObj()))
 				.filter(source -> source.getNAME().equals(STG_TABLE_INVOICE_LN)).findFirst();
 
 		assertThat(optSource.get().getNAME()).isEqualTo(STG_TABLE_INVOICE_LN);
@@ -242,9 +252,9 @@ public class SILFactMappingGeneratorTest {
 		Optional<SOURCE> optSource = generateMapping()//
 				.getFolderObjects()//
 				.stream()//
-				.filter(fo -> fo.getType().equals("SOURCE")).map(fo -> {
-					return ((SOURCE) fo.getFolderObj());
-				})//
+				.filter(fo -> fo.getType().equals("SOURCE"))//
+				.map(fo -> ((SOURCE) fo.getFolderObj()))
+
 				.filter(source -> source.getNAME().equals("D_" + TABLE_INVOICE_LN)).findFirst();
 
 		assertThat(optSource.get().getNAME()).isEqualTo("D_" + TABLE_INVOICE_LN);
@@ -256,9 +266,7 @@ public class SILFactMappingGeneratorTest {
 
 		Optional<TARGET> optObject = generateMapping()//
 				.getFolderObjects().stream().filter(fo -> fo.getType().equals("TARGET"))//
-				.map(fo -> {
-					return ((TARGET) fo.getFolderObj());
-				})//
+				.map(fo -> ((TARGET) fo.getFolderObj()))
 				.filter(target -> target.getNAME().equals("F_" + TABLE_INVOICE_LN))//
 				.findFirst();
 
@@ -294,7 +302,7 @@ public class SILFactMappingGeneratorTest {
 				.filter(instance -> instance.getNAME().equals("SQ_ExtractData"))//
 				.findFirst();
 
-		assertThat(optInstance.get().getASSOCIATEDSOURCEINSTANCE().get(0).getNAME()).isEqualTo("D_"+TABLE_INVOICE_LN);
+		assertThat(optInstance.get().getASSOCIATEDSOURCEINSTANCE().get(0).getNAME()).isEqualTo("D_" + TABLE_INVOICE_LN);
 		assertThat(optInstance.get().getASSOCIATEDSOURCEINSTANCE().get(1).getNAME()).isEqualTo(STG_TABLE_INVOICE_LN);
 
 	}
@@ -305,7 +313,6 @@ public class SILFactMappingGeneratorTest {
 		InfaMappingObject mappingObj = generateMapping();
 
 		assertThat(mappingObj.getMapping().getNAME()).isEqualTo("SIL_" + TABLE_INVOICE_LN + "_Fact");
-
 
 	}
 
@@ -323,23 +330,18 @@ public class SILFactMappingGeneratorTest {
 
 	}
 
-
-
 	@Test
 	public void generatesMappingWithReusableXformForBuWidLookup() throws Exception {
 
 		Optional<TRANSFORMATION> optSource = generateMapping()//
 				.getFolderObjects().stream().filter(fo -> fo.getType().equals("TRANSFORMATION"))//
-				.map(fo -> {
-					return ((TRANSFORMATION) fo.getFolderObj());
-				})//
+				.map(fo -> ((TRANSFORMATION) fo.getFolderObj()))
 				.filter(source -> source.getNAME().equals("LKP_D_BU"))//
 				.findFirst();
 
 		assertThat(optSource.get().getNAME()).isEqualTo("LKP_D_BU");
 		assertThat(optSource.get().getTRANSFORMFIELD().size()).isEqualTo(3);
 
-		
 	}
 
 	@Test
@@ -347,36 +349,50 @@ public class SILFactMappingGeneratorTest {
 
 		Optional<TRANSFORMATION> optSource = generateMapping()//
 				.getFolderObjects().stream().filter(fo -> fo.getType().equals("TRANSFORMATION"))//
-				.map(fo -> {
-					return ((TRANSFORMATION) fo.getFolderObj());
-				})//
+				.map(fo -> ((TRANSFORMATION) fo.getFolderObj()))
 				.filter(source -> source.getNAME().equals("EXP_DT_WID_Generation"))//
 				.findFirst();
 
 		assertThat(optSource.get().getNAME()).isEqualTo("EXP_DT_WID_Generation");
 		assertThat(optSource.get().getTRANSFORMFIELD().size()).isEqualTo(20);
 
-		
 	}
 
 	
+
 	@Test
 	public void generatesMappingWithReusableXformForFXLookup() throws Exception {
 
 		Optional<TRANSFORMATION> optSource = generateMapping()//
 				.getFolderObjects().stream().filter(fo -> fo.getType().equals("TRANSFORMATION"))//
-				.map(fo -> {
-					return ((TRANSFORMATION) fo.getFolderObj());
-				})//
+				.map(fo -> ((TRANSFORMATION) fo.getFolderObj()))
 				.filter(source -> source.getNAME().equals("LKP_H_FX"))//
 				.findFirst();
 
 		assertThat(optSource.get().getNAME()).isEqualTo("LKP_H_FX");
 		assertThat(optSource.get().getTRANSFORMFIELD().size()).isEqualTo(9);
 
+	}
+	
+	
+	
+	@Test
+	public void generatesMappingWithFKResolutionExpressionForAllFKFields() throws Exception{
+		
+		
+		Optional<TRANSFORMATION> optSource = generateMapping()//
+				.getFolderObjects().stream().filter(fo -> fo.getType().equals("TRANSFORMATION"))//
+				.map(fo -> ((TRANSFORMATION) fo.getFolderObj()))
+				.filter(source -> source.getNAME().equals("EXP_FK_Resolution"))//
+				.findFirst();
+
+		assertThat(optSource.get().getNAME()).isEqualTo("EXP_FK_Resolution");
+		
 		
 	}
-
+	
+	
+	
 	
 
 }

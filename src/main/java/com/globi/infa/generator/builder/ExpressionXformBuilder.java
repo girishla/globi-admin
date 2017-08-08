@@ -68,6 +68,8 @@ public class ExpressionXformBuilder {
 		AddFieldsStep addInputField(String name, String dataType,String precision,String scale);
 		
 		AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns);
+		
+		AddFieldsStep addTransformFields(List<TRANSFORMFIELD> fields);
 
 		AddFieldsStep addBUIDField(List<PTPInfaSourceColumnDefinition> columns);
 
@@ -498,6 +500,13 @@ public class ExpressionXformBuilder {
 
 		@Override
 		public LoadFromSeedStep noInterpolationValues() {
+			return this;
+		}
+
+		@Override
+		public AddFieldsStep addTransformFields(List<TRANSFORMFIELD> fields) {
+			this.expressionXformDefn.getTRANSFORMFIELD().addAll(fields);
+			
 			return this;
 		}
 

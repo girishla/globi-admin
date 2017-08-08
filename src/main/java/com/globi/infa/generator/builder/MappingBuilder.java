@@ -680,8 +680,12 @@ public class MappingBuilder {
 
 		@Override
 		public ReusableTransformationStep reusableTransformation(TRANSFORMATION xform) {
+			
+			if(xform==null) return this;
+			
 			this.folderObjects.add(new InfaTransformationObject(xform));
 			xformMap.put(xform.getNAME(), xform);
+			
 			return this;
 
 		}

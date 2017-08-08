@@ -31,6 +31,7 @@ import com.globi.metadata.sourcesystem.SourceSystem;
 
 import lombok.extern.slf4j.Slf4j;
 import xjc.TRANSFORMATION;
+import xjc.TRANSFORMFIELD;
 
 @Slf4j
 public class SILFactMappingGenerator extends AbstractMappingGenerator {
@@ -43,7 +44,7 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 	private final SourceSystem sourceSystem;
 	private final DataSourceTableDTO sourceTable;
 	private final Jaxb2Marshaller marshaller;
-	private final DataTypeMapper sourceToXformDataTypeMapper;
+	private final DataTypeMapper sourceToInfaSourceDataTypeMapper;
 	private final DataTypeMapper sourceToTargetDatatypeMapper;
 
 	public SILFactMappingGenerator(SILWorkflow wfDefinition, //
@@ -54,7 +55,7 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 			SourceSystem sourceSystem, //
 			DataSourceTableDTO sourceTable, //
 			Jaxb2Marshaller marshaller, //
-			DataTypeMapper sourceToXformDataTypeMapper, //
+			DataTypeMapper sourceToInfaSourceDataTypeMapper, //
 			DataTypeMapper sourceToTargetDatatypeMapper) {
 
 		this.wfDefinition = wfDefinition;
@@ -62,11 +63,11 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 		this.sourceSystem = sourceSystem;
 		this.sourceTable = sourceTable;
 		this.marshaller = marshaller;
-		this.sourceToXformDataTypeMapper = sourceToXformDataTypeMapper;
+		this.sourceToInfaSourceDataTypeMapper = sourceToInfaSourceDataTypeMapper;
 		this.sourceToTargetDatatypeMapper = sourceToTargetDatatypeMapper;
 		this.matchedColumnsSIL = matchedColumnsSIL;
-		this.allTargetColumns=allTargetColumns;
-		this.allOneToOneDimColumns=allOneToOneDimColumns;
+		this.allTargetColumns = allTargetColumns;
+		this.allOneToOneDimColumns = allOneToOneDimColumns;
 
 	}
 
@@ -80,19 +81,18 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 		List<SILInfaSourceColumnDefinition> widColumns = allTargetColumns.stream()//
 				.filter(col -> col.getColumnType().equals("Foreign Key"))//
 				.collect(Collectors.toList());
-				
-		widColumns.stream().forEach(col->log.debug("**************" + col.getColumnName()));
+
+		widColumns.stream().forEach(col -> log.debug("**************" + col.getColumnName()));
 
 		@SuppressWarnings("unchecked")
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
 				.simpleTableSyncClass("simpleTableSyncClass")//
 				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
-						.sourceFromSeed("seedClass")
-						.marshaller(marshaller)//
+						.sourceFromSeed("seedClass").marshaller(marshaller)//
 						.loadSourceFromSeed("Seed_SIL_Fact_SRC_Dim")
-						.addFields((List<InfaSourceColumnDefinition>)(List<?>)allOneToOneDimColumns)//
-						.name("D_" +tableName)//
+						.addFields((List<InfaSourceColumnDefinition>) (List<?>) allOneToOneDimColumns)//
+						.name("D_" + tableName)//
 						.build())//
 				.sourceDefn(SourceDefinitionBuilder.newBuilder()//
 						.sourceDefnFromPrototype("SourceFromPrototype")//
@@ -105,7 +105,7 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 						.marshaller(marshaller)//
 						.loadTargetFromSeed("Seed_SIL_Fact_TGT")//
 						.mapper(sourceToTargetDatatypeMapper)//
-						.addFields((List<InfaSourceColumnDefinition>)(List<?>)allTargetColumns)//
+						.addFields((List<InfaSourceColumnDefinition>) (List<?>) allTargetColumns)//
 						.noMoreFields()//
 						.name("F_" + tableName)//
 						.build())//
@@ -123,29 +123,38 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 						.loadLookupXformFromSeed("Seed_SIL_Xform_LKP_FactWid")//
 						.nameAlreadySet()//
 						.build())
-				.reusableTransformation(LookupXformBuilder.newBuilder()//
-						.marshaller(marshaller)//
-						.noInterpolationValues()//
-						.loadLookupXformFromSeed("Seed_SIL_Xform_LKP_DT_WID")//
-						.name("EXP_DT_WID_Generation")
-						.build())
+//				.reusableTransformation(hasDateFKFields()?LookupXformBuilder.newBuilder()//
+//						.marshaller(marshaller)//
+//						.noInterpolationValues()//
+//						.loadLookupXformFromSeed("Seed_SIL_Xform_LKP_DT_WID")//
+//						.name("EXP_DT_WID_Generation").build():null)
 				.reusableTransformation(LookupXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.noInterpolationValues()//
 						.loadLookupXformFromSeed("Seed_SIL_Xform_LKP_FX")//
 						.nameAlreadySet()//
 						.build())
-				.noMoreReusableXforms()
-				.startMappingDefn("SIL_" + tableName + "_Fact")
+				.noMoreReusableXforms().startMappingDefn("SIL_" + tableName + "_Fact")
 				.transformation(SourceQualifierBuilder.newBuilder()//
 						.marshaller(marshaller)//
 						.noMoreValues()//
 						.loadSourceQualifierFromSeed("Seed_SIL_Xform_SQ_Fact")//
-						.addFields(sourceToXformDataTypeMapper, (List<InfaSourceColumnDefinition>) (List<?>) matchedColumnsSIL)//
+						.addFields(sourceToInfaSourceDataTypeMapper,
+								(List<InfaSourceColumnDefinition>) (List<?>) matchedColumnsSIL)//
 						.noMoreFilters().name("SQ_ExtractData")//
 						.build())
+				.transformation(ExpressionXformBuilder.newBuilder()//
+						.expressionFromPrototype("ExpFromPrototype")//
+						.expression("EXP_FK_Resolution")//
+						.mapper(sourceToInfaSourceDataTypeMapper)//
+						.addTransformFields(getWidResolveExpressionInputFields())
+						.addTransformFields(getWidResolveExpressionOutputFieldsExceptDates())
+						.addTransformFields(getWidResolveExpressionOutputFieldsForDates())
+						.noMoreFields()//
+						.nameAlreadySet()//
+						.build())//
 				.autoConnectByName(stageTableName, "SQ_ExtractData")//
-				.connector("D_" + tableName, "ROW_WID", "SQ_ExtractData", "ROW_WID")
+				.connector("D_" + tableName, "ROW_WID", "SQ_ExtractData", "ROW_WID")//
 				.noMoreTransformations()//
 				.noMoreConnectors()//
 				.noMoreTargetLoadOrders()//
@@ -155,8 +164,7 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 		return mappingObjExtract;
 
 	}
-	
-	
+
 	private List<TRANSFORMATION> reusableLkpWidTransformationsFor(Jaxb2Marshaller marshaller,
 			List<SILInfaSourceColumnDefinition> widColumns) throws Exception {
 
@@ -169,10 +177,8 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 					}
 				}).collect(Collectors.toList());
 
-		
 	}
-	
-	
+
 	private TRANSFORMATION getLkpWidXformFor(Jaxb2Marshaller marshaller, String dimTableName)
 			throws FileNotFoundException, IOException {
 
@@ -185,8 +191,98 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 		return lkpXform;
 
 	}
-	
-	
-	
 
+//	private boolean hasDateFKFields() {
+//
+//		
+//		matchedColumnsSIL.stream().forEach(col->log.debug("^^^^^^^^" + col.getColumnType() + ":" + col.getColumnDataType()));
+//		
+//		return matchedColumnsSIL.stream()//
+//				.anyMatch(col -> col.getColumnType().equals("Foreign Key")
+//						&& col.getColumnDataType().equals("date"));
+//
+//	}
+	
+	
+	private List<TRANSFORMFIELD> getWidResolveExpressionInputFields(){
+		
+		return matchedColumnsSIL.stream()//
+		.filter(col->col.getColumnType().equals("Foreign Key"))
+		.map(col->{
+			
+			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
+			xformExpressionField.setDATATYPE(sourceToInfaSourceDataTypeMapper.mapType(col.getColumnDataType()));
+			xformExpressionField.setDEFAULTVALUE("");
+			xformExpressionField.setDESCRIPTION("");
+			xformExpressionField.setEXPRESSION("");
+			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
+			xformExpressionField.setNAME(col.getColumnName());
+			xformExpressionField.setPICTURETEXT("");
+			xformExpressionField.setPORTTYPE("INPUT");
+			xformExpressionField.setPRECISION(Integer.toString(col.getPrecision()));
+			xformExpressionField.setSCALE(Integer.toString(col.getScale()));
+
+			return xformExpressionField;
+			
+		})
+		.collect(Collectors.toList());
+		
+		
+	}
+
+	
+	private List<TRANSFORMFIELD> getWidResolveExpressionOutputFieldsExceptDates(){
+		
+		return matchedColumnsSIL.stream()//
+		.filter(col->col.getColumnType().equals("Foreign Key") && !col.getColumnDataType().equals("date"))
+		.map(col->{
+			
+			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
+			xformExpressionField.setDATATYPE("decimal");
+			xformExpressionField.setDEFAULTVALUE("");
+			xformExpressionField.setDESCRIPTION("");
+			xformExpressionField.setEXPRESSION(String.format(":LKP.LKP_D_%s(%s)", col.getDimTableName(),col.getColumnName()));
+			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
+			xformExpressionField.setNAME(col.getColumnName().replace("PGUID", "WID"));
+			xformExpressionField.setPICTURETEXT("");
+			xformExpressionField.setPORTTYPE("OUTPUT");
+			xformExpressionField.setPRECISION("10");
+			xformExpressionField.setSCALE("0");
+
+			return xformExpressionField;
+			
+		})
+		.collect(Collectors.toList());
+		
+	}
+
+	
+	private List<TRANSFORMFIELD> getWidResolveExpressionOutputFieldsForDates(){
+		
+		return matchedColumnsSIL.stream()//
+		.filter(col->col.getColumnType().equals("Foreign Key") && col.getColumnDataType().equals("date"))
+		.map(col->{
+			
+			TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
+			xformExpressionField.setDATATYPE("decimal");
+			xformExpressionField.setDEFAULTVALUE("");
+			xformExpressionField.setDESCRIPTION("");
+			xformExpressionField.setEXPRESSION(String.format("TO_INTEGER(TO_CHAR(%s,'YYYYMMDD'))", col.getColumnName()));
+			xformExpressionField.setEXPRESSIONTYPE("GENERAL");
+			xformExpressionField.setNAME(col.getColumnName() + "_WID");
+			xformExpressionField.setPICTURETEXT("");
+			xformExpressionField.setPORTTYPE("OUTPUT");
+			xformExpressionField.setPRECISION("10");
+			xformExpressionField.setSCALE("0");
+
+			return xformExpressionField;
+			
+		})
+		.collect(Collectors.toList());
+		
+		
+	}
+
+	
+	
 }
