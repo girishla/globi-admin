@@ -111,7 +111,7 @@ public class SILDimensionMappingGenerator extends AbstractMappingGenerator {
 				.noMoreMapplets()//
 				.reusableTransformation(LookupXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.noInterpolationValues()//
+						.noMoreInterpolationValues()//
 						.loadLookupXformFromSeed("Seed_SIL_REUSE_LKP_Dim_PGUID")//
 						.nameAlreadySet()//
 						.build())

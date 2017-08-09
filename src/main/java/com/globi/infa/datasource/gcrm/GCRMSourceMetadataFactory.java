@@ -37,8 +37,6 @@ public class GCRMSourceMetadataFactory implements SourceMetadataFactory {
 	@Autowired
 	private OracleInfaSourceToInfaXFormTypeMapper gcrmOracleToInfaDataTypeMapper;
 	
-
-	
 	@Autowired
 	private OracleInfaSourceToInfaTargetTypeMapper gcrmOracleInfaSourceToInfaTargetTypeMapper;
 	

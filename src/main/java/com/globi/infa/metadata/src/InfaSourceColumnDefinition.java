@@ -28,7 +28,7 @@ public class InfaSourceColumnDefinition extends AbstractEntity {
 	private String columnName;
 	@NonNull
 	private String columnDataType;
-	private int columnNumber;
+	private int columnNumber=0;
 	private String nullable;
 	private int columnLength;
 	private int offset;
@@ -78,11 +78,6 @@ public class InfaSourceColumnDefinition extends AbstractEntity {
 
 		}
 
-		public T columnNumber(int columnNumber) {
-			this.columnNumber = columnNumber;
-			return (T) this;
-
-		}
 
 		public T nullable(String nullable) {
 			this.nullable = nullable;
@@ -132,6 +127,13 @@ public class InfaSourceColumnDefinition extends AbstractEntity {
 
 		}
 
+		public T columnNumber(int columnNumber) {
+			this.columnNumber = columnNumber;
+			return (T) this;
+
+		}
+		
+		
 		public T selected(Boolean selected) {
 			this.selected = selected;
 			return (T) this;

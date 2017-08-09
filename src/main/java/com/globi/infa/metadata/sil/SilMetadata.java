@@ -28,6 +28,9 @@ public class SilMetadata {
 	private int columnPrecision = 0;
 
 	@Builder.Default
+	private int columnScale = 0;
+	
+	@Builder.Default
 	private boolean stageColumnFlag = false;
 
 	@Builder.Default

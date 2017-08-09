@@ -24,7 +24,7 @@ import com.globi.infa.workflow.InfaSILWorkflowRepository;
 import com.globi.infa.workflow.SILWorkflow;
 import com.globi.infa.workflow.SILWorkflowSourceColumn;
 
-public class SILFactWorkflowWebtest extends AbstractWebIntegrationTest {
+public class SILFactWorkflowWebtest2 extends AbstractWebIntegrationTest {
 
 	@Autowired
 	InfaSILWorkflowRepository wfRepository;
@@ -37,7 +37,7 @@ public class SILFactWorkflowWebtest extends AbstractWebIntegrationTest {
 	@Before
 	public void setup() {
 
-		List<SilMetadata> silMetadata = silMetadataRepo.getAll("INVOICE_LN");
+		List<SilMetadata> silMetadata = silMetadataRepo.getAll("OPTY_LN");
 
 		List<SILWorkflowSourceColumn> cols = silMetadata.stream()
 				.filter(col -> col.isStageColumnFlag() && (col.getColumnType().equals("Foreign Key")
@@ -61,9 +61,9 @@ public class SILFactWorkflowWebtest extends AbstractWebIntegrationTest {
 		silWorkflow = SILWorkflow.builder()//
 				.columns(cols)//
 				.loadType("Fact")//
-				.stageName("X_INVOICE_LN")//
-				.tableName("INVOICE_LN")//
-				.workflowName("SIL_INVOICE_LN_Fact")//
+				.stageName("X_OPTY_LN")//
+				.tableName("OPTY_LN")//
+				.workflowName("SIL_OPTY_LN_Fact")//
 				.workflowStatus("Queued")//
 				.workflowUri("")//
 				.build();

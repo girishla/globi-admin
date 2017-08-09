@@ -26,6 +26,8 @@ public class SilMetadataRepository {
 			"  COL_NAME,\r\n" + 
 			"  COL_TYPE,\r\n" + 
 			"  D_TBL_NAME,\r\n" + 
+			"  COL_PRECISION,\r\n" +
+			"  COL_SCALE,\r\n" +
 			"  COL_DATATYPE,\r\n" + 
 			"  COL_IND_TYPE,\r\n" + 
 			"  COL_STG_FLG,\r\n" + 
@@ -52,7 +54,8 @@ public class SilMetadataRepository {
 					.columnDataType(rs.getString("COL_DATATYPE"))//
 					.columnName(rs.getString("COL_NAME"))//
 					.columnOrder(Integer.toString(rs.getInt("COL_ORDER")))//
-//					.columnPrecision(Integer.parseInt(rs.getString("COL_PRECISION")))//
+					.columnPrecision(Integer.parseInt(rs.getString("COL_PRECISION")))//
+					.columnScale(Integer.parseInt(rs.getString("COL_SCALE")))//
 					.columnType(rs.getString("COL_TYPE"))//
 					.dimTableName(rs.getString("D_TBL_NAME"))//
 					.domainLookupColumnFlag(rs.getInt("COL_DOM_LKP_FLG")==1?true:false)//

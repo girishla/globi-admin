@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
@@ -85,7 +83,6 @@ public class PTPExtractMappingGenerator extends AbstractMappingGenerator {
 
 
 		List<PTPWorkflowSourceColumn> inputSelectedColumns = wfDefinition.getColumns();
-
 	
 		
 		@SuppressWarnings("unchecked")

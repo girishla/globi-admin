@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import com.globi.infa.datasource.core.ObjectNameNormaliser;
+import com.globi.infa.generator.builder.ExpressionXformBuilder.AddFieldsStep;
+import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.SILInfaSourceColumnDefinition;
 import com.rits.cloning.Cloner;
 
@@ -97,6 +99,9 @@ public class MappingBuilder {
 		TransformationStep transformationCopyMapConnectAllFields(String fromTransformation, String toTransformation,
 				UnaryOperator<TRANSFORMFIELD> op);
 
+		TransformationStep transformationCopyMapAllFields(String fromTransformation, String toTransformation,
+				UnaryOperator<TRANSFORMFIELD> op);
+
 		TransformationStep transformationField(String transformation, TRANSFORMFIELD field);
 
 		TransformationStep connector(CONNECTOR connector);
@@ -110,6 +115,9 @@ public class MappingBuilder {
 
 		TransformationStep autoConnectByTransformedName(String fromInstanceName, String toInstanceName,
 				UnaryOperator<String> op);
+
+		TransformationStep addTransformedFieldsToInstance(String instance, List<InfaSourceColumnDefinition> columns,
+				UnaryOperator<TRANSFORMFIELD> op);
 
 		ConnectorStep noMoreTransformations();
 	}
@@ -169,7 +177,6 @@ public class MappingBuilder {
 		private Map<String, TARGET> targetMap = new HashMap<>();
 		private Map<String, MAPPLET> mappletMap = new HashMap<>();
 		private List<InfaFolderObject> folderObjects = new ArrayList<>();
-		private List<Object> genericFolderChildren = new ArrayList<>();
 
 		@Override
 		public SourceTableStep simpleTableSyncClass(String simpleTableSyncClass) {
@@ -511,6 +518,12 @@ public class MappingBuilder {
 		public TransformationStep transformationCopyConnectAllFields(String fromTransformation,
 				String toTransformation) {
 
+			if (!xformMap.containsKey(fromTransformation) || !xformMap.containsKey(toTransformation)) {
+				log.info(String.format(
+						"Ignoring invalid call to automap. Cannot find instance of either source or target transformations - source: %s , target %s",
+						fromTransformation, toTransformation));
+				return this;
+			}
 			Cloner cloner = Cloner.shared();
 
 			xformMap.get(fromTransformation).getTRANSFORMFIELD().stream()
@@ -729,7 +742,8 @@ public class MappingBuilder {
 				String toTransformation, UnaryOperator<TRANSFORMFIELD> op) {
 
 			xformMap.get(fromTransformation).getTRANSFORMFIELD().stream()
-					.filter(field -> field.getPORTTYPE().endsWith("OUTPUT")).forEach(field -> {
+					.filter(field -> field.getPORTTYPE().endsWith("OUTPUT"))//
+					.forEach(field -> {
 
 						TRANSFORMFIELD toField = op.apply(field);
 
@@ -739,6 +753,40 @@ public class MappingBuilder {
 					});
 
 			// If the target is an expression transform, set the field as an
+			// expression by default
+			if (xformMap.get(toTransformation).getTYPE().equals("Expression")) {
+				xformMap.get(toTransformation).getTRANSFORMFIELD().forEach(field -> {
+
+					if (field.getEXPRESSION() == null || field.getEXPRESSION().isEmpty()) {
+						field.setEXPRESSION(field.getNAME());
+						field.setEXPRESSIONTYPE("GENERAL");
+					}
+
+				});
+
+			}
+
+			return this;
+		}
+
+		@Override
+		public TransformationStep transformationCopyMapAllFields(String fromTransformation, String toTransformation,
+				UnaryOperator<TRANSFORMFIELD> op) {
+
+			xformMap.get(fromTransformation).getTRANSFORMFIELD().stream()
+					.filter(field -> field.getPORTTYPE().endsWith("OUTPUT"))//
+					.forEach(field -> {
+						TRANSFORMFIELD toField = op.apply(field);
+						// add only if already isnt in
+						if (!(xformMap.get(toTransformation).getTRANSFORMFIELD().stream()
+								.anyMatch(f -> f.getNAME().equals(toField.getNAME())))) {
+							xformMap.get(toTransformation).getTRANSFORMFIELD().add(toField);
+						}
+
+					});
+
+			// HACK *** If the target is an expression transform, set the field
+			// as an
 			// expression by default
 			if (xformMap.get(toTransformation).getTYPE().equals("Expression")) {
 				xformMap.get(toTransformation).getTRANSFORMFIELD().forEach(field -> {
@@ -786,7 +834,8 @@ public class MappingBuilder {
 			toInstanceFieldNames.addAll(extractFieldNamesForTargets(toInstanceName));
 
 			List<String> matchingFieldNames = fromInstanceFieldNames.stream()//
-					.filter(toInstanceFieldNames::contains).collect(Collectors.toList());
+					.filter(toInstanceFieldNames::contains)//
+					.collect(Collectors.toList());
 
 			// Add a connector for each matching field
 			matchingFieldNames.forEach(matchingField -> {
@@ -805,8 +854,38 @@ public class MappingBuilder {
 			loadOrder.setTARGETINSTANCE(instanceName);
 			loadOrder.setORDER(order);
 			mapping.getTARGETLOADORDER().add(loadOrder);
-			
+
 			return this;
+		}
+		
+		
+		@Override
+		public TransformationStep addTransformedFieldsToInstance(String instance,List<InfaSourceColumnDefinition> columns,
+				UnaryOperator<TRANSFORMFIELD> op) {
+
+			xformMap.get(instance).getTRANSFORMFIELD()
+					.addAll(columns.stream()//
+							.filter(col ->!(xformMap.get(instance).getTRANSFORMFIELD().stream()
+									.anyMatch(field -> field.getNAME().equals(col.getColumnName()))))
+							.map(column -> {
+								TRANSFORMFIELD field = new TRANSFORMFIELD();
+								field.setDATATYPE(column.getColumnDataType());
+								field.setDEFAULTVALUE("");
+								field.setDESCRIPTION("");
+								field.setNAME(column.getColumnName());
+								field.setPICTURETEXT("");
+								field.setPORTTYPE("INPUT/OUTPUT");
+								field.setPRECISION(Integer.toString(column.getPrecision()));
+								field.setSCALE(Integer.toString(column.getScale()));
+
+								return op.apply(field);
+								
+								
+							})
+							.collect(Collectors.toList()));
+
+			return this;
+
 		}
 
 	}

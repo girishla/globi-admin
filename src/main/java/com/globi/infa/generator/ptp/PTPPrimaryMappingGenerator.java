@@ -130,7 +130,7 @@ public class PTPPrimaryMappingGenerator extends AbstractMappingGenerator {
 				.transformationCopyConnectAllFields("SQ_PrimaryData", "EXP_Resolve")//
 				.transformation(LookupXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.noInterpolationValues()//
+						.noMoreInterpolationValues()//
 						.loadLookupXformFromSeed("Seed_PTP_LKPPTPPrimaryRecordKeys")//
 						.nameAlreadySet()//
 						.build())

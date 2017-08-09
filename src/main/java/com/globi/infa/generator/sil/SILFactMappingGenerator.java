@@ -74,18 +74,15 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 		String tableName = wfDefinition.getTableBaseName();
 
 		String tableOwner = sourceSystem.getOwnerName();
-		
-
 
 		List<SILInfaSourceColumnDefinition> widColumns = allTargetColumns.stream()//
 				.filter(col -> col.getColumnType().equals("Foreign Key"))//
 				.collect(Collectors.toList());
 
-		widColumns.stream().forEach(col -> log.debug("******INPUT COLUMN********" + col.toString()));
+		widColumns.stream().forEach(col -> log.debug("******FK COLUMN FOUND********" + col.toString()));
 
-		
-		boolean hasAmountFields=hasAmountFields();
-		
+		boolean hasAmountFields = hasAmountFields();
+
 		@SuppressWarnings("unchecked")
 		InfaMappingObject mappingObjExtract = MappingBuilder//
 				.newBuilder()//
@@ -112,22 +109,17 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 						.name("F_" + tableName)//
 						.build())//
 				.noMoreTargets()//
-				.mappletDefn(MappletBuilder.newBuilder()//
-						.marshaller(marshaller)//
-						.loadMappletFromSeed("Seed_SIL_MPL_GenerateCCAttributes")//
-						.nameAlreadySet()//
-						.build())//
 				.noMoreMapplets()//
 				.reusableTransformations(reusableLkpWidTransformationsFor(marshaller, widColumns))
 				.reusableTransformation(LookupXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.noInterpolationValues()//
+						.noMoreInterpolationValues()//
 						.loadLookupXformFromSeed("Seed_SIL_Xform_LKP_FactWid")//
 						.nameAlreadySet()//
 						.build())
 				.reusableTransformation(hasAmountFields ? LookupXformBuilder.newBuilder()//
 						.marshaller(marshaller)//
-						.noInterpolationValues()//
+						.noMoreInterpolationValues()//
 						.loadLookupXformFromSeed("Seed_SIL_Xform_LKP_FX")//
 						.nameAlreadySet()//
 						.build() : null)
@@ -151,43 +143,53 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 						.nameAlreadySet()//
 						.build())//
 				.transformation(hasAmountFields ? ExpressionXformBuilder.newBuilder()//
-						.expressionFromSeed("seedClass").marshaller(marshaller).noInterpolationValues()
-						.loadExpressionXformFromSeed("Seed_SIL_Xform_EXP_Currency").mapper(sourceToXformDataTypeMapper)
+						.expressionFromSeed("seedClass")//
+						.marshaller(marshaller)//
+						.noInterpolationValues().loadExpressionXformFromSeed("Seed_SIL_Xform_EXP_Currency")//
+						.mapper(sourceToXformDataTypeMapper)
 						.addTransformFields(getAmountsExpressionForCurrencyColumns())
-						.addTransformFields(getGlobalAmountsExpressionForCurrencyColumns()).noMoreFields()//
+						.addTransformFields(getGlobalAmountsExpressionForCurrencyColumns())//
+						.noMoreFields()//
 						.name("EXP_Amounts").build() : null)//
 				.transformation(ExpressionXformBuilder.newBuilder()//
 						.expressionFromSeed("seedClass")//
 						.marshaller(marshaller)//
-						.noInterpolationValues()
-						.loadExpressionXformFromSeed("Seed_SIL_Xform_EXP_Fact_Collect")
+						.noInterpolationValues().loadExpressionXformFromSeed("Seed_SIL_Xform_EXP_Fact_Collect")
 						.mapper(sourceToXformDataTypeMapper)//
-//						.addField(hasAmountFields?getFxWidColumn():null)
+						.addTransformFields(getFieldsForNonAmountMeasureCols())
+						// .addField(hasAmountFields?getFxWidColumn():null)
 						.noMoreFields()//
 						.name("EXP_Collect")//
 						.build())//
 				.transformation(ExpressionXformBuilder.newBuilder()//
 						.expressionFromSeed("seedClass")//
 						.marshaller(marshaller)//
-						.noInterpolationValues()
+						.noInterpolationValues()//
 						.loadExpressionXformFromSeed("Seed_SIL_Xform_US_Fact")//
-						.mapper(sourceToXformDataTypeMapper)
+						.mapper(sourceToXformDataTypeMapper)//
 						.noMoreFields()//
-						.name("UPD_Fact").build())//
+						.name("UPD_Fact")//
+						.build())//
 				.transformationCopyConnectAllFields("EXP_FK_Resolution", "EXP_Collect")
 				.transformationCopyConnectAllFields("EXP_Amounts", "EXP_Collect")
-				.transformationCopyMapConnectAllFields("EXP_Collect", "UPD_Fact", this::mapToUpdateStrategyField)
+				.transformationCopyMapConnectAllFields("EXP_Collect", "UPD_Fact",
+						field -> setExpressionAttribs(setDefaults(field)))
+				.addTransformedFieldsToInstance("UPD_Fact",
+						(List<InfaSourceColumnDefinition>) (List<?>) allTargetColumns,
+						field -> setDefaults(mapFieldType(setExpressionAttribs(field))))
 				.autoConnectByName(stageTableName, "SQ_ExtractData")//
 				.connector("D_" + tableName, "ROW_WID", "SQ_ExtractData", "ROW_WID")//
 				.autoConnectByName("SQ_ExtractData", "EXP_FK_Resolution")//
 				.connector("SQ_ExtractData", "ROW_WID", "LKP_SYS_FactWID", "IN_ROW_WID")//
-				.autoConnectByNameCheckingPredicate("SQ_ExtractData", "EXP_Amounts",field->hasAmountFields)//
+				.autoConnectByNameCheckingPredicate("SQ_ExtractData", "EXP_Amounts", field -> hasAmountFields)//
 				.connector("LKP_SYS_FactWID", "ROW_WID", "EXP_Collect", "LKP_ROW_WID")//
-				.autoConnectByName("UPD_Fact", "F_" + tableName)
+				.autoConnectByNameCheckingPredicate("SQ_ExtractData", "EXP_Collect",
+						field -> isNonAmountMeasureColumn(field.getNAME()))//
+				.connector("SQ_ExtractData", "ROW_WID", "EXP_Collect", "ROW_WID")//
+				.autoConnectByName("UPD_Fact", "F_" + tableName)//
 				.noMoreTransformations()//
 				.noMoreConnectors()//
-				.targetLoadOrderFrom("1", "F_" + tableName)
-				.noMoreTargetLoadOrders()//
+				.targetLoadOrderFrom("1", "F_" + tableName).noMoreTargetLoadOrders()//
 				.mappingvariable(getTargetTableMappingVariable(tableName))
 				.mappingvariable(getEtlProcWidMappingVariable())//
 				.mappingvariable(getUnspecifiedStringMappingVariable())//
@@ -201,17 +203,24 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 
 	}
 
+	private boolean isNonAmountMeasureColumn(String colName) {
+
+		return matchedColumnsSIL.stream()//
+				.anyMatch(col -> col.getColumnName().equals(colName) && col.getColumnType().equals("Measure")
+						&& !col.isAmountColumn());
+
+	}
+
 	private List<TRANSFORMATION> reusableLkpWidTransformationsFor(Jaxb2Marshaller marshaller,
 			List<SILInfaSourceColumnDefinition> widColumns) throws Exception {
 
 		return widColumns.stream()//
-				.map(widCol -> {
+				.filter(col -> !col.getColumnDataType().equals("date/time")).map(widCol -> {
 					try {
-						
-						
 						return getLkpWidXformFor(marshaller, widCol.getDimTableName());
 					} catch (Exception e) {
-						throw new RuntimeException("An unexpected error occured " + e.getStackTrace());
+
+						throw new RuntimeException("An unexpected error occured " + e.getMessage());
 					}
 				}).collect(Collectors.toList());
 
@@ -222,7 +231,7 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 
 		TRANSFORMATION lkpXform = LookupXformBuilder.newBuilder()//
 				.marshaller(marshaller)//
-				.noInterpolationValues()//
+				.setValue("tableName", dimTableName).noMoreInterpolationValues()
 				.loadLookupXformFromSeed("Seed_CMN_Xform_LKP_Wid_Standard")//
 				.name("LKP_D_" + dimTableName).build();
 
@@ -231,11 +240,8 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 	}
 
 	private boolean hasAmountFields() {
-		
-		
-
 		return matchedColumnsSIL.stream()//
-				.anyMatch(col -> col.getColumnName().startsWith("DOC_") && col.getColumnType().equals("Measure"));
+				.anyMatch(col -> col.isAmountColumn() && col.getColumnType().equals("Measure"));
 
 	}
 
@@ -335,9 +341,6 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 				}).collect(Collectors.toList());
 
 	}
-	
-	
-	
 
 	private List<TRANSFORMFIELD> getGlobalAmountsExpressionForCurrencyColumns() {
 
@@ -363,45 +366,65 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 
 	}
 
-	private TRANSFORMFIELD mapToUpdateStrategyField(TRANSFORMFIELD field) {
+	private TRANSFORMFIELD setDefaults(TRANSFORMFIELD field) {
 		Cloner cloner = Cloner.shared();
 		TRANSFORMFIELD toField = cloner.deepClone(field);
 
+		log.debug("||||||||||||||||||" + field.getDATATYPE());
+
 		if (toField.getDATATYPE().equals("decimal") && toField.getNAME().endsWith("_WID")) {
 			toField.setDEFAULTVALUE("$$UNSPEC_NUM");
-		} else if (toField.getDATATYPE().equals("string") && toField.getPRECISION().equals("1")) {
+		} else if (toField.getDATATYPE().equals("string") && toField.getPRECISION().equals("1")
+				&& !toField.getNAME().equals("UPDATE_FLG")) {
 			toField.setDEFAULTVALUE("$$UNSPEC_FLG");
 		}
+		return toField;
 
+	}
+
+	private TRANSFORMFIELD mapFieldType(TRANSFORMFIELD field) {
+		Cloner cloner = Cloner.shared();
+		TRANSFORMFIELD toField = cloner.deepClone(field);
+
+		toField.setDATATYPE(sourceToXformDataTypeMapper.mapType(field.getDATATYPE()));
+
+		return toField;
+
+	}
+
+	private TRANSFORMFIELD setExpressionAttribs(TRANSFORMFIELD field) {
+		Cloner cloner = Cloner.shared();
+		TRANSFORMFIELD toField = cloner.deepClone(field);
+		toField.setEXPRESSION(field.getNAME());
+		toField.setEXPRESSIONTYPE("GENERAL");
 		toField.setPORTTYPE("INPUT/OUTPUT");
 
 		return toField;
 
 	}
-	
-//	
-//	private TRANSFORMFIELD getFxWidColumn() {
-//
-//					TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
-//					xformExpressionField.setDATATYPE("decimal");
-//					xformExpressionField.setDEFAULTVALUE("");
-//					xformExpressionField.setDESCRIPTION("");
-//					xformExpressionField.setEXPRESSION("FX_WID");
-//					xformExpressionField.setEXPRESSIONTYPE("GENERAL");
-//					xformExpressionField.setNAME("FX_WID");
-//					xformExpressionField.setPICTURETEXT("");
-//					xformExpressionField.setPORTTYPE("INPUT/OUTPUT");
-//					xformExpressionField.setPRECISION("10");
-//					xformExpressionField.setSCALE("0");
-//
-//					return xformExpressionField;
-//
-//
-//	}
-	
 
+	private List<TRANSFORMFIELD> getFieldsForNonAmountMeasureCols() {
 
-	
-	
-	
+		return matchedColumnsSIL.stream()//
+				.filter(col -> col.getColumnType().equals("Measure") && !col.isAmountColumn())//
+				.map(col -> {
+
+					TRANSFORMFIELD xformExpressionField = new TRANSFORMFIELD();
+					xformExpressionField.setDATATYPE(sourceToXformDataTypeMapper.mapType(col.getColumnDataType()));
+					xformExpressionField.setDEFAULTVALUE("");
+					xformExpressionField.setDESCRIPTION("");
+					xformExpressionField.setEXPRESSION(col.getColumnName());
+					xformExpressionField.setEXPRESSIONTYPE("GENERAL");
+					xformExpressionField.setNAME(col.getColumnName());
+					xformExpressionField.setPICTURETEXT("");
+					xformExpressionField.setPORTTYPE("INPUT/OUTPUT");
+					xformExpressionField.setPRECISION(Integer.toString(col.getPrecision()));
+					xformExpressionField.setSCALE(Integer.toString(col.getScale()));
+
+					return xformExpressionField;
+
+				}).collect(Collectors.toList());
+
+	}
+
 }

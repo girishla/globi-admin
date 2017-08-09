@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.transform.stream.StreamSource;
@@ -15,6 +16,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.FileCopyUtils;
+
 
 import xjc.TRANSFORMATION;
 
@@ -30,8 +32,9 @@ public class LookupXformBuilder {
 	}
 
 	public interface SetInterPolationValues {
+		SetInterPolationValues setValue(String name, String value);
 		LoadFromSeedStep setInterpolationValues(Map<String, String> values);
-		LoadFromSeedStep noInterpolationValues();
+		LoadFromSeedStep noMoreInterpolationValues();
 
 	}
 	
@@ -57,7 +60,7 @@ public class LookupXformBuilder {
 
 		private Jaxb2Marshaller marshaller;
 		private TRANSFORMATION lookupXformDefn;
-		private Map<String, String> interpolationValues;
+		private Map<String, String> interpolationValues = new HashMap<>();
 
 		@Override
 		public TRANSFORMATION build() {
@@ -113,7 +116,7 @@ public class LookupXformBuilder {
 		}
 
 		@Override
-		public LoadFromSeedStep noInterpolationValues() {
+		public LoadFromSeedStep noMoreInterpolationValues() {
 			return this;
 		}
 
@@ -122,7 +125,13 @@ public class LookupXformBuilder {
 		
 			return this;
 		}
-
+		
+		
+		@Override
+		public SetInterPolationValues setValue(String name, String value) {
+			this.interpolationValues.put(name, value);
+			return this;
+		}
 
 		
 

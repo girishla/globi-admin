@@ -11,6 +11,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Service;
 
 import com.globi.infa.datasource.core.MetadataFactoryMapper;
+import com.globi.infa.datasource.type.oracle.OracleToInfaSourceDataTypeMapper;
 import com.globi.infa.generator.AbstractGenerationStrategy;
 import com.globi.infa.generator.InfaGenerationStrategy;
 import com.globi.infa.generator.WorkflowGenerationException;
@@ -24,19 +25,23 @@ import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.SILWorkflow;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @Scope("prototype")
+@Slf4j
 public class SILFactGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
 	private SILGeneratorContext generatorContext;
 	SilMetadataRepository silMetadataRepo;
+	OracleToInfaSourceDataTypeMapper o2iMapper;
 
 	SILFactGenerationStrategy(Jaxb2Marshaller marshaller, //
-			MetadataFactoryMapper metadataFactoryMapper, SilMetadataRepository silMetadataRepo) {
+			MetadataFactoryMapper metadataFactoryMapper, SilMetadataRepository silMetadataRepo,OracleToInfaSourceDataTypeMapper o2iMapper) {
 
 		super(marshaller, metadataFactoryMapper);
-
 		this.silMetadataRepo = silMetadataRepo;
+		this.o2iMapper=o2iMapper;
 
 	}
 
@@ -55,11 +60,12 @@ public class SILFactGenerationStrategy extends AbstractGenerationStrategy implem
 		this.setContext(dbName, stageTableName, wfDefinition);
 
 		List<SilMetadata> silMetadata = silMetadataRepo.getAll(tableName);
-
+		
 		List<SILInfaSourceColumnDefinition> targetCols = silMetadata.stream()//
 				.filter(col -> col.getTargetColumnFlag()
 						&& (col.getColumnType().equals("Foreign Key") || col.getColumnType().equals("Measure Attribute") || col.getColumnType().equals("Measure")))//
 				.map(col -> {
+					
 					return SILInfaSourceColumnDefinition.builder()//
 							.autoColumnFlag(false)//
 							.domainLookupColumnFlag(false)//
@@ -67,20 +73,23 @@ public class SILFactGenerationStrategy extends AbstractGenerationStrategy implem
 							.targetColumnFlag(true)//
 							.miniDimColumnFlag(false)//
 							.columnType(col.getColumnType())//
-							.columnDataType(col.getColumnDataType())//
+							.columnDataType(o2iMapper.mapType(col.getColumnDataType()))//
 							.dimTableName(col.getDimTableName())//
 							.columnLength(col.getColumnPrecision())//
 							.columnName(col.getColumnName())//
+							.columnNumber(Integer.parseInt(col.getColumnOrder()))
+							.columnSequence(Integer.parseInt(col.getColumnOrder()))
 							.nullable("NULL")//
 							.offset(0)//
 							.physicalLength(col.getColumnPrecision())//
 							.physicalOffset(0)//
 							.precision(col.getColumnPrecision())//
-							.scale(0)//
+							.scale(col.getColumnScale())//
 							.selected(true)//
 							.build();
 				}).collect(Collectors.toList());
-
+		
+		
 		SILFactMappingGenerator mappingGenerator = new SILFactMappingGenerator(//
 				(SILWorkflow) generatorContext.getInputWF(), //
 				generatorContext.getAllSourceColumns(), //
@@ -121,11 +130,12 @@ public class SILFactGenerationStrategy extends AbstractGenerationStrategy implem
 		try {
 			pmObj = this.generateWorkflow(wfDefinition);
 			this.notifyListeners(pmObj, wfDefinition);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 
 			throw new WorkflowGenerationException((GeneratedWorkflow) wfDefinition, e.getMessage());
-
+			
 		}
 
 		return pmObj;

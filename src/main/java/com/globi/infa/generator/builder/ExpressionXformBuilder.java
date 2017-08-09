@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import javax.xml.transform.stream.StreamSource;
@@ -69,6 +70,8 @@ public class ExpressionXformBuilder {
 		AddFieldsStep addInputField(String name, String dataType,String precision,String scale);
 		
 		AddFieldsStep addFields(List<InfaSourceColumnDefinition> columns);
+		
+		AddFieldsStep addTransformedFields(List<InfaSourceColumnDefinition> columns,UnaryOperator<TRANSFORMFIELD> op);
 		
 		AddFieldsStep addField(TRANSFORMFIELD field);
 		
@@ -225,6 +228,7 @@ public class ExpressionXformBuilder {
 
 			this.expressionXformDefn.getTRANSFORMFIELD()
 					.addAll(columns.stream()//
+							.filter(col->this.expressionXformDefn.getTRANSFORMFIELD().stream().anyMatch(field->field.getNAME().equals(col.getColumnName())))
 							.map(column -> expressionXformFieldFrom(column))//
 							.collect(Collectors.toList()));
 
@@ -526,6 +530,23 @@ public class ExpressionXformBuilder {
 			this.expressionXformDefn.getTRANSFORMFIELD().add(field);
 			
 			return this;
+		}
+
+		@Override
+		public AddFieldsStep addTransformedFields(List<InfaSourceColumnDefinition> columns,UnaryOperator<TRANSFORMFIELD> op) {
+			
+			
+
+			this.expressionXformDefn.getTRANSFORMFIELD()
+					.addAll(columns.stream()//
+							.filter(col->this.expressionXformDefn.getTRANSFORMFIELD().stream().anyMatch(field->field.getNAME().equals(col.getColumnName())))
+							.map(column -> op.apply(expressionXformFieldFrom(column)))//
+							.collect(Collectors.toList()));
+			
+
+			return this;
+			
+			
 		}
 
 	}
