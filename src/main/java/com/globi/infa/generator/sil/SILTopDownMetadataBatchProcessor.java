@@ -18,6 +18,7 @@ import com.globi.infa.generator.AggregateGitWriterEventListener;
 import com.globi.infa.generator.AggregatePmcmdFileWriterEventListener;
 import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
+import com.globi.infa.generator.InfaGenerationStrategy;
 import com.globi.infa.generator.service.GeneratorBatchAsyncProcessor;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 import com.globi.infa.metadata.sil.SilMetadata;
@@ -28,7 +29,7 @@ import com.globi.infa.workflow.sil.SILWorkflow;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Service
+@Service("SILBatchProcessor")
 @Slf4j
 public class SILTopDownMetadataBatchProcessor implements GeneratorBatchAsyncProcessor {
 
@@ -55,12 +56,10 @@ public class SILTopDownMetadataBatchProcessor implements GeneratorBatchAsyncProc
 
 	@Autowired
 	private WorkflowMessageNotifier notifier;
-
+	
+	
 	@Override
 	public List<SILWorkflow> buildInput() {
-
-	
-		
 		return null;
 
 	}
@@ -70,6 +69,15 @@ public class SILTopDownMetadataBatchProcessor implements GeneratorBatchAsyncProc
 		// do nothing
 
 	}
+	
+	
+	@Lookup
+	//to get a new generator instance for every invocation
+	public SILDimensionGenerationStrategy getSilDimensionGenerator() {
+		return null; // This implementation will be overridden by dynamically
+						// generated subclass
+	}
+	
 
 	@Lookup
 	//to get a new generator instance for every invocation
@@ -79,13 +87,13 @@ public class SILTopDownMetadataBatchProcessor implements GeneratorBatchAsyncProc
 	}
 
 	@Transactional(propagation = Propagation.NESTED)
-	public SILWorkflow processWorkflow(SILWorkflow wf, SILFactGenerationStrategy silgenerator) {
+	public SILWorkflow processWorkflow(SILWorkflow wf, InfaGenerationStrategy silgenerator) {
 
 		try {
 
+			this.notifier.message(wf, "Starting workflow generation.");
 			// Refresh in case someone has modified the wf meanwhile
 			wf = silRepository.findOne(wf.getId());
-
 			silgenerator.generate(wf);
 			wf.setWorkflowStatus("Processed");
 			this.notifier.message(wf, "Finished processing  workflow.");
@@ -112,6 +120,31 @@ public class SILTopDownMetadataBatchProcessor implements GeneratorBatchAsyncProc
 		process(inputWorkflowDefinitions);
 
 	}
+	
+	
+	private InfaGenerationStrategy getGeneratorFor(SILWorkflow wf){
+		
+		InfaGenerationStrategy silgenerator;
+		String loadType=wf.getLoadType();
+		
+		
+		if(loadType.equalsIgnoreCase("fact")){
+			silgenerator = getSilFactGenerator();
+		}else if(loadType.equalsIgnoreCase("dimension")){
+			
+			silgenerator = getSilDimensionGenerator();
+			
+		}else{
+			throw new IllegalArgumentException("Invalid Load type");
+		}
+
+		silgenerator.addListener(gitWriter);
+		silgenerator.addListener(aggregateGitWriter);
+		silgenerator.addListener(aggregateCommandWriter);
+		silgenerator.addListener(targetDefnWriter);
+		return  silgenerator;
+		
+	}
 
 	@Override
 	public List<? extends AbstractInfaWorkflowEntity> process(
@@ -119,19 +152,12 @@ public class SILTopDownMetadataBatchProcessor implements GeneratorBatchAsyncProc
 
 		List<SILWorkflow> processedWorkflows;
 
-		SILFactGenerationStrategy silgenerator = getSilFactGenerator();
-
-		silgenerator.addListener(gitWriter);
-		silgenerator.addListener(aggregateGitWriter);
-		silgenerator.addListener(aggregateCommandWriter);
-		silgenerator.addListener(targetDefnWriter);
-
 		aggregateGitWriter.notifyBatchStart();
 		aggregateCommandWriter.notifyBatchStart();
 
 		processedWorkflows = inputWorkflowDefinitions.stream()//
 				.map(wf -> (SILWorkflow) wf)//
-				.map(wf -> this.processWorkflow(wf, silgenerator))//
+				.map(wf -> this.processWorkflow(wf, getGeneratorFor(wf)))//
 				.collect(Collectors.toList());
 
 		aggregateGitWriter.notifyBatchComplete();
@@ -160,20 +186,19 @@ public class SILTopDownMetadataBatchProcessor implements GeneratorBatchAsyncProc
 					wf.setMessage("");
 					this.notifier.message(wf, "Waiting for a new generator thread...");
 					wf.setWorkflowStatus("Processing");
-					this.notifier.message(wf, "Starting workflow generation.");
 					savedWorkflows.add(silRepository.save(wf));
-
 				});
 
+		
 		return savedWorkflows;
 	}
 
 	@Override
-	public AbstractInfaWorkflowEntity buildInputFor(String tableName) {
+	public AbstractInfaWorkflowEntity buildInputFor(String processType,String tableName) {
 		
-
 		List<SilMetadata> columns = metadataColumnRepository.getAll(tableName);
-		MetadataToSILWorkflowDefnConverter metadatatoWFDefnConverter = new MetadataToSILWorkflowDefnConverter(tableName,columns);
+		SILMetadataToWorkflowDefnConverter metadatatoWFDefnConverter = new SILMetadataToWorkflowDefnConverter(processType,tableName,columns);
+		
 		return metadatatoWFDefnConverter.getSilWorkflowDefinition();
 		
 		

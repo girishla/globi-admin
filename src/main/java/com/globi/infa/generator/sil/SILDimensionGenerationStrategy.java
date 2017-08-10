@@ -19,10 +19,13 @@ import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.sil.SILWorkflow;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 
 @Service
 @Scope("prototype")
+@Slf4j
 public class SILDimensionGenerationStrategy extends AbstractGenerationStrategy implements InfaGenerationStrategy {
 
 	private SILGeneratorContext generatorContext;
@@ -45,7 +48,12 @@ public class SILDimensionGenerationStrategy extends AbstractGenerationStrategy i
 
 	private InfaPowermartObject generateWorkflow(SILWorkflow wfDefinition) throws Exception {
 
-
+		
+		log.info("==================================");
+		log.info("==================================");
+		wfDefinition.getColumns().forEach(col->log.info("======================" + col.toString()));
+		log.info("==================================");
+		log.info("==================================");
 
 		
 		String stageTableName=wfDefinition.getStageName();

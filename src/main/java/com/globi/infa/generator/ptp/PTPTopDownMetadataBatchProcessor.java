@@ -29,7 +29,7 @@ import com.globi.infa.workflow.ptp.PTPWorkflow;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Service
+@Service("PTPBatchProcessor")
 @Slf4j
 public class PTPTopDownMetadataBatchProcessor implements GeneratorBatchAsyncProcessor {
 
@@ -62,7 +62,7 @@ public class PTPTopDownMetadataBatchProcessor implements GeneratorBatchAsyncProc
 
 		List<PTPWorkflow> inputExtractWorkflowDefinitions = new ArrayList<>();
 		List<PTPDataSourceTableColumnDTO> columns = metadataColumnRepository.getAll();
-		MetadataToPTPWorkflowDefnConverter metadatatoWFDefnConverter = new MetadataToPTPWorkflowDefnConverter(columns);
+		PTPMetadataToWorkflowDefnConverter metadatatoWFDefnConverter = new PTPMetadataToWorkflowDefnConverter(columns);
 		inputExtractWorkflowDefinitions = metadatatoWFDefnConverter.getExtractWorkflowDefinitionObjects();
 
 		return inputExtractWorkflowDefinitions;
@@ -173,7 +173,7 @@ public class PTPTopDownMetadataBatchProcessor implements GeneratorBatchAsyncProc
 	}
 
 	@Override
-	public AbstractInfaWorkflowEntity buildInputFor(String itemName) {
+	public AbstractInfaWorkflowEntity buildInputFor(String processType,String itemName) {
 		throw new InvalidInvocationException("this is not allowed for PTP");
 	}
 

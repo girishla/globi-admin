@@ -13,11 +13,11 @@ import com.globi.infa.workflow.ptp.PTPWorkflowSourceColumn;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class MetadataToPTPWorkflowDefnConverter {
+public class PTPMetadataToWorkflowDefnConverter {
 
 	private final List<PTPDataSourceTableColumnDTO> columns;
 
-	public MetadataToPTPWorkflowDefnConverter(List<PTPDataSourceTableColumnDTO> columns) {
+	public PTPMetadataToWorkflowDefnConverter(List<PTPDataSourceTableColumnDTO> columns) {
 		this.columns = columns;
 	}
 
