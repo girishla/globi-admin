@@ -1,4 +1,4 @@
-package com.globi.infa.generator.service.ptp;
+package com.globi.infa.generator.sil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,27 +14,26 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.globi.infa.AbstractInfaWorkflowEntity;
-import com.globi.infa.datasource.core.DataSourceTableColumnDTO;
 import com.globi.infa.generator.AggregateGitWriterEventListener;
-import com.globi.infa.generator.AggregatePTPPmcmdFileWriterEventListener;
+import com.globi.infa.generator.AggregatePmcmdFileWriterEventListener;
 import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
-import com.globi.infa.generator.ptp.PTPGenerationStrategy;
-import com.globi.infa.generator.service.GeneratorRequestBatchAsyncProcessor;
+import com.globi.infa.generator.service.GeneratorBatchAsyncProcessor;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
-import com.globi.infa.metadata.topdown.TopDownMetadataTableColumnRepository;
+import com.globi.infa.metadata.sil.SilMetadata;
+import com.globi.infa.metadata.sil.SilMetadataRepository;
 import com.globi.infa.notification.messages.WorkflowMessageNotifier;
-import com.globi.infa.workflow.ptp.InfaPTPWorkflowRepository;
-import com.globi.infa.workflow.ptp.PTPWorkflow;
+import com.globi.infa.workflow.sil.InfaSILWorkflowRepository;
+import com.globi.infa.workflow.sil.SILWorkflow;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class PTPTopDownMetadataBatchProcessor implements GeneratorRequestBatchAsyncProcessor {
+public class SILTopDownMetadataBatchProcessor implements GeneratorBatchAsyncProcessor {
 
 	@Autowired
-	private InfaPTPWorkflowRepository ptpRepository;
+	private InfaSILWorkflowRepository silRepository;
 
 	@Autowired
 	FileWriterEventListener fileWriter;
@@ -46,29 +45,26 @@ public class PTPTopDownMetadataBatchProcessor implements GeneratorRequestBatchAs
 	AggregateGitWriterEventListener aggregateGitWriter;
 
 	@Autowired
-	AggregatePTPPmcmdFileWriterEventListener aggregateCommandWriter;
+	AggregatePmcmdFileWriterEventListener aggregateCommandWriter;
 
 	@Autowired
 	private InfaPuddleDefinitionRepositoryWriter targetDefnWriter;
 
 	@Autowired
-	TopDownMetadataTableColumnRepository metadataColumnRepository;
+	SilMetadataRepository metadataColumnRepository;
 
 	@Autowired
 	private WorkflowMessageNotifier notifier;
 
 	@Override
-	public List<PTPWorkflow> buildInput() {
+	public List<SILWorkflow> buildInput() {
 
-		List<PTPWorkflow> inputExtractWorkflowDefinitions = new ArrayList<>();
-		List<DataSourceTableColumnDTO> columns = metadataColumnRepository.getAll();
-		MetadataToPTPWorkflowDefnConverter metadatatoWFDefnConverter = new MetadataToPTPWorkflowDefnConverter(columns);
-		inputExtractWorkflowDefinitions = metadatatoWFDefnConverter.getExtractWorkflowDefinitionObjects();
-
-		return inputExtractWorkflowDefinitions;
+	
+		
+		return null;
 
 	}
-
+	
 	@Override
 	public void postProcess() {
 		// do nothing
@@ -77,22 +73,22 @@ public class PTPTopDownMetadataBatchProcessor implements GeneratorRequestBatchAs
 
 	@Lookup
 	//to get a new generator instance for every invocation
-	public PTPGenerationStrategy getPtpExtractgenerator() {
+	public SILFactGenerationStrategy getSilFactGenerator() {
 		return null; // This implementation will be overridden by dynamically
 						// generated subclass
 	}
 
 	@Transactional(propagation = Propagation.NESTED)
-	public PTPWorkflow processWorkflow(PTPWorkflow wf, PTPGenerationStrategy ptpExtractgenerator) {
+	public SILWorkflow processWorkflow(SILWorkflow wf, SILFactGenerationStrategy silgenerator) {
 
 		try {
 
 			// Refresh in case someone has modified the wf meanwhile
-			wf = ptpRepository.findOne(wf.getId());
+			wf = silRepository.findOne(wf.getId());
 
-			ptpExtractgenerator.generate(wf);
+			silgenerator.generate(wf);
 			wf.setWorkflowStatus("Processed");
-			this.notifier.message(wf, "Finished processing puddle workflow.");
+			this.notifier.message(wf, "Finished processing  workflow.");
 			
 			
 		} catch (Exception e) {
@@ -102,10 +98,10 @@ public class PTPTopDownMetadataBatchProcessor implements GeneratorRequestBatchAs
 			wf.setWorkflowStatus("Error");
 			wf.setStatusMessage(e.getMessage());
 
-			this.notifier.message(wf, "Error processing puddle workflow");
+			this.notifier.message(wf, "Error processing  workflow");
 		}
 
-		ptpRepository.save(wf);
+		silRepository.save(wf);
 
 		return wf;
 	}
@@ -121,21 +117,21 @@ public class PTPTopDownMetadataBatchProcessor implements GeneratorRequestBatchAs
 	public List<? extends AbstractInfaWorkflowEntity> process(
 			List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions) {
 
-		List<PTPWorkflow> processedWorkflows;
+		List<SILWorkflow> processedWorkflows;
 
-		PTPGenerationStrategy ptpExtractgenerator = getPtpExtractgenerator();
+		SILFactGenerationStrategy silgenerator = getSilFactGenerator();
 
-		ptpExtractgenerator.addListener(gitWriter);
-		ptpExtractgenerator.addListener(aggregateGitWriter);
-		ptpExtractgenerator.addListener(aggregateCommandWriter);
-		ptpExtractgenerator.addListener(targetDefnWriter);
+		silgenerator.addListener(gitWriter);
+		silgenerator.addListener(aggregateGitWriter);
+		silgenerator.addListener(aggregateCommandWriter);
+		silgenerator.addListener(targetDefnWriter);
 
 		aggregateGitWriter.notifyBatchStart();
 		aggregateCommandWriter.notifyBatchStart();
 
 		processedWorkflows = inputWorkflowDefinitions.stream()//
-				.map(wf -> (PTPWorkflow) wf)//
-				.map(wf -> this.processWorkflow(wf, ptpExtractgenerator))//
+				.map(wf -> (SILWorkflow) wf)//
+				.map(wf -> this.processWorkflow(wf, silgenerator))//
 				.collect(Collectors.toList());
 
 		aggregateGitWriter.notifyBatchComplete();
@@ -146,16 +142,16 @@ public class PTPTopDownMetadataBatchProcessor implements GeneratorRequestBatchAs
 	}
 
 	@Override
-	public List<PTPWorkflow> saveInput(List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions) {
-		List<PTPWorkflow> savedWorkflows = new ArrayList<>();
+	public List<SILWorkflow> saveInput(List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions) {
+		List<SILWorkflow> savedWorkflows = new ArrayList<>();
 
 		inputWorkflowDefinitions.stream()//
-				.map(wf -> (PTPWorkflow) wf)//
+				.map(wf -> (SILWorkflow) wf)//
 				.forEach(wf -> {
-					Optional<PTPWorkflow> existingWorkflow = ptpRepository.findByWorkflowName(wf.getWorkflowName());
+					Optional<SILWorkflow> existingWorkflow = silRepository.findByWorkflowName(wf.getWorkflowName());
 					if (existingWorkflow.isPresent()) {
 						existingWorkflow.get().getColumns().clear();
-						ptpRepository.save(existingWorkflow.get());
+						silRepository.save(existingWorkflow.get());
 						wf.setId(existingWorkflow.get().getId());
 						wf.getWorkflow().setId((existingWorkflow.get().getWorkflow().getId()));
 						wf.setVersion(existingWorkflow.get().getVersion());
@@ -165,11 +161,22 @@ public class PTPTopDownMetadataBatchProcessor implements GeneratorRequestBatchAs
 					this.notifier.message(wf, "Waiting for a new generator thread...");
 					wf.setWorkflowStatus("Processing");
 					this.notifier.message(wf, "Starting workflow generation.");
-					savedWorkflows.add(ptpRepository.save(wf));
+					savedWorkflows.add(silRepository.save(wf));
 
 				});
 
 		return savedWorkflows;
+	}
+
+	@Override
+	public AbstractInfaWorkflowEntity buildInputFor(String tableName) {
+		
+
+		List<SilMetadata> columns = metadataColumnRepository.getAll(tableName);
+		MetadataToSILWorkflowDefnConverter metadatatoWFDefnConverter = new MetadataToSILWorkflowDefnConverter(tableName,columns);
+		return metadatatoWFDefnConverter.getSilWorkflowDefinition();
+		
+		
 	}
 
 }

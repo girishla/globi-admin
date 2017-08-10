@@ -19,7 +19,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class DataSourceTableColumnDTO  {
+public class PTPDataSourceTableColumnDTO  {
 
 	@JsonIgnore
 	private Integer  id;

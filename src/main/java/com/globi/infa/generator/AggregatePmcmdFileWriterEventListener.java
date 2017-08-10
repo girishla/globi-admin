@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class AggregatePTPPmcmdFileWriterEventListener
+public class AggregatePmcmdFileWriterEventListener
 		implements WorkflowCreatedEventListener, WorkflowBatchRequestEventListener {
 
 	@Value("${git.dir}")

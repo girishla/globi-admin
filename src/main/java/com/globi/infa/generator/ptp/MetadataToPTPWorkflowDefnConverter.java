@@ -1,11 +1,11 @@
-package com.globi.infa.generator.service.ptp;
+package com.globi.infa.generator.ptp;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.globi.infa.datasource.core.DataSourceTableColumnDTO;
+import com.globi.infa.datasource.core.PTPDataSourceTableColumnDTO;
 import com.globi.infa.datasource.core.DataSourceTableDTO;
 import com.globi.infa.workflow.ptp.PTPWorkflow;
 import com.globi.infa.workflow.ptp.PTPWorkflowSourceColumn;
@@ -15,13 +15,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MetadataToPTPWorkflowDefnConverter {
 
-	private final List<DataSourceTableColumnDTO> columns;
+	private final List<PTPDataSourceTableColumnDTO> columns;
 
-	public MetadataToPTPWorkflowDefnConverter(List<DataSourceTableColumnDTO> columns) {
+	public MetadataToPTPWorkflowDefnConverter(List<PTPDataSourceTableColumnDTO> columns) {
 		this.columns = columns;
 	}
 
-	private Map<String, DataSourceTableDTO> getDistinctTableMapFrom(List<DataSourceTableColumnDTO> columns) {
+	private Map<String, DataSourceTableDTO> getDistinctTableMapFrom(List<PTPDataSourceTableColumnDTO> columns) {
 
 		
 		return columns.stream()//
@@ -34,16 +34,16 @@ public class MetadataToPTPWorkflowDefnConverter {
 
 	}
 
-	private Map<String, DataSourceTableColumnDTO> getDistinctColumnMapFor(String sourceName, String tableName,
-			List<DataSourceTableColumnDTO> columns) {
+	private Map<String, PTPDataSourceTableColumnDTO> getDistinctColumnMapFor(String sourceName, String tableName,
+			List<PTPDataSourceTableColumnDTO> columns) {
 
 		return columns.stream().filter(
 				column -> (column.getTableName().equals(tableName) && column.getSourceName().equals(sourceName)))//
-				.collect(Collectors.toMap(DataSourceTableColumnDTO::getColName, p -> p, (p, q) -> p));
+				.collect(Collectors.toMap(PTPDataSourceTableColumnDTO::getColName, p -> p, (p, q) -> p));
 
 	}
 
-	private PTPWorkflowSourceColumn buildSourceColumnDefnFrom(DataSourceTableColumnDTO column) {
+	private PTPWorkflowSourceColumn buildSourceColumnDefnFrom(PTPDataSourceTableColumnDTO column) {
 
 		String colName = column.getColName();
 
@@ -71,7 +71,7 @@ public class MetadataToPTPWorkflowDefnConverter {
 
 		List<PTPWorkflowSourceColumn> workflowSourceColumnList = new ArrayList<>();
 
-		Map<String, DataSourceTableColumnDTO> distinctCols = getDistinctColumnMapFor(table.getSourceName(),
+		Map<String, PTPDataSourceTableColumnDTO> distinctCols = getDistinctColumnMapFor(table.getSourceName(),
 				table.getTableName(), columns);
 
 		// all columns in the metadata become input columns to the generator

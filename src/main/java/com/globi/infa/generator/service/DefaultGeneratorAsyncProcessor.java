@@ -11,11 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.globi.infa.AbstractInfaWorkflowEntity;
 import com.globi.infa.generator.AggregateGitWriterEventListener;
-import com.globi.infa.generator.AggregatePTPPmcmdFileWriterEventListener;
+import com.globi.infa.generator.AggregatePmcmdFileWriterEventListener;
 import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.InfaGenerationStrategy;
-import com.globi.infa.metadata.topdown.TopDownMetadataTableColumnRepository;
+import com.globi.infa.metadata.ptp.TopDownPTPMetadataTableColumnRepository;
 import com.globi.infa.notification.messages.WorkflowMessageNotifier;
 import com.globi.infa.workflow.InfaWorkflow;
 import com.globi.infa.workflow.InfaWorkflowRepository;
@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class DefaultGeneratorRequestAsyncProcessor implements GeneratorRequestAsyncProcessor {
+public class DefaultGeneratorAsyncProcessor implements GeneratorRequestAsyncProcessor {
 
 	@Autowired
 	private InfaWorkflowRepository wfRepository;
@@ -39,10 +39,10 @@ public class DefaultGeneratorRequestAsyncProcessor implements GeneratorRequestAs
 	AggregateGitWriterEventListener aggregateGitWriter;
 
 	@Autowired
-	AggregatePTPPmcmdFileWriterEventListener aggregateCommandWriter;
+	AggregatePmcmdFileWriterEventListener aggregateCommandWriter;
 
 	@Autowired
-	TopDownMetadataTableColumnRepository metadataColumnRepository;
+	TopDownPTPMetadataTableColumnRepository metadataColumnRepository;
 
 	@Autowired
 	private WorkflowMessageNotifier notifier;

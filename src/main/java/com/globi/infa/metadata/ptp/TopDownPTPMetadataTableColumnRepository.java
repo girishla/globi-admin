@@ -1,4 +1,4 @@
-package com.globi.infa.metadata.topdown;
+package com.globi.infa.metadata.ptp;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,11 +10,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.globi.infa.datasource.core.DataSourceTableColumnDTO;
+import com.globi.infa.datasource.core.PTPDataSourceTableColumnDTO;
 
 
 @Repository
-public class TopDownMetadataTableColumnRepository {
+public class TopDownPTPMetadataTableColumnRepository {
 
 	@Autowired
 	@Qualifier("jdbcOracleMDT")
@@ -34,15 +34,15 @@ public class TopDownMetadataTableColumnRepository {
 			"          SRC_TBL_COL";
 	
 
-	public List<DataSourceTableColumnDTO> getAll() {
+	public List<PTPDataSourceTableColumnDTO> getAll() {
 		return jdbcOracleMDT.query(columnSQL, tableColumnMapper);
 	}
 	
 	
-	protected final RowMapper<DataSourceTableColumnDTO> tableColumnMapper = new RowMapper<DataSourceTableColumnDTO>() {
-		public DataSourceTableColumnDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+	protected final RowMapper<PTPDataSourceTableColumnDTO> tableColumnMapper = new RowMapper<PTPDataSourceTableColumnDTO>() {
+		public PTPDataSourceTableColumnDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
 
-			DataSourceTableColumnDTO col = DataSourceTableColumnDTO.builder()//
+			PTPDataSourceTableColumnDTO col = PTPDataSourceTableColumnDTO.builder()//
 					.colName(rs.getString("SRC_TBL_COL"))//
 					.tableName(rs.getString("SRC_TBL"))//
 					.sourceName(rs.getString("SRC_NAME"))

@@ -1,4 +1,4 @@
-package com.globi.infa.metadata.topdown;
+package com.globi.infa.metadata.ptp;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class TopDownTableDefn {
+public class TopDownPTPTableDefn {
 	
 	@Size(min = 3, max = 3)
 	@NotNull

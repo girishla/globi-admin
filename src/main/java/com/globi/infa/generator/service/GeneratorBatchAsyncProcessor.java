@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.globi.infa.AbstractInfaWorkflowEntity;
 
-public interface GeneratorRequestBatchAsyncProcessor extends GeneratorRequestBatchProcessor{
+public interface GeneratorBatchAsyncProcessor extends GeneratorBatchProcessor{
 	
 
 	public void processAsync(List<? extends AbstractInfaWorkflowEntity> inputWorkflowDefinitions);
