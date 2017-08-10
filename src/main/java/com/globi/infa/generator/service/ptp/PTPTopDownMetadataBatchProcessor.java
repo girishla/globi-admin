@@ -1,4 +1,4 @@
-package com.globi.infa.generator.service;
+package com.globi.infa.generator.service.ptp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,18 +20,18 @@ import com.globi.infa.generator.AggregatePTPPmcmdFileWriterEventListener;
 import com.globi.infa.generator.FileWriterEventListener;
 import com.globi.infa.generator.GitWriterEventListener;
 import com.globi.infa.generator.ptp.PTPGenerationStrategy;
+import com.globi.infa.generator.service.GeneratorRequestBatchAsyncProcessor;
 import com.globi.infa.metadata.pdl.InfaPuddleDefinitionRepositoryWriter;
 import com.globi.infa.metadata.topdown.TopDownMetadataTableColumnRepository;
 import com.globi.infa.notification.messages.WorkflowMessageNotifier;
-import com.globi.infa.workflow.InfaPTPWorkflowRepository;
-import com.globi.infa.workflow.MetadataToPTPWorkflowDefnConverter;
-import com.globi.infa.workflow.PTPWorkflow;
+import com.globi.infa.workflow.ptp.InfaPTPWorkflowRepository;
+import com.globi.infa.workflow.ptp.PTPWorkflow;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class PTPGeneratorRequestBatchProcessor implements GeneratorRequestBatchAsyncProcessor {
+public class PTPTopDownMetadataBatchProcessor implements GeneratorRequestBatchAsyncProcessor {
 
 	@Autowired
 	private InfaPTPWorkflowRepository ptpRepository;

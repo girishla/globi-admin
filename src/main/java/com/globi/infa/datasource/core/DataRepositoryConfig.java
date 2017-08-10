@@ -9,7 +9,7 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapt
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.globi.infa.workflow.InfaWorkflow;
-import com.globi.infa.workflow.PTPWorkflow;
+import com.globi.infa.workflow.ptp.PTPWorkflow;
 import com.globi.metadata.sourcesystem.SourceSystem;
 
 @Configuration

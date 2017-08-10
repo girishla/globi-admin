@@ -1,4 +1,4 @@
-package com.globi.infa.workflow;
+package com.globi.infa.generator.service.ptp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import com.globi.infa.datasource.core.DataSourceTableColumnDTO;
 import com.globi.infa.datasource.core.DataSourceTableDTO;
+import com.globi.infa.workflow.ptp.PTPWorkflow;
+import com.globi.infa.workflow.ptp.PTPWorkflowSourceColumn;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -16,8 +16,8 @@ import org.zeroturnaround.exec.ProcessResult;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.notification.messages.WorkflowMessageNotifier;
 import com.globi.infa.workflow.GeneratedWorkflow;
-import com.globi.infa.workflow.InfaPTPWorkflowRepository;
 import com.globi.infa.workflow.InfaWorkflowRepository;
+import com.globi.infa.workflow.ptp.InfaPTPWorkflowRepository;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -22,7 +22,7 @@ import com.globi.infa.generator.builder.UnionXformBuilder;
 import com.globi.infa.generator.builder.UpdateStrategyXformBuilder;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.SILInfaSourceColumnDefinition;
-import com.globi.infa.workflow.SILWorkflow;
+import com.globi.infa.workflow.sil.SILWorkflow;
 import com.globi.metadata.sourcesystem.SourceSystem;
 import com.rits.cloning.Cloner;
 

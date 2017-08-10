@@ -25,8 +25,8 @@ import com.globi.infa.generator.builder.InfaMappingObject;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.metadata.core.StringMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
-import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowSourceColumn;
+import com.globi.infa.workflow.ptp.PTPWorkflow;
+import com.globi.infa.workflow.ptp.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
 
 import xjc.INSTANCE;

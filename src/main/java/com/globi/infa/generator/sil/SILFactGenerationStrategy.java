@@ -23,7 +23,7 @@ import com.globi.infa.metadata.sil.SilMetadataRepository;
 import com.globi.infa.metadata.src.SILInfaSourceColumnDefinition;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.InfaWorkflow;
-import com.globi.infa.workflow.SILWorkflow;
+import com.globi.infa.workflow.sil.SILWorkflow;
 
 import lombok.extern.slf4j.Slf4j;
 

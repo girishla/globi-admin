@@ -22,7 +22,7 @@ import com.globi.infa.generator.builder.SourceQualifierBuilder;
 import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.SILInfaSourceColumnDefinition;
-import com.globi.infa.workflow.SILWorkflow;
+import com.globi.infa.workflow.sil.SILWorkflow;
 import com.globi.metadata.sourcesystem.SourceSystem;
 import com.rits.cloning.Cloner;
 
@@ -370,13 +370,13 @@ public class SILFactMappingGenerator extends AbstractMappingGenerator {
 		Cloner cloner = Cloner.shared();
 		TRANSFORMFIELD toField = cloner.deepClone(field);
 
-		log.debug("||||||||||||||||||" + field.getDATATYPE());
-
 		if (toField.getDATATYPE().equals("decimal") && toField.getNAME().endsWith("_WID")) {
 			toField.setDEFAULTVALUE("$$UNSPEC_NUM");
 		} else if (toField.getDATATYPE().equals("string") && toField.getPRECISION().equals("1")
 				&& !toField.getNAME().equals("UPDATE_FLG")) {
 			toField.setDEFAULTVALUE("$$UNSPEC_FLG");
+		} else if (toField.getDATATYPE().equals("string")) {
+			toField.setDEFAULTVALUE("$$UNSPEC_STR");
 		}
 		return toField;
 

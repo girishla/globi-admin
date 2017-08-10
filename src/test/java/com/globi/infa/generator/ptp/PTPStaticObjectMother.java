@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
-import com.globi.infa.workflow.PTPWorkflowSourceColumn;
+import com.globi.infa.workflow.ptp.PTPWorkflowSourceColumn;
 
 import xjc.SOURCE;
 import xjc.SOURCEFIELD;

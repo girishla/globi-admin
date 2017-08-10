@@ -1,4 +1,4 @@
-package com.globi.infa.workflow;
+package com.globi.infa.workflow.ptp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +17,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
+
+import com.globi.infa.workflow.InfaWorkflow;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

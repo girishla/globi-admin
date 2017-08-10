@@ -30,8 +30,8 @@ import com.globi.infa.generator.builder.TargetDefinitionBuilder;
 import com.globi.infa.metadata.core.StringMap;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.PTPInfaSourceColumnDefinition;
-import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowSourceColumn;
+import com.globi.infa.workflow.ptp.PTPWorkflow;
+import com.globi.infa.workflow.ptp.PTPWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
 
 public class PTPExtractMappingGenerator extends AbstractMappingGenerator {

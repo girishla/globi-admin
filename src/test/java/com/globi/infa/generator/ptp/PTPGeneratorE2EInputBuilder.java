@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowSourceColumn;
+import com.globi.infa.workflow.ptp.PTPWorkflow;
+import com.globi.infa.workflow.ptp.PTPWorkflowSourceColumn;
 
 import lombok.Setter;
 import lombok.experimental.Accessors;

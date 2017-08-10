@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 import com.globi.infa.generator.WorkflowCreatedEventListener;
 import com.globi.infa.generator.builder.InfaPowermartObject;
 import com.globi.infa.workflow.GeneratedWorkflow;
-import com.globi.infa.workflow.InfaPTPWorkflowRepository;
-import com.globi.infa.workflow.PTPWorkflow;
+import com.globi.infa.workflow.ptp.InfaPTPWorkflowRepository;
+import com.globi.infa.workflow.ptp.PTPWorkflow;
 
 import lombok.extern.slf4j.Slf4j;
 

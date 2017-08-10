@@ -11,8 +11,8 @@ import com.globi.infa.generator.BaseGeneratorContext;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.PTPInfaSourceColumnDefinition;
 import com.globi.infa.workflow.InfaWorkflow;
-import com.globi.infa.workflow.PTPWorkflow;
-import com.globi.infa.workflow.PTPWorkflowSourceColumn;
+import com.globi.infa.workflow.ptp.PTPWorkflow;
+import com.globi.infa.workflow.ptp.PTPWorkflowSourceColumn;
 
 import lombok.Getter;
 

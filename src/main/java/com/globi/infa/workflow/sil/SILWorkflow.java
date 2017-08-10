@@ -1,4 +1,4 @@
-package com.globi.infa.workflow;
+package com.globi.infa.workflow.sil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +16,8 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 
 import org.hibernate.validator.constraints.NotBlank;
+
+import com.globi.infa.workflow.InfaWorkflow;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

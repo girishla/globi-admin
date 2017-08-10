@@ -20,9 +20,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import com.globi.AbstractWebIntegrationTest;
 import com.globi.infa.metadata.sil.SilMetadata;
 import com.globi.infa.metadata.sil.SilMetadataRepository;
-import com.globi.infa.workflow.InfaSILWorkflowRepository;
-import com.globi.infa.workflow.SILWorkflow;
-import com.globi.infa.workflow.SILWorkflowSourceColumn;
+import com.globi.infa.workflow.sil.InfaSILWorkflowRepository;
+import com.globi.infa.workflow.sil.SILWorkflow;
+import com.globi.infa.workflow.sil.SILWorkflowSourceColumn;
 
 public class SILFactWorkflowWebtest extends AbstractWebIntegrationTest {
 

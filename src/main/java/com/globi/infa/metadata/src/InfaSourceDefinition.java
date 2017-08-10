@@ -14,7 +14,7 @@ import javax.persistence.Table;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.globi.infa.AbstractEntity;
-import com.globi.infa.workflow.PTPWorkflowSourceColumn;
+import com.globi.infa.workflow.ptp.PTPWorkflowSourceColumn;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,7 +1,5 @@
 package com.globi.infa.generator.sil;
 
-import static com.globi.infa.generator.sil.SILStaticObjectMother.getDimensionAttribColumn;
-import static com.globi.infa.generator.sil.SILStaticObjectMother.getSpecialColumn;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -9,8 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,52 +18,67 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import com.globi.AbstractWebIntegrationTest;
+import com.globi.infa.metadata.sil.SilMetadata;
+import com.globi.infa.metadata.sil.SilMetadataRepository;
 import com.globi.infa.workflow.sil.InfaSILWorkflowRepository;
 import com.globi.infa.workflow.sil.SILWorkflow;
 import com.globi.infa.workflow.sil.SILWorkflowSourceColumn;
 
-public class SILDimensionWorkflowWebtest extends AbstractWebIntegrationTest {
+public class SILFactWorkflowWebtest3 extends AbstractWebIntegrationTest {
 
 	@Autowired
 	InfaSILWorkflowRepository wfRepository;
+
+	@Autowired
+	SilMetadataRepository silMetadataRepo;
 
 	SILWorkflow silWorkflow;
 
 	@Before
 	public void setup() {
 
-		List<SILWorkflowSourceColumn> cols = new ArrayList<>();
+		List<SilMetadata> silMetadata = silMetadataRepo.getAll("SRC_USG");
 
-		cols.add(getSpecialColumn("INTEGRATION_ID", "Natural Key"));
-		cols.add(getSpecialColumn("DATASOURCE_NUM_ID", "System"));
-		cols.add(getSpecialColumn("PGUID", "Natural Key"));
-		cols.add(getSpecialColumn("BU_PGUID", "System"));
-		cols.add(getDimensionAttribColumn("ORIG_INV_NUM"));
-		cols.add(getDimensionAttribColumn("SRC_BILL_EVT"));
+		List<SILWorkflowSourceColumn> cols = silMetadata.stream()
+				.filter(col -> col.isStageColumnFlag() && (col.getColumnType().equals("Foreign Key")
+						|| col.getColumnType().equals("Measure Attribute") || col.getColumnType().equals("Measure")
+						|| col.getColumnName().equals("DATASOURCE_NUM_ID")))
+				.map(col -> {
 
-		
+					return SILWorkflowSourceColumn.builder()//
+							.columnName(col.getColumnName())//
+							.autoColumn(false)//
+							.columnType(col.getColumnType())//
+							.dimTableName(col.getDimTableName()).columnOrder(Integer.parseInt(col.getColumnOrder()))
+							.domainLookupColumn(false)//
+							.legacyColumn(false)//
+							.miniDimColumn(false)//
+							.targetColumn(false)//
+							.build();
+
+				}).collect(Collectors.toList());
+
 		silWorkflow = SILWorkflow.builder()//
 				.columns(cols)//
-				.loadType("Dimension")//
-				.stageName("X_INVOICE_LN")//
-				.tableName("INVOICE_LN")//
-				.workflowName("SIL_INVOICE_LN_Dimension")//
+				.loadType("Fact")//
+				.stageName("X_SRC_USG")//
+				.tableName("SRC_USG")//
+				.workflowName("SIL_SRC_USG_Fact")//
 				.workflowStatus("Queued")//
 				.workflowUri("")//
 				.build();
-
 	}
 
 	@Test
 	@WithMockUser
 	public void createsWorkflowResourceFromWorkflowDefinition() throws Exception {
 
-		mvc.perform(post("/infagen/workflows/sil?sync=true")//
+		mvc.perform(post("/infagen/workflows/sil/fact?sync=true")//
 				.content(asJsonString(silWorkflow))//
 				.contentType(MediaType.APPLICATION_JSON_VALUE)//
 				.accept(MediaType.APPLICATION_JSON_VALUE))//
 				.andDo(MockMvcResultHandlers.print())//
-				.andExpect(status().isCreated())//
+				.andExpect(status().isCreated())// TN
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))//
 				.andExpect(jsonPath("$.workflowName", notNullValue()))//
 				.andExpect(jsonPath("$.workflowUri", notNullValue()))

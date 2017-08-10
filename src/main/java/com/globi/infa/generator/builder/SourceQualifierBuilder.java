@@ -21,7 +21,7 @@ import org.springframework.util.FileCopyUtils;
 
 import com.globi.infa.datasource.core.DataTypeMapper;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
-import com.globi.infa.workflow.PTPWorkflowSourceColumn;
+import com.globi.infa.workflow.ptp.PTPWorkflowSourceColumn;
 
 import xjc.TABLEATTRIBUTE;
 import xjc.TRANSFORMATION;

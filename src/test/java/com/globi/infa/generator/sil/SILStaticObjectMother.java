@@ -1,6 +1,6 @@
 package com.globi.infa.generator.sil;
 
-import com.globi.infa.workflow.SILWorkflowSourceColumn;
+import com.globi.infa.workflow.sil.SILWorkflowSourceColumn;
 
 public class SILStaticObjectMother {
 

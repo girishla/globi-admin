@@ -1,4 +1,4 @@
-package com.globi.infa.workflow;
+package com.globi.infa.workflow.ptp;
 
 import java.util.Optional;
 

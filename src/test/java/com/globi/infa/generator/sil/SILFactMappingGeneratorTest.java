@@ -24,8 +24,8 @@ import com.globi.infa.generator.builder.InfaMappingObject;
 import com.globi.infa.generator.builder.SourceDefinitionBuilder;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.SILInfaSourceColumnDefinition;
-import com.globi.infa.workflow.SILWorkflow;
-import com.globi.infa.workflow.SILWorkflowSourceColumn;
+import com.globi.infa.workflow.sil.SILWorkflow;
+import com.globi.infa.workflow.sil.SILWorkflowSourceColumn;
 import com.globi.metadata.sourcesystem.SourceSystem;
 
 import lombok.extern.slf4j.Slf4j;

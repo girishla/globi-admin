@@ -17,7 +17,7 @@ import com.globi.infa.generator.builder.WorkflowDefinitionBuilder;
 import com.globi.infa.metadata.core.StringMap;
 import com.globi.infa.workflow.GeneratedWorkflow;
 import com.globi.infa.workflow.InfaWorkflow;
-import com.globi.infa.workflow.SILWorkflow;
+import com.globi.infa.workflow.sil.SILWorkflow;
 
 
 

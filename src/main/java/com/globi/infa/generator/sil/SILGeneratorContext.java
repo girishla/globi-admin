@@ -11,8 +11,8 @@ import com.globi.infa.generator.BaseGeneratorContext;
 import com.globi.infa.metadata.src.InfaSourceColumnDefinition;
 import com.globi.infa.metadata.src.SILInfaSourceColumnDefinition;
 import com.globi.infa.workflow.InfaWorkflow;
-import com.globi.infa.workflow.SILWorkflow;
-import com.globi.infa.workflow.SILWorkflowSourceColumn;
+import com.globi.infa.workflow.sil.SILWorkflow;
+import com.globi.infa.workflow.sil.SILWorkflowSourceColumn;
 
 import lombok.Getter;
 

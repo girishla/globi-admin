@@ -1,4 +1,4 @@
-package com.globi.infa.workflow;
+package com.globi.infa.workflow.ptp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
